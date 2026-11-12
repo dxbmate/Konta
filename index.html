@@ -460,11 +460,9 @@ body.big .cap>span{white-space:nowrap;overflow:hidden;min-width:0;-webkit-mask:l
 .qb span{font-size:10px;color:var(--mut2)}
 .qfeed{margin-top:8px}
 .tglogin{display:flex;justify-content:center;min-height:48px}
-@media (display-mode: standalone){
-  html{background:#000}
-  .sky{bottom:calc(-1 * env(safe-area-inset-bottom, 0px) - 60px)}
-  .sky:after{bottom:calc(env(safe-area-inset-bottom, 0px) + 60px - 6vh)}
-}
+html.pwa,html.pwa body,html.pwa #app{height:var(--fullh)!important;min-height:var(--fullh)}
+html.pwa{background:#000}
+html.pwa .sky,html.pwa .splash{bottom:auto!important;height:var(--fullh)}
 </style>
 </head>
 <body class="boot">
@@ -2745,6 +2743,11 @@ function seed() {
   save(); render(); toast('Демо-данные загружены');
 }
 
+// экран «Домой» на iPhone: растягиваем всё до нижнего края, под полоску жеста
+if (!inTG && STANDALONE) {
+  const fullH = () => { const r = document.documentElement; const h = Math.max(innerHeight, screen.height > screen.width === innerHeight > innerWidth ? screen.height : screen.width); r.style.setProperty('--fullh', h + 'px'); r.classList.add('pwa'); };
+  fullH(); addEventListener('resize', fullH); addEventListener('orientationchange', () => setTimeout(fullH, 300));
+}
 // веб-версия: офлайн-кэш и защита данных от автоочистки браузера
 if (!inTG && 'serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => {});
 if (!inTG && navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
