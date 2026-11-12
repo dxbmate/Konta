@@ -460,6 +460,11 @@ body.big .cap>span{white-space:nowrap;overflow:hidden;min-width:0;-webkit-mask:l
 .qb span{font-size:10px;color:var(--mut2)}
 .qfeed{margin-top:8px}
 .tglogin{display:flex;justify-content:center;min-height:48px}
+@media (display-mode: standalone){
+  html{background:#000}
+  .sky{bottom:calc(-1 * env(safe-area-inset-bottom, 0px) - 60px)}
+  .sky:after{bottom:calc(env(safe-area-inset-bottom, 0px) + 60px - 6vh)}
+}
 </style>
 </head>
 <body class="boot">
