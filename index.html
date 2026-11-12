@@ -3,7 +3,17 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-<title>Konta</title>
+<title>Konta & Cie</title>
+<meta name="description" content="A quiet ledger for your money. Spending, savings and statements — in order.">
+<meta name="theme-color" content="#050507">
+<meta name="color-scheme" content="dark">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Konta">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700&family=Cormorant+Garamond:ital,wght@0,500;1,400&display=swap" rel="stylesheet">
@@ -449,6 +459,7 @@ body.big .cap>span{white-space:nowrap;overflow:hidden;min-width:0;-webkit-mask:l
 .qb i{width:100%;max-width:22px;border-radius:4px 4px 2px 2px;background:var(--acc,var(--iv));opacity:.75}
 .qb span{font-size:10px;color:var(--mut2)}
 .qfeed{margin-top:8px}
+.tglogin{display:flex;justify-content:center;min-height:48px}
 </style>
 </head>
 <body class="boot">
@@ -687,15 +698,17 @@ async function load() {
     const old = JSON.parse(localStorage.getItem('exp_v1') || 'null');
     if (old && old.items) {
       const map = { gift: 'gifts' };
-      S.tx = old.items.map(i => ({ id: S.seq++, k: 'out', a: i.a, n: i.n, c: CAT[map[i.c] || i.c] ? (map[i.c] || i.c) : 'other', d: i.d, t: i.t }));
+      S.tx = old.items.map(i => ({ id: newId(), k: 'out', a: i.a, n: i.n, c: CAT[map[i.c] || i.c] ? (map[i.c] || i.c) : 'other', d: i.d, t: i.t }));
     }
   } catch (e) {}
 }
 let saveT, saving = false, saveAgain = false, cloudBlock = false;
 function save() {
+  track(); snap();
   S.ts = Date.now();
   const raw = JSON.stringify(S);
   try { localStorage.setItem(LKEY, raw); } catch (e) {}
+  scheduleSync();
   if (!cloud) return;
   clearTimeout(saveT);
   saveT = setTimeout(cloudWrite, 500);
@@ -785,6 +798,161 @@ function lineChart(cur, prev, h = 150, fit = false) {
 }
 const comp = (parts, sum) => { const top = parts.slice(0, 3), rest = parts.slice(3).reduce((s, p) => s + p.v, 0); return `<div class="comp">${top.map(p => `<i style="flex:${p.v / sum};background:${p.c.c}"></i>`).join('')}${rest > 0 ? `<i style="flex:${rest / sum};background:rgba(242,239,233,.16)"></i>` : ''}</div>`; };
 
+// ================= Синхронизация бот ⇄ сайт =================
+const SYNC_API = 'https://functions.yandexcloud.net/d4ebgj5lmvuc5rbuh3u1';
+const BOT_NAME = 'KontaCieBot';
+const APP_URL = 'https://dxbmate.github.io/Konta/';
+
+// уникальные id: одинаковые номера с разных устройств не столкнутся
+let _lastId = 0;
+function newId() { let v = Date.now() * 100 + Math.floor(Math.random() * 100); if (v <= _lastId) v = _lastId + 1; _lastId = v; return v; }
+
+// что изменилось с прошлого сохранения: правки получают метку u, удалённое — запись в S.del
+let SNAP = null;
+const snapOf = () => { const m = new Map(); (S.tx || []).forEach(t => m.set('t' + t.id, JSON.stringify(t))); (S.acc || []).forEach(a => m.set('a' + a.id, JSON.stringify(a))); return m; };
+function snap() { SNAP = snapOf(); }
+function track() {
+  if (!SNAP) return;
+  const now = Date.now(), seen = new Set();
+  S.del = S.del || {};
+  const walk = (list, p) => (list || []).forEach(x => {
+    const k = p + x.id; seen.add(k);
+    const was = SNAP.get(k);
+    if (was === undefined || was !== JSON.stringify(x)) { x.u = now; }
+    if (S.del[x.id]) delete S.del[x.id]; // вернули удалённое
+  });
+  walk(S.tx, 't'); walk(S.acc, 'a');
+  SNAP.forEach((_, k) => { if (!seen.has(k)) S.del[k.slice(1)] = now; });
+  // старые отметки об удалении больше не нужны
+  const old = now - 200 * 864e5; Object.keys(S.del).forEach(id => { if (S.del[id] < old) delete S.del[id]; });
+}
+function afterLoad() {
+  if (!S.gid) {
+    const map = {};
+    (S.tx || []).forEach(t => { if (t.id < 1e12) t.id = newId(); });
+    (S.acc || []).forEach(a => { if (a.id < 1e12) { const n = newId(); map[a.id] = n; a.id = n; } });
+    S.gid = 1;
+  }
+  [...(S.tx || []), ...(S.acc || [])].forEach(x => { if (x.id > _lastId) _lastId = x.id; });
+  snap();
+}
+
+// слияние двух копий: по каждой записи берём более свежую, удалённое не воскрешаем
+function mergeS(a, b) {
+  const nw = (a.ts || 0) >= (b.ts || 0) ? a : b, ol = nw === a ? b : a;
+  const m = Object.assign({}, ol, nw);
+  const del = Object.assign({}, ol.del || {}); Object.entries(nw.del || {}).forEach(([k, v]) => { if (!del[k] || v > del[k]) del[k] = v; });
+  const when = x => x.u || x.t || 0;
+  const list = k => {
+    const map = new Map();
+    [...(ol[k] || []), ...(nw[k] || [])].forEach(x => { const p = map.get(x.id); if (!p || when(x) >= when(p)) map.set(x.id, x); });
+    return [...map.values()].filter(x => !(del[x.id] && del[x.id] >= when(x)));
+  };
+  m.tx = list('tx').sort((x, y) => (x.t || 0) - (y.t || 0));
+  m.acc = list('acc');
+  m.del = del;
+  m.closed = Object.assign({}, ol.closed || {}, nw.closed || {});
+  const byKey = (k, f) => { const map = new Map(); [...(ol[k] || []), ...(nw[k] || [])].forEach(x => map.set(x[f], x)); return [...map.values()]; };
+  m.imports = byKey('imports', 'im').slice(-10);
+  m.capHist = byKey('capHist', 'd').sort((x, y) => x.d < y.d ? -1 : 1);
+  const fresh = k => { const o = Object.assign({}, ol[k] || {}); Object.entries(nw[k] || {}).forEach(([c, v]) => { if (!o[c] || (v.at || 0) >= (o[c].at || 0)) o[c] = v; }); return o; };
+  m.rates = fresh('rates'); m.prices = fresh('prices');
+  m.ts = Math.max(a.ts || 0, b.ts || 0);
+  m.gid = 1;
+  return m;
+}
+
+// ---------- обмен с сервером ----------
+let SESS = (() => { try { return localStorage.getItem('konta_sess'); } catch (e) { return null; } })();
+let SUSER = (() => { try { return JSON.parse(localStorage.getItem('konta_suser') || 'null'); } catch (e) { return null; } })();
+const SYNC = { at: 0, err: '', busy: false };
+const authHeader = () => inTG && tg.initData ? 'tma ' + tg.initData : SESS ? 'Bearer ' + SESS : '';
+const syncOn = () => !!(SYNC_API && authHeader());
+async function api(a, body) {
+  const r = await fetch(`${SYNC_API}?a=${a}`, { method: body ? 'POST' : 'GET', headers: { Authorization: authHeader(), 'Content-Type': 'application/json' }, body: body ? JSON.stringify(body) : undefined });
+  if (r.status === 401) { if (!inTG) signOut(true); throw new Error('auth'); }
+  if (!r.ok) throw new Error('http ' + r.status);
+  return r.json();
+}
+let syncT, syncAgain = false;
+function scheduleSync(ms = 2500) { if (!syncOn()) return; clearTimeout(syncT); syncT = setTimeout(syncNow, ms); }
+const coreJSON = s => JSON.stringify({ tx: s.tx, acc: s.acc, del: s.del, limits: s.limits, rules: s.rules, closed: s.closed });
+async function syncNow() {
+  if (!syncOn()) return;
+  if (SYNC.busy) { syncAgain = true; return; }
+  SYNC.busy = true;
+  try {
+    const r = await api('load');
+    if (r.user && !inTG) { SUSER = Object.assign(SUSER || {}, r.user); try { localStorage.setItem('konta_suser', JSON.stringify(SUSER)); } catch (e) {} }
+    let push = !r.data;
+    if (r.data && Array.isArray(r.data.tx)) {
+      const before = coreJSON(S);
+      const m = mergeS(S, r.data);
+      if (coreJSON(m) !== before) {
+        S = Object.assign(S, m); snap();
+        try { localStorage.setItem(LKEY, JSON.stringify(S)); } catch (e) {}
+        if (cloud) { clearTimeout(saveT); saveT = setTimeout(cloudWrite, 500); }
+        if (!stack.length) render();
+      }
+      push = coreJSON(S) !== coreJSON(r.data) || (S.ts || 0) > (r.data.ts || 0);
+    }
+    if (push) await api('save', { data: S });
+    SYNC.at = Date.now(); SYNC.err = '';
+  } catch (e) { SYNC.err = e.message === 'auth' ? 'auth' : 'net'; }
+  SYNC.busy = false;
+  if (tab === 'more' && !stack.length) { const el = $('#sync-s'); if (el) el.textContent = syncLine(); }
+  if (syncAgain) { syncAgain = false; syncNow(); }
+}
+function syncLine() {
+  if (SYNC.busy && !SYNC.at) return 'Синхронизация…';
+  if (SYNC.err === 'net') return 'Нет связи — синхронизирую, когда появится сеть';
+  if (SYNC.err === 'auth') return 'Войдите снова';
+  return SYNC.at ? `Синхронизировано · ${ago(SYNC.at)}` : 'Ожидание';
+}
+document.addEventListener('visibilitychange', () => { if (!document.hidden) scheduleSync(300); });
+addEventListener('online', () => scheduleSync(300));
+
+// ---------- вход на сайте через Telegram ----------
+async function loginFromUrl() {
+  if (inTG || !SYNC_API) return;
+  const q = new URLSearchParams(location.search);
+  if (!q.get('hash') || !q.get('id')) return;
+  const f = {}; q.forEach((v, k) => { f[k] = v; });
+  history.replaceState(null, '', location.pathname);
+  try {
+    const r = await fetch(`${SYNC_API}?a=login`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(f) });
+    if (!r.ok) throw new Error();
+    const j = await r.json();
+    SESS = j.token; SUSER = j.user;
+    try { localStorage.setItem('konta_sess', SESS); localStorage.setItem('konta_suser', JSON.stringify(SUSER)); } catch (e) {}
+    hapticOk(); toast('Вы вошли через Telegram');
+    await syncNow();
+  } catch (e) { toast('Не удалось войти — попробуйте ещё раз'); }
+}
+function signOut(silent) {
+  SESS = null; SUSER = null;
+  try { localStorage.removeItem('konta_sess'); localStorage.removeItem('konta_suser'); } catch (e) {}
+  if (!silent) { toast('Вы вышли'); render(); }
+}
+function openLogin() {
+  $('#sheet2').innerHTML = `<div class="grab"></div><h2 style="margin-top:6px">Войти через Telegram</h2>
+    <p class="note" style="margin:-2px 0 18px">Те же траты и капитал, что в боте @${BOT_NAME}. Пароль не нужен — вход подтверждается в Telegram.</p>
+    <div id="tg-login" class="tglogin"></div>
+    <p class="note" style="margin-top:16px">Данные хранятся в зашифрованном виде и доступны только вам.</p>
+    <div style="height:10px"></div><button class="btn ghost" data-act="close2">Позже</button>`;
+  const s = document.createElement('script');
+  s.async = true; s.src = 'https://telegram.org/js/telegram-widget.js?22';
+  s.setAttribute('data-telegram-login', BOT_NAME); s.setAttribute('data-size', 'large'); s.setAttribute('data-radius', '14');
+  s.setAttribute('data-auth-url', APP_URL); s.setAttribute('data-request-access', 'write'); s.setAttribute('data-userpic', 'false');
+  $('#tg-login').appendChild(s);
+  open('#sheet2');
+}
+function syncSection() {
+  if (!SYNC_API) return '';
+  if (inTG) return `<h2>Синхронизация</h2><div class="row"><span class="ic">${ic('ui_check')}</span><span class="t"><span class="n">Бот и сайт связаны</span><span class="s" id="sync-s">${syncLine()}</span></span></div>`;
+  if (!SESS) return `<h2>Синхронизация</h2><button class="row" data-act="login"><span class="ic">${ic('ui_import')}</span><span class="t"><span class="n">Войти через Telegram</span><span class="s">Те же данные, что в боте @${BOT_NAME}</span></span>${ic('ui_right', 'i chev')}</button>`;
+  return `<h2>Синхронизация</h2><div class="row"><span class="ic">${ic('ui_check')}</span><span class="t"><span class="n">${esc(SUSER && SUSER.username ? '@' + SUSER.username : SUSER && SUSER.name || 'Telegram')}</span><span class="s" id="sync-s">${syncLine()}</span></span><button class="rb txt" data-act="logout">Выйти</button></div>`;
+}
 // ================= i18n (RU → EN, перевод готового DOM) =================
 let LANG = (() => { try { return localStorage.getItem('konta_lang') || ''; } catch (e) { return ''; } })();
 if (!LANG) { const lc = tg && tg.initDataUnsafe && tg.initDataUnsafe.user && tg.initDataUnsafe.user.language_code; LANG = !lc || lc.startsWith('ru') ? 'ru' : 'en'; }
@@ -870,6 +1038,7 @@ const DICT = {
   'Сумма, и всё — категорию приложение поймёт само. Или загрузите выписку из банка.': 'Just the amount — the app figures out the category. Or upload a bank statement.', 'Binance, Tonkeeper, холодный кошелёк…': 'Binance, Tonkeeper, cold wallet…',
   'Только': 'Only',
   'для вас': 'for you',
+  'Данные зашифрованы и видны только вам. Скрытие сумм одним касанием.': 'Your data is encrypted and visible only to you. One-tap amount hiding.',
   'Данные в облаке Telegram. Вход по Face ID и скрытие сумм одним касанием.': 'Data lives in the Telegram cloud. Face ID unlock and one-tap amount hiding.',
   'Далее': 'Next',
   'Записать первую трату': 'Add first expense',
@@ -877,13 +1046,14 @@ const DICT = {
   'Посмотреть на демо': 'Try the demo',
   'Кофе': 'Coffee',
   'В этом месяце операций не было.': 'No transactions this month.',
-  'Первый месяц в Konta — дальше будет с чем сравнить.': 'Your first month in Konta — next time there will be something to compare.', 'Подробнее': 'More details', 'Скрыть подробности': 'Hide details', 'Свернуть': 'Collapse', 'Вернуть': 'Undo', 'Вернул': 'Restored', 'Озон, такси, Пятёрочка…': 'Ozon, taxi, Starbucks…', 'Всё время': 'All time', 'Все банки': 'All banks', 'Пришло': 'Received', 'Потрачено': 'Spent', 'Найдите магазин, человека или категорию — покажу, сколько ушло за период и как это распределялось по месяцам.': 'Search a store, a person or a category — see how much went there and how it spread across months.', 'Ничего не нашлось — попробуйте «Всё время»': 'Nothing found — try “All time”', 'Категория': 'Category', 'Крупный текст': 'Larger text', 'Подписи и мелкий текст крупнее и контрастнее': 'Captions and small text get bigger and clearer', 'Быстрый доступ': 'Quick access', 'Добавить на экран «Домой»': 'Add to Home Screen', 'Konta & Cie откроется одним касанием, как обычное приложение': 'Open Konta & Cie with one tap, like a regular app', 'Иконка добавлена': 'Icon added', 'Обновите Telegram': 'Update Telegram', 'Монета': 'Coin', 'Найти другую монету': 'Find another coin', 'Ничего не нашлось': 'Nothing found', 'Поиск недоступен — впишите курс вручную': 'Search unavailable — enter the rate manually', 'Закрыть день': 'Close the day', 'День закрыт': 'Day closed', 'Открыть': 'Reopen', 'День без трат. Красиво': 'A day without spending. Nice', 'Насыщенный день. Завтра — новый': 'A full day. Tomorrow is a new one', 'В вашем обычном ритме': 'Right in your usual rhythm', 'Изменить': 'Edit', 'Наберите новую сумму': 'Type a new amount', 'Фото слишком большое': 'Photo is too large',
+  'Первый месяц в Konta — дальше будет с чем сравнить.': 'Your first month in Konta — next time there will be something to compare.', 'Подробнее': 'More details', 'Скрыть подробности': 'Hide details', 'Свернуть': 'Collapse', 'Вернуть': 'Undo', 'Вернул': 'Restored', 'Синхронизация': 'Sync', 'Бот и сайт связаны': 'Bot and web are linked', 'Синхронизация…': 'Syncing…', 'Нет связи — синхронизирую, когда появится сеть': 'Offline — will sync when back online', 'Войдите снова': 'Please sign in again', 'Ожидание': 'Waiting', 'Войти через Telegram': 'Sign in with Telegram', 'Выйти': 'Sign out', 'Позже': 'Later', 'Вы вошли через Telegram': 'Signed in with Telegram', 'Не удалось войти — попробуйте ещё раз': 'Sign-in failed — try again', 'Вы вышли': 'Signed out', 'Данные хранятся в зашифрованном виде и доступны только вам.': 'Your data is stored encrypted and only you can access it.', 'Уже пользуюсь ботом — войти': 'I already use the bot — sign in', 'Пока вы не вошли через Telegram, данные хранятся только на этом устройстве.': 'Until you sign in with Telegram, data stays on this device only.', 'Выйти из аккаунта на этом устройстве? Данные останутся в боте.': 'Sign out on this device? Your data stays in the bot.', 'Установить на экран «Домой»': 'Install to Home Screen', 'Откроется на весь экран, как обычное приложение': 'Opens full screen, like a regular app', 'Веб-версия хранит данные только на этом устройстве. Раз в месяц делайте экспорт в CSV.': 'The web version keeps data on this device only. Export a CSV once a month.', 'На экран «Домой»': 'Home Screen', 'Нажмите «Поделиться» внизу Safari': 'Tap Share at the bottom of Safari', 'Выберите «На экран "Домой"»': 'Choose “Add to Home Screen”', 'Нажмите «Добавить» — появится иконка Konta': 'Tap Add — the Konta icon appears', 'Откройте меню браузера ⋮': 'Open the browser menu ⋮', 'Выберите «Установить приложение» или «Добавить на главный экран»': 'Choose “Install app” or “Add to Home screen”', 'Подтвердите — появится иконка Konta': 'Confirm — the Konta icon appears', 'С экрана «Домой» Konta открывается без адресной строки и работает без интернета.': 'From the Home Screen Konta opens without the address bar and works offline.', 'Понятно': 'Got it', 'Озон, такси, Пятёрочка…': 'Ozon, taxi, Starbucks…', 'Всё время': 'All time', 'Все банки': 'All banks', 'Пришло': 'Received', 'Потрачено': 'Spent', 'Найдите магазин, человека или категорию — покажу, сколько ушло за период и как это распределялось по месяцам.': 'Search a store, a person or a category — see how much went there and how it spread across months.', 'Ничего не нашлось — попробуйте «Всё время»': 'Nothing found — try “All time”', 'Категория': 'Category', 'Крупный текст': 'Larger text', 'Подписи и мелкий текст крупнее и контрастнее': 'Captions and small text get bigger and clearer', 'Быстрый доступ': 'Quick access', 'Добавить на экран «Домой»': 'Add to Home Screen', 'Konta & Cie откроется одним касанием, как обычное приложение': 'Open Konta & Cie with one tap, like a regular app', 'Иконка добавлена': 'Icon added', 'Обновите Telegram': 'Update Telegram', 'Монета': 'Coin', 'Найти другую монету': 'Find another coin', 'Ничего не нашлось': 'Nothing found', 'Поиск недоступен — впишите курс вручную': 'Search unavailable — enter the rate manually', 'Закрыть день': 'Close the day', 'День закрыт': 'Day closed', 'Открыть': 'Reopen', 'День без трат. Красиво': 'A day without spending. Nice', 'Насыщенный день. Завтра — новый': 'A full day. Tomorrow is a new one', 'В вашем обычном ритме': 'Right in your usual rhythm', 'Изменить': 'Edit', 'Наберите новую сумму': 'Type a new amount', 'Фото слишком большое': 'Photo is too large',
 };
 for (let i = 0; i < 12; i++) { DICT[M[i]] = EN_M[i]; DICT[cap(M[i])] = EN_M[i]; DICT[M[i].slice(0, 3)] = EN_M[i].slice(0, 3); }
 for (let i = 0; i < 7; i++) DICT[WD[i]] = EN_WD[i];
 const enMonth = w => { const i = mIdx(w); return i >= 0 ? EN_M[i] : w; };
 const enMon3 = w => { const i = mIdx(w); return i >= 0 ? EN_M[i].slice(0, 3) : w; };
 const RULES = [
+  [/^Синхронизировано · (.+)$/, (m, a) => `Synced · ${a}`], [/^Те же данные, что в боте (.+)$/, (m, b) => `Same data as in ${b}`], [/^Те же траты и капитал, что в боте (.+)\. Пароль не нужен — вход подтверждается в Telegram\.$/, (m, b) => `Same spending and capital as in ${b}. No password — you confirm the sign-in in Telegram.`],
   [/^В среднем (.+)$/, (m, a) => `Avg ${a}`], [/^(.+) в месяц$/, (m, a) => `${a} per month`], [/^и ещё ([\d\s]+) — уточните запрос$/, (m, n) => `and ${n} more — refine the search`],
   [/^· пополнения (.+)$/, (m, a) => `· deposits ${a}`],
   [/^([+−][\d,]+)% за сутки$/, (m, p) => `${p}% in 24h`],
@@ -1415,7 +1585,7 @@ function submit() {
   }
   const rec = { k: F.kind, a, n, c, d: F.date };
   if (F.id) Object.assign(S.tx.find(t => t.id === F.id), rec);
-  else S.tx.push({ id: S.seq++, ...rec, t: Date.now() });
+  else S.tx.push({ id: newId(), ...rec, t: Date.now() });
   save(); hapticOk();
   const wasEdit = !!F.id;
   if (wasEdit && inSearch()) { close(); render(); searchRun(); return; }
@@ -1737,7 +1907,7 @@ function saveAcc() {
   const rec = isTk ? { n: A.n, type: 'stocks', cur: 'RUB', amt, tk: A.tk } : { n: A.n, type: A.type, cur: A.cur, amt, tk: '' };
   const before = A.id ? accRub(S.acc.find(x => x.id === A.id)) : 0;
   if (A.id) Object.assign(S.acc.find(x => x.id === A.id), rec);
-  else S.acc.push({ id: S.seq++, ...rec, t: Date.now() });
+  else S.acc.push({ id: newId(), ...rec, t: Date.now() });
   capFlow(accRub(A.id ? S.acc.find(x => x.id === A.id) : S.acc[S.acc.length - 1]) - before);
   snapshot(); save(); hapticOk();
   while (stack.length) close();
@@ -1818,7 +1988,7 @@ function frequent(kind) {
 function quickAdd(i) {
   const e = (F && F.quick || [])[i]; if (!e) return;
   const d = F.date || todayK();
-  const rec = { id: S.seq++, k: F.kind, a: e.a, n: e.n, c: e.c, d, t: Date.now() };
+  const rec = { id: newId(), k: F.kind, a: e.a, n: e.n, c: e.c, d, t: Date.now() };
   S.tx.push(rec); save(); hapticOk(); while (stack.length) close(); hMode = F.kind; render();
   toast(`${F.kind === 'in' ? '+' : ''}${rub(e.a)} · ${e.n}`, () => { S.tx = S.tx.filter(x => x.id !== rec.id); save(); render(); });
 }
@@ -1869,7 +2039,7 @@ function showOnboarding() {
   d.innerHTML = `<div class="slides" id="slides">
     <section><div class="wm"><b>Konta</b><i>&amp; Cie</i></div><h3>Частный учёт<br>ваших денег</h3><p>Траты, доходы и капитал — в одном спокойном месте.</p></section>
     <section><div class="demo"><div class="dnum">280<small>₽</small></div><div class="dchip">${ic('cafe')}Кофе</div></div><h3>Записывайте<br>за секунду</h3><p>Сумма, и всё — категорию приложение поймёт само. Или загрузите выписку из банка.</p></section>
-    <section><div class="demo">${ic('ui_face', 'i big')}</div><h3>Только<br>для вас</h3><p>Данные в облаке Telegram. Вход по Face ID и скрытие сумм одним касанием.</p></section>
+    <section><div class="demo">${ic('ui_face', 'i big')}</div><h3>Только<br>для вас</h3><p>${inTG ? 'Данные в облаке Telegram. Вход по Face ID и скрытие сумм одним касанием.' : 'Данные зашифрованы и видны только вам. Скрытие сумм одним касанием.'}</p></section>
   </div>
   <div class="dots"><i class="on"></i><i></i><i></i></div>
   <div class="onb-cta"><button class="btn" data-act="onbnext">Далее</button><div class="onb-more"></div></div>`;
@@ -1884,7 +2054,7 @@ function onbStep(i) {
   const last = i === 2;
   $('#onb .onb-cta .btn').textContent = last ? 'Записать первую трату' : 'Далее';
   $('#onb .onb-cta .btn').dataset.act = last ? 'onbadd' : 'onbnext';
-  $('#onb .onb-more').innerHTML = last ? `<button data-act="onbimport">Загрузить выписку</button><button data-act="onbdemo">Посмотреть на демо</button>` : '';
+  $('#onb .onb-more').innerHTML = last ? `${SYNC_API && !inTG && !SESS ? '<button data-act="onblogin">Уже пользуюсь ботом — войти</button>' : ''}<button data-act="onbimport">Загрузить выписку</button><button data-act="onbdemo">Посмотреть на демо</button>` : '';
   if (LANG === 'en') translateTree($('#onb'));
 }
 function onbDone() { S.onb = true; save(); const d = $('#onb'); if (d) { d.classList.add('out'); setTimeout(() => d.remove(), 450); } }
@@ -1892,6 +2062,16 @@ function onbDone() { S.onb = true; save(); const d = $('#onb'); if (d) { d.class
 // ================= Settings block =================
 // Иконка на экране «Домой» (Telegram Bot API 8.0+)
 let HS = 'unsupported';
+const STANDALONE = (() => { try { return matchMedia('(display-mode: standalone)').matches || navigator.standalone === true; } catch (e) { return false; } })();
+function pwaHelp() {
+  const ios = /iPhone|iPad|iPod/.test(navigator.userAgent);
+  $('#sheet2').innerHTML = `<div class="grab"></div><h2 style="margin-top:6px">На экран «Домой»</h2>
+    <div class="impn">${(ios ? [['ui_import', 'Нажмите «Поделиться» внизу Safari'], ['ui_plus', 'Выберите «На экран "Домой"»'], ['ui_check', 'Нажмите «Добавить» — появится иконка Konta']]
+      : [['ui_more', 'Откройте меню браузера ⋮'], ['ui_plus', 'Выберите «Установить приложение» или «Добавить на главный экран»'], ['ui_check', 'Подтвердите — появится иконка Konta']]).map(([i, t]) => `<p>${ic(i)}<span>${t}</span></p>`).join('')}</div>
+    <p class="note" style="margin-top:14px">С экрана «Домой» Konta открывается без адресной строки и работает без интернета.</p>
+    <div style="height:14px"></div><button class="btn" data-act="close2">Понятно</button>`;
+  open('#sheet2');
+}
 function hsInit() {
   try {
     if (!tg || !tg.isVersionAtLeast || !tg.isVersionAtLeast('8.0') || !tg.checkHomeScreenStatus) return;
@@ -1901,10 +2081,12 @@ function hsInit() {
 }
 function addHome() { try { tg.addToHomeScreen(); } catch (e) { toast('Обновите Telegram'); } }
 function settingsFeat() {
-  return `<h2>Приватность</h2>
+  return `${syncSection()}<h2>Приватность</h2>
     <button class="row" data-act="priv"><span class="ic">${ic(PRIV ? 'ui_eyeoff' : 'ui_eye')}</span><span class="t"><span class="n">Скрывать суммы</span><span class="s">Или коснитесь крупной суммы на любом экране</span></span><span class="sw2 ${PRIV ? 'on' : ''}"><i></i></span></button>
-    <button class="row" data-act="bio"><span class="ic">${ic('ui_face')}</span><span class="t"><span class="n">Вход по Face ID</span><span class="s">${BM ? 'Через Telegram' : 'Доступно внутри Telegram'}</span></span><span class="sw2 ${BIO ? 'on' : ''}"><i></i></span></button>
+    ${inTG || (SYNC_API && SESS) ? '' : `<p class="note" style="margin:2px 0 10px">${SYNC_API ? 'Пока вы не вошли через Telegram, данные хранятся только на этом устройстве.' : 'Веб-версия хранит данные только на этом устройстве. Раз в месяц делайте экспорт в CSV.'}</p>`}
+    ${inTG ? `<button class="row" data-act="bio"><span class="ic">${ic('ui_face')}</span><span class="t"><span class="n">Вход по Face ID</span><span class="s">${BM ? 'Через Telegram' : 'Доступно внутри Telegram'}</span></span><span class="sw2 ${BIO ? 'on' : ''}"><i></i></span></button>` : ''}
     <h2>Валюта капитала</h2><div class="seg" style="margin-top:2px">${BASES.map(c => `<button class="${baseCur() === c ? 'on' : ''}" data-act="base" data-c="${c}">${c}</button>`).join('')}</div>
+    ${!inTG && !STANDALONE ? `<h2>Быстрый доступ</h2><button class="row" data-act="pwahelp"><span class="ic">${ic('ui_plus')}</span><span class="t"><span class="n">Установить на экран «Домой»</span><span class="s">Откроется на весь экран, как обычное приложение</span></span>${ic('ui_right', 'i chev')}</button>` : ''}
     ${HS === 'missed' || HS === 'unknown' ? `<h2>Быстрый доступ</h2><button class="row" data-act="homescreen"><span class="ic">${ic('ui_plus')}</span><span class="t"><span class="n">Добавить на экран «Домой»</span><span class="s">Konta & Cie откроется одним касанием, как обычное приложение</span></span>${ic('ui_right', 'i chev')}</button>` : ''}
     <h2>Банк</h2>
     <button class="row" data-act="import"><span class="ic">${ic('ui_import')}</span><span class="t"><span class="n">Импорт выписки</span><span class="s">PDF или CSV · можно сразу несколько банков</span></span>${ic('ui_right', 'i chev')}</button>
@@ -2310,7 +2492,7 @@ function openImport() {
 function doImport() {
   impApply();
   const fresh = IMP.ops.filter(o => !o.dup), t0 = Date.now(), im = t0;
-  fresh.forEach((o, i) => S.tx.push({ id: S.seq++, k: isOwn(o) ? 'x' : o.k, ...(isOwn(o) ? { xk: o.k } : {}), a: o.a, n: o.n, c: o.c, d: o.d, t: t0 - i, b: o.src, im }));
+  fresh.forEach((o, i) => S.tx.push({ id: newId(), k: isOwn(o) ? 'x' : o.k, ...(isOwn(o) ? { xk: o.k } : {}), a: o.a, n: o.n, c: o.c, d: o.d, t: t0 - i, b: o.src, im }));
   const real = fresh.filter(o => !isOwn(o)).length;
   S.imports = (S.imports || []).concat({ im, at: t0, n: fresh.length, banks: [...new Set(fresh.map(o => o.src))] }).slice(-10);
   save(); while (stack.length) close(); IMP = null; hapticOk();
@@ -2454,6 +2636,10 @@ document.addEventListener('click', async e => {
   if (a === 'saverates') { document.querySelectorAll('[data-rate]').forEach(i => { const v = num(i.value); if (v > 0 && v !== rate(i.dataset.rate)) S.rates[i.dataset.rate] = { v, at: Date.now(), src: 'вручную' }; }); document.querySelectorAll('[data-price]').forEach(i => { const v = num(i.value), k = i.dataset.price; if (v > 0 && v !== price(k)) S.prices[k] = { ...(S.prices[k] || {}), v, at: Date.now(), src: 'вручную' }; }); snapshot(); save(); while (stack.length) close(); render(); toast('Курсы сохранены'); return; }
   if (a === 'addin') return openSheet(null, 'in');
   if (a === 'closeday') return closeDay();
+  if (a === 'login') { haptic(); return openLogin(); }
+  if (a === 'onblogin') { onbDone(); return openLogin(); }
+  if (a === 'logout') { if (!(await confirmDlg('Выйти из аккаунта на этом устройстве? Данные останутся в боте.', 'Выйти'))) return; signOut(); return; }
+  if (a === 'pwahelp') { haptic(); return pwaHelp(); }
   if (a === 'search') { haptic(); return openSearch(); }
   if (a === 'qkind') { Q.kind = t.dataset.k; t.parentNode.querySelectorAll('button').forEach(b => b.classList.toggle('on', b === t)); animSegs($('#sheet2')); haptic(); return searchRun(); }
   if (a === 'qper' || a === 'qbank') { if (a === 'qper') Q.per = t.dataset.p; else Q.bank = t.dataset.b; t.parentNode.querySelectorAll('.chip').forEach(b => b.classList.toggle('on', b === t)); haptic(); return searchRun(); }
@@ -2496,7 +2682,7 @@ document.addEventListener('click', async e => {
   if (a === 'rules') { S.rules = {}; save(); render(); toast('Выученные категории сброшены'); return; }
   if (a === 'wipe') {
     if (!(await confirmDlg('Удалить все записи, лимиты и выученные категории? Это нельзя отменить.', 'Удалить всё'))) return;
-    S = { v: 2, tx: [], limits: {}, rules: {}, seq: 1, acc: [], rates: {}, prices: {}, capHist: [], onb: true }; save(); render(); toast('Данные удалены');
+    S = { v: 2, tx: [], limits: {}, rules: {}, seq: 1, acc: [], rates: {}, prices: {}, capHist: [], onb: true, gid: 1 }; save(); render(); toast('Данные удалены');
   }
 });
 document.addEventListener('input', e => { if (e.target.id === 'f-note') onNote(e.target.value); if (['acc-amt', 'acc-rate', 'acc-price'].includes(e.target.id)) { A.amtS = $('#acc-amt').value; $('#acc-rub').innerHTML = accPreview(); } if (e.target.id === 'acc-tk') onTicker(); if (e.target.id === 'coin-q') onCoinSearch(e.target.value); if (e.target.id === 'f-cq') catFilter(e.target.value); if (e.target.id === 'q-in') { Q.q = e.target.value; clearTimeout(searchRun._t); searchRun._t = setTimeout(searchRun, 120); } });
@@ -2529,13 +2715,13 @@ function seed() {
       const cnt = Math.max(1, Math.round(k * (m === 0 ? days / 30 : 1) * (0.7 + R() * 0.6)));
       for (let i = 0; i < cnt; i++) {
         const d = m === 0 ? addD(now, -Math.floor(R() * days)) : addD(new Date(now.getFullYear(), now.getMonth() - m, 1, 12), Math.floor(R() * 28));
-        S.tx.push({ id: S.seq++, k: 'out', a: Math.round(a * (0.6 + R() * 0.8)) * 100, n, c, d: key(d), t: d.getTime() + i });
+        S.tx.push({ id: newId(), k: 'out', a: Math.round(a * (0.6 + R() * 0.8)) * 100, n, c, d: key(d), t: d.getTime() + i });
       }
     });
     const base = new Date(now.getFullYear(), now.getMonth() - m, 1, 12);
     [['Зарплата', 'salary', 45000, 5], ['Аванс', 'salary', 30000, 20], ['Перевод', 'in_transfer', 5000, 12], ['Кэшбэк', 'cashback', 640, 3]].forEach(([n, c, a, day]) => {
       const d = addD(base, day - 1); if (key(d) > todayK()) return;
-      S.tx.push({ id: S.seq++, k: 'in', a: Math.round(a * (0.9 + R() * 0.2)) * 100, n, c, d: key(d), t: d.getTime() });
+      S.tx.push({ id: newId(), k: 'in', a: Math.round(a * (0.9 + R() * 0.2)) * 100, n, c, d: key(d), t: d.getTime() });
     });
   }
   S.limits = { taxi: 600000, cafe: 400000, delivery: 500000 }; S.onb = true; S.lastReport = range('m', -1).from.slice(0, 7);
@@ -2544,9 +2730,9 @@ function seed() {
     Object.assign(S.rates, { USD: { v: 80, at, src: 'демо' }, EUR: { v: 93, at, src: 'демо' }, BTC: { v: 8000000, at, src: 'демо' }, USDT: { v: 80, at, src: 'демо' } });
     [['Сбер накопительный', 'dep', 'RUB', 350000], ['Вклад Альфа', 'dep', 'RUB', 500000], ['Наличные', 'cash', 'USD', 2000],
      ['Bitcoin', 'crypto', 'BTC', 0.05], ['USDT на бирже', 'crypto', 'USDT', 1500], ['Кредитка', 'debt', 'RUB', 24000]]
-      .forEach(([n, type, cur, amt]) => S.acc.push({ id: S.seq++, n, type, cur, amt, tk: '', t: at }));
+      .forEach(([n, type, cur, amt]) => S.acc.push({ id: newId(), n, type, cur, amt, tk: '', t: at }));
     Object.assign(S.prices, { SBER: { v: 300, at, name: 'Сбербанк', src: 'демо' }, YDEX: { v: 4200, at, name: 'Яндекс', src: 'демо' }, LQDT: { v: 1.8, at, name: 'Ликвидность', src: 'демо' } });
-    [['Сбербанк', 'SBER', 300], ['Яндекс', 'YDEX', 15], ['Фонд ликвидности', 'LQDT', 20000]].forEach(([n, tk, q]) => S.acc.push({ id: S.seq++, n, type: 'stocks', cur: 'RUB', amt: q, tk, t: at }));
+    [['Сбербанк', 'SBER', 300], ['Яндекс', 'YDEX', 15], ['Фонд ликвидности', 'LQDT', 20000]].forEach(([n, tk, q]) => S.acc.push({ id: newId(), n, type: 'stocks', cur: 'RUB', amt: q, tk, t: at }));
     const end = capTotal(); S.capHist = [];
     for (let i = 90; i >= 1; i--) { const f = 0.86 + 0.14 * (90 - i) / 90 + Math.sin(i / 6) * 0.012; S.capHist.push({ d: key(addD(today(), -i)), v: Math.round(end * f) }); }
     snapshot();
@@ -2554,9 +2740,13 @@ function seed() {
   save(); render(); toast('Демо-данные загружены');
 }
 
+// веб-версия: офлайн-кэш и защита данных от автоочистки браузера
+if (!inTG && 'serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => {});
+if (!inTG && navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
 load().then(() => {
+  afterLoad();
   if (!S.onb && (S.tx.length || S.acc.length)) { S.onb = true; save(); }
-  render(); moveInd(); addEventListener('resize', moveInd); if (document.fonts) document.fonts.ready.then(() => { moveInd(); animSegs(); }); fetchRates(); hsInit(); setTimeout(() => { document.body.classList.remove('boot'); const s = $('#splash'); s.classList.add('out'); setTimeout(() => s.remove(), 800); if (!S.onb) showOnboarding(); else maybeReport(); if (BIO) unlock(); }, 1100); });
+  render(); moveInd(); addEventListener('resize', moveInd); if (document.fonts) document.fonts.ready.then(() => { moveInd(); animSegs(); }); fetchRates(); hsInit(); loginFromUrl().then(() => syncNow()); setTimeout(() => { document.body.classList.remove('boot'); const s = $('#splash'); s.classList.add('out'); setTimeout(() => s.remove(), 800); if (!S.onb) showOnboarding(); else maybeReport(); if (BIO) unlock(); }, 1100); });
 
 </script>
 </body>
