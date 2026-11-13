@@ -888,7 +888,12 @@ const SYNC = { at: 0, err: '', busy: false };
 const authHeader = () => inTG && tg.initData ? 'tma ' + tg.initData : SESS ? 'Bearer ' + SESS : '';
 const syncOn = () => !!(SYNC_API && authHeader());
 async function api(a, body) {
-  const r = await fetch(`${SYNC_API}?a=${a}`, { method: body ? 'POST' : 'GET', headers: { 'X-Konta-Auth': authHeader(), 'Content-Type': 'application/json' }, body: body ? JSON.stringify(body) : undefined });
+  const ctl = new AbortController(), tm = setTimeout(() => ctl.abort(), 15000);
+  let r;
+  try { r = await fetch(`${SYNC_API}?a=${a}`, { method: body ? 'POST' : 'GET', headers: { 'X-Konta-Auth': authHeader(), 'Content-Type': 'application/json' }, body: body ? JSON.stringify(body) : undefined, signal: ctl.signal, cache: 'no-store' }); }
+  catch (e) { SYNC.why = e.name === 'AbortError' ? 'timeout' : 'net'; throw new Error('net'); }
+  finally { clearTimeout(tm); }
+  if (r.status >= 500) SYNC.why = 'server ' + r.status;
   if (r.status === 401) { let w = ''; try { w = (await r.json()).why || ''; } catch (e) {} SYNC.why = w; if (!inTG) signOut(true); throw new Error('auth'); }
   if (!r.ok) throw new Error('http ' + r.status);
   return r.json();
@@ -916,19 +921,23 @@ async function syncNow() {
       push = coreJSON(S) !== coreJSON(r.data) || (S.ts || 0) > (r.data.ts || 0);
     }
     if (push) await api('save', { data: S });
-    SYNC.at = Date.now(); SYNC.err = '';
+    SYNC.at = Date.now(); SYNC.err = ''; SYNC.why = '';
   } catch (e) { SYNC.err = e.message === 'auth' ? 'auth' : 'net'; }
   SYNC.busy = false;
-  if (tab === 'more' && !stack.length) { const el = $('#sync-s'); if (el) el.textContent = syncLine(); }
+  if (SYNC.err === 'net') { clearTimeout(syncT); syncT = setTimeout(syncNow, 20000); }
+  { const el = $('#sync-s'); if (el) el.textContent = syncLine(); }
   if (syncAgain) { syncAgain = false; syncNow(); }
 }
 function syncLine() {
-  if (SYNC.busy && !SYNC.at) return 'Синхронизация…';
-  if (SYNC.err === 'net') return 'Нет связи — синхронизирую, когда появится сеть';
+  if (SYNC.busy) return 'Синхронизация…';
+  if (SYNC.err === 'net') return `Нет связи${SYNC.why ? ' · ' + SYNC.why : ''} — нажмите, чтобы повторить`;
   if (SYNC.err === 'auth') return inTG ? `Сервер не принял вход${SYNC.why ? ' · ' + SYNC.why : ''}` : 'Войдите снова';
   return SYNC.at ? `Синхронизировано · ${ago(SYNC.at)}` : 'Ожидание';
 }
 document.addEventListener('visibilitychange', () => { if (!document.hidden) scheduleSync(300); });
+// пока приложение открыто — подтягиваем изменения с других устройств
+setInterval(() => { if (!document.hidden && !stack.length && syncOn() && !SYNC.busy) syncNow(); }, 30000);
+function syncTap() { if (SYNC.busy) return; haptic(); const el = $('#sync-s'); SYNC.at = SYNC.at; if (el) el.textContent = 'Синхронизация…'; syncNow(); }
 addEventListener('online', () => scheduleSync(300));
 
 // ---------- вход на сайте через Telegram ----------
@@ -968,9 +977,9 @@ function openLogin() {
 }
 function syncSection() {
   if (!SYNC_API) return '';
-  if (inTG) return `<h2>Синхронизация</h2><div class="row"><span class="ic">${ic('ui_check')}</span><span class="t"><span class="n">Бот и сайт связаны</span><span class="s" id="sync-s">${syncLine()}</span></span></div>`;
+  if (inTG) return `<h2>Синхронизация</h2><div class="row" data-act="synctap"><span class="ic">${ic('ui_check')}</span><span class="t"><span class="n">Бот и сайт связаны</span><span class="s" id="sync-s">${syncLine()}</span></span></div>`;
   if (!SESS) return `<h2>Синхронизация</h2><button class="row" data-act="login"><span class="ic">${ic('ui_import')}</span><span class="t"><span class="n">Войти через Telegram</span><span class="s">Те же данные, что в боте @${BOT_NAME}</span></span>${ic('ui_right', 'i chev')}</button>`;
-  return `<h2>Синхронизация</h2><div class="row"><span class="ic">${ic('ui_check')}</span><span class="t"><span class="n">${esc(SUSER && SUSER.username ? '@' + SUSER.username : SUSER && SUSER.name || 'Telegram')}</span><span class="s" id="sync-s">${syncLine()}</span></span><button class="rb txt" data-act="logout">Выйти</button></div>`;
+  return `<h2>Синхронизация</h2><div class="row" data-act="synctap"><span class="ic">${ic('ui_check')}</span><span class="t"><span class="n">${esc(SUSER && SUSER.username ? '@' + SUSER.username : SUSER && SUSER.name || 'Telegram')}</span><span class="s" id="sync-s">${syncLine()}</span></span><button class="rb txt" data-act="logout">Выйти</button></div>`;
 }
 // ================= i18n (RU → EN, перевод готового DOM) =================
 let LANG = (() => { try { return localStorage.getItem('konta_lang') || ''; } catch (e) { return ''; } })();
@@ -1072,6 +1081,7 @@ for (let i = 0; i < 7; i++) DICT[WD[i]] = EN_WD[i];
 const enMonth = w => { const i = mIdx(w); return i >= 0 ? EN_M[i] : w; };
 const enMon3 = w => { const i = mIdx(w); return i >= 0 ? EN_M[i].slice(0, 3) : w; };
 const RULES = [
+  [/^Нет связи(.*) — нажмите, чтобы повторить$/, (m, w) => `Offline${w} — tap to retry`],
   [/^≈ (.+) · курс (.+) ₽$/, (m, a, r) => `≈ ${a} · rate ${r} ₽`],
   [/^Синхронизировано · (.+)$/, (m, a) => `Synced · ${a}`], [/^Те же данные, что в боте (.+)$/, (m, b) => `Same data as in ${b}`], [/^Те же траты и капитал, что в боте (.+)\. Пароль не нужен — вход подтверждается в Telegram\.$/, (m, b) => `Same spending and capital as in ${b}. No password — you confirm the sign-in in Telegram.`],
   [/^В среднем (.+)$/, (m, a) => `Avg ${a}`], [/^(.+) в месяц$/, (m, a) => `${a} per month`], [/^и ещё ([\d\s]+) — уточните запрос$/, (m, n) => `and ${n} more — refine the search`],
@@ -2677,6 +2687,7 @@ document.addEventListener('click', async e => {
   if (a === 'saverates') { document.querySelectorAll('[data-rate]').forEach(i => { const v = num(i.value); if (v > 0 && v !== rate(i.dataset.rate)) S.rates[i.dataset.rate] = { v, at: Date.now(), src: 'вручную' }; }); document.querySelectorAll('[data-price]').forEach(i => { const v = num(i.value), k = i.dataset.price; if (v > 0 && v !== price(k)) S.prices[k] = { ...(S.prices[k] || {}), v, at: Date.now(), src: 'вручную' }; }); snapshot(); save(); while (stack.length) close(); render(); toast('Курсы сохранены'); return; }
   if (a === 'addin') return openSheet(null, 'in');
   if (a === 'closeday') return closeDay();
+  if (a === 'synctap') return syncTap();
   if (a === 'login') { haptic(); return openLogin(); }
   if (a === 'onblogin') { onbDone(); return openLogin(); }
   if (a === 'logout') { if (!(await confirmDlg('Выйти из аккаунта на этом устройстве? Данные останутся в боте.', 'Выйти'))) return; signOut(); return; }
