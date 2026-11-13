@@ -473,6 +473,11 @@ html.pwa .sky,html.pwa .splash{bottom:auto!important;height:var(--fullh)}
 .veilb i:nth-child(3){--b:14px;-webkit-mask:linear-gradient(transparent 50%,#000 90%);mask:linear-gradient(transparent 50%,#000 90%)}
 .veilb:after{content:"";position:absolute;inset:0;background:linear-gradient(rgba(0,0,0,0),rgba(0,0,0,.28) 70%,rgba(0,0,0,.4))}
 body.boot .veilb{opacity:0}
+.amt{position:relative}
+.curb{display:inline-block;vertical-align:top;margin:10px 0 0 2px;padding:5px 11px;border-radius:14px;background:rgba(255,255,255,.08);color:var(--mut);font-size:17px;font-weight:500;font-family:var(--disp)}
+.curl{font-size:13px;color:var(--mut);margin-top:6px;min-height:17px}
+.chips.curs{justify-content:flex-start;margin:10px -20px 0;padding:0 20px}
+.row .a small{font-size:12px;color:var(--mut)}
 </style>
 </head>
 <body class="boot">
@@ -1060,13 +1065,14 @@ const DICT = {
   'Посмотреть на демо': 'Try the demo',
   'Кофе': 'Coffee',
   'В этом месяце операций не было.': 'No transactions this month.',
-  'Первый месяц в Konta — дальше будет с чем сравнить.': 'Your first month in Konta — next time there will be something to compare.', 'Подробнее': 'More details', 'Скрыть подробности': 'Hide details', 'Свернуть': 'Collapse', 'Вернуть': 'Undo', 'Вернул': 'Restored', 'Синхронизация': 'Sync', 'Бот и сайт связаны': 'Bot and web are linked', 'Синхронизация…': 'Syncing…', 'Нет связи — синхронизирую, когда появится сеть': 'Offline — will sync when back online', 'Войдите снова': 'Please sign in again', 'Сервер не принял вход': 'Server rejected sign-in', 'Ожидание': 'Waiting', 'Войти через Telegram': 'Sign in with Telegram', 'Выйти': 'Sign out', 'Позже': 'Later', 'Вы вошли через Telegram': 'Signed in with Telegram', 'Не удалось войти — попробуйте ещё раз': 'Sign-in failed — try again', 'Вы вышли': 'Signed out', 'Данные хранятся в зашифрованном виде и доступны только вам.': 'Your data is stored encrypted and only you can access it.', 'Уже пользуюсь ботом — войти': 'I already use the bot — sign in', 'Пока вы не вошли через Telegram, данные хранятся только на этом устройстве.': 'Until you sign in with Telegram, data stays on this device only.', 'Выйти из аккаунта на этом устройстве? Данные останутся в боте.': 'Sign out on this device? Your data stays in the bot.', 'Установить на экран «Домой»': 'Install to Home Screen', 'Откроется на весь экран, как обычное приложение': 'Opens full screen, like a regular app', 'Веб-версия хранит данные только на этом устройстве. Раз в месяц делайте экспорт в CSV.': 'The web version keeps data on this device only. Export a CSV once a month.', 'На экран «Домой»': 'Home Screen', 'Нажмите «Поделиться» внизу Safari': 'Tap Share at the bottom of Safari', 'Выберите «На экран "Домой"»': 'Choose “Add to Home Screen”', 'Нажмите «Добавить» — появится иконка Konta': 'Tap Add — the Konta icon appears', 'Откройте меню браузера ⋮': 'Open the browser menu ⋮', 'Выберите «Установить приложение» или «Добавить на главный экран»': 'Choose “Install app” or “Add to Home screen”', 'Подтвердите — появится иконка Konta': 'Confirm — the Konta icon appears', 'С экрана «Домой» Konta открывается без адресной строки и работает без интернета.': 'From the Home Screen Konta opens without the address bar and works offline.', 'Понятно': 'Got it', 'Озон, такси, Пятёрочка…': 'Ozon, taxi, Starbucks…', 'Всё время': 'All time', 'Все банки': 'All banks', 'Пришло': 'Received', 'Потрачено': 'Spent', 'Найдите магазин, человека или категорию — покажу, сколько ушло за период и как это распределялось по месяцам.': 'Search a store, a person or a category — see how much went there and how it spread across months.', 'Ничего не нашлось — попробуйте «Всё время»': 'Nothing found — try “All time”', 'Категория': 'Category', 'Крупный текст': 'Larger text', 'Подписи и мелкий текст крупнее и контрастнее': 'Captions and small text get bigger and clearer', 'Быстрый доступ': 'Quick access', 'Добавить на экран «Домой»': 'Add to Home Screen', 'Konta & Cie откроется одним касанием, как обычное приложение': 'Open Konta & Cie with one tap, like a regular app', 'Иконка добавлена': 'Icon added', 'Обновите Telegram': 'Update Telegram', 'Монета': 'Coin', 'Найти другую монету': 'Find another coin', 'Ничего не нашлось': 'Nothing found', 'Поиск недоступен — впишите курс вручную': 'Search unavailable — enter the rate manually', 'Закрыть день': 'Close the day', 'День закрыт': 'Day closed', 'Открыть': 'Reopen', 'День без трат. Красиво': 'A day without spending. Nice', 'Насыщенный день. Завтра — новый': 'A full day. Tomorrow is a new one', 'В вашем обычном ритме': 'Right in your usual rhythm', 'Изменить': 'Edit', 'Наберите новую сумму': 'Type a new amount', 'Фото слишком большое': 'Photo is too large',
+  'Первый месяц в Konta — дальше будет с чем сравнить.': 'Your first month in Konta — next time there will be something to compare.', 'Подробнее': 'More details', 'Скрыть подробности': 'Hide details', 'Свернуть': 'Collapse', 'Вернуть': 'Undo', 'Вернул': 'Restored', 'Загружаю курс…': 'Loading rate…', 'Нет курса — проверьте интернет': 'No rate — check your connection', 'Синхронизация': 'Sync', 'Бот и сайт связаны': 'Bot and web are linked', 'Синхронизация…': 'Syncing…', 'Нет связи — синхронизирую, когда появится сеть': 'Offline — will sync when back online', 'Войдите снова': 'Please sign in again', 'Сервер не принял вход': 'Server rejected sign-in', 'Ожидание': 'Waiting', 'Войти через Telegram': 'Sign in with Telegram', 'Выйти': 'Sign out', 'Позже': 'Later', 'Вы вошли через Telegram': 'Signed in with Telegram', 'Не удалось войти — попробуйте ещё раз': 'Sign-in failed — try again', 'Вы вышли': 'Signed out', 'Данные хранятся в зашифрованном виде и доступны только вам.': 'Your data is stored encrypted and only you can access it.', 'Уже пользуюсь ботом — войти': 'I already use the bot — sign in', 'Пока вы не вошли через Telegram, данные хранятся только на этом устройстве.': 'Until you sign in with Telegram, data stays on this device only.', 'Выйти из аккаунта на этом устройстве? Данные останутся в боте.': 'Sign out on this device? Your data stays in the bot.', 'Установить на экран «Домой»': 'Install to Home Screen', 'Откроется на весь экран, как обычное приложение': 'Opens full screen, like a regular app', 'Веб-версия хранит данные только на этом устройстве. Раз в месяц делайте экспорт в CSV.': 'The web version keeps data on this device only. Export a CSV once a month.', 'На экран «Домой»': 'Home Screen', 'Нажмите «Поделиться» внизу Safari': 'Tap Share at the bottom of Safari', 'Выберите «На экран "Домой"»': 'Choose “Add to Home Screen”', 'Нажмите «Добавить» — появится иконка Konta': 'Tap Add — the Konta icon appears', 'Откройте меню браузера ⋮': 'Open the browser menu ⋮', 'Выберите «Установить приложение» или «Добавить на главный экран»': 'Choose “Install app” or “Add to Home screen”', 'Подтвердите — появится иконка Konta': 'Confirm — the Konta icon appears', 'С экрана «Домой» Konta открывается без адресной строки и работает без интернета.': 'From the Home Screen Konta opens without the address bar and works offline.', 'Понятно': 'Got it', 'Озон, такси, Пятёрочка…': 'Ozon, taxi, Starbucks…', 'Всё время': 'All time', 'Все банки': 'All banks', 'Пришло': 'Received', 'Потрачено': 'Spent', 'Найдите магазин, человека или категорию — покажу, сколько ушло за период и как это распределялось по месяцам.': 'Search a store, a person or a category — see how much went there and how it spread across months.', 'Ничего не нашлось — попробуйте «Всё время»': 'Nothing found — try “All time”', 'Категория': 'Category', 'Крупный текст': 'Larger text', 'Подписи и мелкий текст крупнее и контрастнее': 'Captions and small text get bigger and clearer', 'Быстрый доступ': 'Quick access', 'Добавить на экран «Домой»': 'Add to Home Screen', 'Konta & Cie откроется одним касанием, как обычное приложение': 'Open Konta & Cie with one tap, like a regular app', 'Иконка добавлена': 'Icon added', 'Обновите Telegram': 'Update Telegram', 'Монета': 'Coin', 'Найти другую монету': 'Find another coin', 'Ничего не нашлось': 'Nothing found', 'Поиск недоступен — впишите курс вручную': 'Search unavailable — enter the rate manually', 'Закрыть день': 'Close the day', 'День закрыт': 'Day closed', 'Открыть': 'Reopen', 'День без трат. Красиво': 'A day without spending. Nice', 'Насыщенный день. Завтра — новый': 'A full day. Tomorrow is a new one', 'В вашем обычном ритме': 'Right in your usual rhythm', 'Изменить': 'Edit', 'Наберите новую сумму': 'Type a new amount', 'Фото слишком большое': 'Photo is too large',
 };
 for (let i = 0; i < 12; i++) { DICT[M[i]] = EN_M[i]; DICT[cap(M[i])] = EN_M[i]; DICT[M[i].slice(0, 3)] = EN_M[i].slice(0, 3); }
 for (let i = 0; i < 7; i++) DICT[WD[i]] = EN_WD[i];
 const enMonth = w => { const i = mIdx(w); return i >= 0 ? EN_M[i] : w; };
 const enMon3 = w => { const i = mIdx(w); return i >= 0 ? EN_M[i].slice(0, 3) : w; };
 const RULES = [
+  [/^≈ (.+) · курс (.+) ₽$/, (m, a, r) => `≈ ${a} · rate ${r} ₽`],
   [/^Синхронизировано · (.+)$/, (m, a) => `Synced · ${a}`], [/^Те же данные, что в боте (.+)$/, (m, b) => `Same data as in ${b}`], [/^Те же траты и капитал, что в боте (.+)\. Пароль не нужен — вход подтверждается в Telegram\.$/, (m, b) => `Same spending and capital as in ${b}. No password — you confirm the sign-in in Telegram.`],
   [/^В среднем (.+)$/, (m, a) => `Avg ${a}`], [/^(.+) в месяц$/, (m, a) => `${a} per month`], [/^и ещё ([\d\s]+) — уточните запрос$/, (m, n) => `and ${n} more — refine the search`],
   [/^· пополнения (.+)$/, (m, a) => `· deposits ${a}`],
@@ -1313,7 +1319,7 @@ function txRow(t) {
   const c = catOf(t);
   return `<div class="swr" data-id="${t.id}"><div class="del"><button class="edt" data-act="swedit" data-id="${t.id}">${ic('ui_edit')}<span>Изменить</span></button><button class="rm" data-act="swdel" data-id="${t.id}">${ic('ui_trash')}<span>Удалить</span></button></div><button class="row" data-act="edit" data-id="${t.id}"><span class="ic">${ic(c.id)}</span>
     <span class="t"><span class="n">${esc(t.n || c.n)}</span>${t.n && t.n.trim().toLowerCase() !== c.n.toLowerCase() ? `<span class="s">${c.n}</span>` : ''}</span>
-    <span class="a ${t.k === 'in' ? 'in' : ''}">${t.k === 'in' ? '+' : ''}${rub(t.a)}</span></button></div>`;
+    <span class="a ${t.k === 'in' ? 'in' : ''}">${t.cur ? `${t.k === 'in' ? '+' : ''}${fmtCur(t.oa / 100, t.cur)}<small>${rub(t.a, { round: true })}</small>` : `${t.k === 'in' ? '+' : ''}${rub(t.a)}`}</span></button></div>`;
 }
 function feed(list, limit = 0) {
   const by = {};
@@ -1514,7 +1520,8 @@ function moveInd() { const on = $('.tabs button.on'), ind = $('.tabs .ind'); if 
 let F = null;
 function openSheet(id = null, kind = 'out') {
   const t = id ? S.tx.find(x => x.id === id) : null;
-  F = { id, kind: t ? t.k : kind, amt: t ? String(t.a / 100).replace('.', ',') : '', note: t ? t.n : '', cat: t ? t.c : null, src: t ? 'saved' : null, sel: !!t, pickedAfterNote: false, date: t ? t.d : todayK() };
+  const tc = t && t.cur ? t.cur : (S.lastCur || 'RUB');
+  F = { id, cur: tc, curOpen: false, kind: t ? t.k : kind, amt: t ? String((t.cur ? t.oa : t.a) / 100).replace('.', ',') : '', note: t ? t.n : '', cat: t ? t.c : null, src: t ? 'saved' : null, sel: !!t, pickedAfterNote: false, date: t ? t.d : todayK() };
   drawSheet(); open('#sheet');
 }
 function drawSheet() {
@@ -1523,7 +1530,10 @@ function drawSheet() {
   const dl = F.date === todayK() ? 'Сегодня' : F.date === key(addD(today(), -1)) ? 'Вчера' : `${D(F.date).getDate()} ${MG[D(F.date).getMonth()].slice(0, 3)}`;
   $('#sheet').innerHTML = `<div class="grab"></div>
     <div class="ktoggle glass"><button class="${F.kind === 'out' ? 'on' : ''}" data-act="kind" data-k="out">Расход</button><button class="${F.kind === 'in' ? 'on' : ''}" data-act="kind" data-k="in">Доход</button></div>
-    <div class="amt"><div class="v ${F.amt ? '' : 'ph'} ${F.kind === 'in' ? 'in' : ''} ${F.sel ? 'sel' : ''}" id="amtv" data-act="amtsel">${amtView()}</div>${F.id ? `<div class="amth">${F.sel ? 'Наберите новую сумму' : '&nbsp;'}</div>` : ''}</div>
+    <div class="amt"><div class="v ${F.amt ? '' : 'ph'} ${F.kind === 'in' ? 'in' : ''} ${F.sel ? 'sel' : ''}" id="amtv" data-act="amtsel">${amtView()}</div><button class="curb" data-act="fcur">${F.cur === 'RUB' ? '₽' : F.cur}</button>
+      <div class="curl" id="curl">${curLine()}</div>
+      ${F.curOpen ? `<div class="chips curs">${TX_CURS.map(c => `<button class="chip ${F.cur === c ? 'on' : ''}" data-act="fcurpick" data-c="${c}">${c === 'RUB' ? '₽ RUB' : (CSYM[c] !== c ? CSYM[c] + ' ' : '') + c}</button>`).join('')}</div>` : ''}
+      ${F.id ? `<div class="amth">${F.sel ? 'Наберите новую сумму' : '&nbsp;'}</div>` : ''}</div>
     <div class="frow"><input class="inp" id="f-note" placeholder="${F.kind === 'in' ? 'Источник' : 'Комментарий'}" value="${esc(F.note)}" autocomplete="off" enterkeyhint="done">
       <label class="datep glass">${ic('ui_cal')}<span>${dl}</span><input type="date" id="f-date" value="${F.date}" max="${todayK()}"></label></div>
     <div class="hintl" id="f-hint">${hintText()}</div>
@@ -1535,10 +1545,22 @@ function drawSheet() {
   const on = $('#f-cats .on'); if (on) on.scrollIntoView({ inline: 'center', block: 'nearest' });
   animSegs($('#sheet'));
 }
+const TX_CURS = ['RUB', 'USD', 'EUR', 'CNY', 'GBP', 'AED', 'TRY', 'KZT', 'GEL', 'AMD', 'THB', 'JPY', 'CHF', 'HKD', 'SGD'];
 function amtView() {
-  if (!F.amt) return '0<small>₽</small>';
+  if (!F.amt) return '0';
   const [i, d] = F.amt.split(',');
-  return fmtN(i).replace(/\u2009/g, '\u2005') + (d !== undefined ? ',' + d : '') + '<small>₽</small>';
+  return fmtN(i).replace(/\u2009/g, '\u2005') + (d !== undefined ? ',' + d : '');
+}
+function curLine() {
+  if (F.cur === 'RUB') return '&nbsp;';
+  const r = rate(F.cur);
+  if (!r) return 'Загружаю курс…';
+  const v = parseFloat((F.amt || '0').replace(',', '.')) || 0;
+  return `≈ ${rub(Math.round(v * r * 100), { round: true })} · курс ${String(+r.toFixed(r < 1 ? 4 : 2)).replace('.', ',')} ₽`;
+}
+function setCur(c) {
+  F.cur = c; F.curOpen = false; S.lastCur = c; haptic(); drawSheet();
+  if (c !== 'RUB' && !rate(c)) fetchRates(true).then(() => { const l = $('#curl'); if (l) l.innerHTML = curLine(); });
 }
 function hintText() {
   if (F.src === 'auto' && F.cat) return `Категория определена по тексту`;
@@ -1587,9 +1609,12 @@ function onKey(k) {
   }
   F.amt = a;
   const el = $('#amtv'); el.innerHTML = amtView(); el.classList.toggle('ph', !a);
+  const l = $('#curl'); if (l) l.innerHTML = curLine();
 }
 function submit() {
-  const a = Math.round(parseFloat((F.amt || '0').replace(',', '.')) * 100);
+  const oa = Math.round(parseFloat((F.amt || '0').replace(',', '.')) * 100);
+  let a = oa;
+  if (F.cur !== 'RUB') { const r = rate(F.cur); if (!r) { toast('Нет курса — проверьте интернет'); return; } a = Math.round(oa * r / 100) * 100 || 100; }
   if (!a) { toast('Введите сумму'); try { tg && tg.HapticFeedback.notificationOccurred('error'); } catch (e) {} return; }
   let n = ($('#f-note').value || '').trim(); if (n) n = n[0].toUpperCase() + n.slice(1);
   const c = F.cat || (F.kind === 'in' ? 'in_other' : 'other');
@@ -1597,7 +1622,7 @@ function submit() {
     const w = words(n)[0], plain = guess(n, F.kind, false);
     if (w && plain !== c && !words(CAT[c].n).includes(w)) S.rules[F.kind + ':' + w] = c;
   }
-  const rec = { k: F.kind, a, n, c, d: F.date };
+  const rec = F.cur !== 'RUB' ? { k: F.kind, a, n, c, d: F.date, cur: F.cur, oa, rt: rate(F.cur) } : { k: F.kind, a, n, c, d: F.date, cur: undefined, oa: undefined, rt: undefined };
   if (F.id) Object.assign(S.tx.find(t => t.id === F.id), rec);
   else S.tx.push({ id: newId(), ...rec, t: Date.now() });
   save(); hapticOk();
@@ -1612,7 +1637,7 @@ function submit() {
     if (p >= 1) return toast(`${CAT[c].n}: лимит превышен`);
     if (p >= .8) return toast(`${CAT[c].n}: ${Math.round(p * 100)}% лимита`);
   }
-  toast(wasEdit ? 'Сохранено' : `${F.kind === 'in' ? '+' : ''}${rub(a)} · ${CAT[c].n}`);
+  toast(wasEdit ? 'Сохранено' : `${F.kind === 'in' ? '+' : ''}${F.cur !== 'RUB' ? fmtCur(oa / 100, F.cur) : rub(a)} · ${CAT[c].n}`);
 }
 
 // ================= Category detail =================
@@ -1719,7 +1744,9 @@ const accRub = a => Math.round((a.type === 'debt' ? -1 : 1) * a.amt * unitRub(a)
 const capTotal = () => S.acc.reduce((s, a) => s + accRub(a), 0);
 function fmtCur(v, c) {
   const dec = isCoin(c) ? (rate(c) > 1000 ? 6 : rate(c) > 1 ? 4 : 2) : 2;
-  let s = (+v).toFixed(dec).replace(/0+$/, '').replace(/\.$/, '').replace('.', ',');
+  let s = (+v).toFixed(dec);
+  s = isCoin(c) ? s.replace(/0+$/, '').replace(/\.$/, '') : s.replace(/\.00$/, '');
+  s = s.replace('.', ',');
   const [i, d] = s.split(',');
   s = fmtN(i) + (d ? ',' + d : '');
   return ['USD', 'EUR'].includes(c) ? CSYM[c] + s : s + ' ' + CSYM[c];
@@ -2672,6 +2699,8 @@ document.addEventListener('click', async e => {
   if (a === 'acats') { aCats = !aCats; haptic(); return render(); }
   if (a === 'atype') { aType = t.dataset.t; aOff = 0; haptic(); return render(); }
   if (a === 'key') { const r = onKey(t.dataset.k); const h = $('.amth'); if (h && !F.sel) h.innerHTML = '&nbsp;'; return r; }
+  if (a === 'fcur') { F.curOpen = !F.curOpen; haptic(); return drawSheet(); }
+  if (a === 'fcurpick') return setCur(t.dataset.c);
   if (a === 'amtsel') { if (!F.amt) return; F.sel = !F.sel; t.classList.toggle('sel', F.sel); const h = $('.amth'); if (h) h.innerHTML = F.sel ? 'Наберите новую сумму' : '&nbsp;'; haptic(); return; }
   if (a === 'csearch') { if (!t.classList.contains('on')) { haptic(); catSearch(true); } return; }
   if (a === 'pick') {
