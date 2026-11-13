@@ -440,7 +440,7 @@ body.big .kvl{font-size:17.8px}
 body.big .sign{font-size:16.7px}
 body.big .onb-more button{font-size:17.3px}
 body.big{--mut:#b3afa8;--mut2:#7a7772}
-body.big .cap>span{white-space:nowrap;overflow:hidden;min-width:0;-webkit-mask:linear-gradient(90deg,#000 85%,transparent);mask:linear-gradient(90deg,#000 85%,transparent)}
+body.big .cap>span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;flex:1}
 .impb .row{padding:10px 0}
 .chk{display:flex;align-items:center;gap:4px;font-size:12px;color:var(--sage);white-space:nowrap}.chk svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .impn{margin:14px 0 4px;display:flex;flex-direction:column;gap:9px}.impn p{display:flex;gap:10px;font-size:13.5px;color:var(--mut);line-height:1.4;margin:0}.impn b{color:var(--iv);font-weight:500}
@@ -461,7 +461,9 @@ body.big .cap>span{white-space:nowrap;overflow:hidden;min-width:0;-webkit-mask:l
 .qfeed{margin-top:8px}
 .tglogin{display:flex;justify-content:center;min-height:48px}
 html.pwa,html.pwa body,html.pwa #app{height:var(--fullh)!important;min-height:var(--fullh)}
-html.pwa .veilb{display:none}
+html.pwa .veilb{bottom:auto;top:calc(var(--fullh) - 190px);height:190px}
+html.pwa .veilb i{display:none}
+html.pwa .veilb:after{background:linear-gradient(rgba(0,0,0,0),rgba(0,0,0,.55) 45%,rgba(0,0,0,.82) 75%,rgba(0,0,0,.6))}
 html.pwa{background:#000}
 html.pwa .sky,html.pwa .splash{bottom:auto!important;height:var(--fullh)}
 .veilb{position:fixed;left:0;right:0;bottom:0;height:calc(120px + var(--sb));z-index:4;pointer-events:none}
