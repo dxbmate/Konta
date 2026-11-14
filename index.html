@@ -3310,6 +3310,14 @@ document.addEventListener('change', e => {
   save(); renderMore(); const ll = $('#limlist'); if (ll) ll.innerHTML = limitsList(); toast(v ? `Лимит «${CAT[id].n}»: ${rub(v)}` : `Лимит «${CAT[id].n}» снят`);
 });
 document.addEventListener('keydown', e => {
+  // физическая клавиатура в листе суммы (компьютер, Telegram Desktop)
+  const tg_ = e.target, typing = tg_ && (tg_.tagName === 'INPUT' || tg_.tagName === 'TEXTAREA' || tg_.isContentEditable);
+  if (!typing && !e.metaKey && !e.ctrlKey && !e.altKey && stack[stack.length - 1] === '#sheet' && $('#sheet .pad')) {
+    const k = /^[0-9]$/.test(e.key) ? e.key : (e.key === ',' || e.key === '.') ? ',' : e.key === 'Backspace' ? '⌫' : null;
+    if (k) { const btn = document.querySelector(`#sheet .pad [data-k="${k}"]`); if (btn) { e.preventDefault(); btn.click(); } return; }
+    if (e.key === 'Enter') { const sv = document.querySelector('#sheet [data-act="save"]'); if (sv) { e.preventDefault(); sv.click(); } return; }
+  }
+  if (e.key === 'Escape' && stack.length && !typing) { close(); return; }
   if (e.target.id === 'f-note' && e.key === 'Enter') e.target.blur();
   if (e.target.id === 'q-in' && e.key === 'Enter') e.target.blur();
   if (e.target.id === 'f-cq' && e.key === 'Enter') { const v = [...document.querySelectorAll('#f-cats .chip')].filter(b => !b.hidden); if (v.length === 1) v[0].click(); else e.target.blur(); }
