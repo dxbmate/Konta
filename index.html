@@ -59,10 +59,10 @@ svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.5;stro
 .up-bad,.down-bad{color:var(--clay)} .down-good,.up-good{color:var(--sage)}
 .c-sage{color:var(--sage)} .c-clay{color:var(--clay)} .c-mut{color:var(--mut)}
 .ticks{display:flex;justify-content:space-between;align-items:flex-end;height:16px;margin:22px 0 4px}
-.ticks i{position:relative;width:1.5px;height:100%;background:var(--iv);border-radius:1px;background:color-mix(in srgb,var(--iv) calc(var(--o,1) * 100%),transparent)}
+.ticks i{position:relative;width:1.5px;height:calc(var(--h,1) * 100%);background:var(--iv);border-radius:1px;background:color-mix(in srgb,var(--iv) calc(var(--o,1) * 100%),transparent)}
 .ticks i.cl::after{content:'';position:absolute;left:50%;bottom:-8px;width:3px;height:3px;margin-left:-1.5px;border-radius:50%;background:var(--acc,var(--iv));opacity:.85}
 .ticks i.fresh::after{animation:seal .6s var(--spring)}@keyframes seal{0%{transform:scale(0)}60%{transform:scale(2.2)}100%{transform:scale(1)}}
-.ticks i.t{height:150%;background:var(--iv);opacity:1}
+.ticks i.t{height:calc(var(--h,1.5) * 100%);background:var(--iv);opacity:1}
 
 /* stats row */
 .stats{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--line);margin-top:18px}
@@ -225,7 +225,7 @@ button.dayc span{color:var(--iv)}button.dayc svg{color:var(--acc,var(--iv))}
 .cap em{display:inline-block;width:14px}
 .cap .chev{width:16px;height:16px;color:var(--mut2)}
 .rb.txt{width:auto;padding:0 16px;border-radius:19px;font-size:13.5px}
-.bigin{background:none;border:0;outline:0;font:inherit;color:inherit;letter-spacing:inherit;text-align:right;width:5.5ch;min-width:1ch;field-sizing:content;max-width:78vw}
+.bigin{background:none;border:0;outline:0;font:inherit;color:inherit;letter-spacing:inherit;text-align:center;width:1.3ch;min-width:1ch;field-sizing:content;max-width:78vw}
 .bigin::placeholder{color:var(--mut2)}
 .amt .cmp{font-size:13px;color:var(--mut);margin-top:6px}
 .ratelbl{display:flex;align-items:center;color:var(--mut);font-size:14px;padding:0 4px}
@@ -581,6 +581,20 @@ html.pwa .grain{height:var(--fullh)}
 .enter .comp i{transform-origin:0 50%;animation:compIn .7s cubic-bezier(.2,.8,.2,1) .1s both}@keyframes compIn{from{transform:scaleX(0)}}
 @media (prefers-reduced-motion:reduce){.enter *{animation:none!important}.seal{display:none}}
 body.big .daily .dl{font-size:15.5px}body.big .daily .dl b{font-size:19px}
+.chart{display:block;width:100%;padding:0;margin:22px 0 4px;background:none;border:0;text-align:left;color:var(--iv);-webkit-tap-highlight-color:transparent}
+.chart .ticks{margin:0}
+.ticks.bars2{height:30px}.ticks.bars2 i{width:4.5px;border-radius:2px 2px 1px 1px}.ticks.bars2 i.t{width:4.5px}
+.cvw{position:relative;display:block;height:44px}
+.cv{display:block;width:100%;height:44px;overflow:visible}
+.cv .ln{fill:none;stroke:currentColor;stroke-width:1.6;stroke-linejoin:round;stroke-linecap:round;vector-effect:non-scaling-stroke}
+.cv .pj{fill:none;stroke:currentColor;stroke-opacity:.35;stroke-width:1.2;stroke-dasharray:2 5;stroke-linecap:round;vector-effect:non-scaling-stroke}
+.cv .ar{fill:url(#cvg)}
+.cvw .dt{position:absolute;width:7px;height:7px;margin:-3.5px 0 0 -3.5px;border-radius:50%;background:var(--acc,#fff);box-shadow:0 0 10px color-mix(in srgb,var(--acc,#fff) 70%,transparent)}
+.chart.swap{animation:chIn .55s cubic-bezier(.2,.8,.2,1)}@keyframes chIn{from{opacity:0;transform:translateY(5px)}}
+.meta>span{white-space:nowrap}
+.meta em.fc{font-style:normal;font-size:12px;color:var(--mut);margin-left:7px;letter-spacing:0}
+.daily.hint .dl{color:var(--mut)}.daily.hint .dn{margin-top:4px;color:var(--mut2)}
+body.big .meta em.fc{font-size:13.5px}
 html.pwa{background:#000}
 .impact{position:sticky;bottom:calc(-16px - var(--sb));z-index:2;margin:12px -20px calc(-16px - var(--sb));padding:22px 20px calc(16px + var(--sb));background:linear-gradient(rgba(17,17,18,0),#111112 26px)}
 html.pwa .sheet{bottom:calc(var(--vh0) - var(--fullh));max-height:calc(var(--fullh) * .94)}
@@ -600,7 +614,7 @@ body.boot .veilb{opacity:0}
 .row .a small{font-size:12px;color:var(--mut)}
 </style>
 </head>
-<body class="boot"><script>(function(){var B="202611142101";try{fetch("/version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.json():null}).then(function(j){if(j&&j.b&&j.b!==B&&sessionStorage.getItem("kupd")!==j.b){sessionStorage.setItem("kupd",j.b);var u=new URL(location.href);u.searchParams.set("v",j.b);location.replace(u.toString())}}).catch(function(){})}catch(e){}})()</script><script>try{var t=localStorage.getItem("konta_theme")||"aurora";var mg={platinum:"cash",franc:"alps",gold:"dial",dollar:"note",vault:"dial",zurich:"cash"};document.documentElement.dataset.th=mg[t]||t}catch(e){}</script>
+<body class="boot"><script>(function(){var B="202611142308";try{fetch("/version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.json():null}).then(function(j){if(j&&j.b&&j.b!==B&&sessionStorage.getItem("kupd")!==j.b){sessionStorage.setItem("kupd",j.b);var u=new URL(location.href);u.searchParams.set("v",j.b);location.replace(u.toString())}}).catch(function(){})}catch(e){}})()</script><script>try{var t=localStorage.getItem("konta_theme")||"aurora";var mg={platinum:"cash",franc:"alps",gold:"dial",dollar:"note",vault:"dial",zurich:"cash"};document.documentElement.dataset.th=mg[t]||t}catch(e){}</script>
 <div class="splash" id="splash"><div class="stage">
 <svg class="g1" viewBox="0 0 390 300"><defs><radialGradient id="spg" cx="195" cy="200" r="200" gradientUnits="userSpaceOnUse" gradientTransform="translate(0 200) scale(1 .62) translate(0 -200)"><stop offset="0" style="stop-color:rgb(var(--sl));stop-opacity:.42"/><stop offset=".35" style="stop-color:rgb(var(--sl));stop-opacity:.14"/><stop offset="1" style="stop-color:rgb(var(--sl));stop-opacity:0"/></radialGradient><clipPath id="spu"><path d="M-10 262 Q195 138 400 262 L400 0 L-10 0Z"/></clipPath></defs><rect class="glw" width="390" height="300" fill="url(#spg)" clip-path="url(#spu)"/></svg>
 <div class="kw"><div class="kk">k</div></div>
@@ -646,7 +660,7 @@ const ICONS = {
   home: '<path d="M4 10.5 12 4l8 6.5"/><path d="M6 9v11h12V9"/><path d="M10 20v-5.5h4V20"/>',
   clothes: '<path d="M9 4 4 6.5l1.5 4L7.5 10v10h9V10l2 .5 1.5-4L15 4c0 1.7-1.3 3-3 3S9 5.7 9 4z"/>',
   fun: '<path d="M4 7.5h16v3a1.5 1.5 0 0 0 0 3v3H4v-3a1.5 1.5 0 0 0 0-3z"/><path d="M14.5 7.5v2M14.5 11.2v1.6M14.5 14.5v2"/>',
-  pet: '<ellipse cx="12" cy="16" rx="3.6" ry="3"/><circle cx="7" cy="11" r="1.6"/><circle cx="17" cy="11" r="1.6"/><circle cx="9.6" cy="7" r="1.6"/><circle cx="14.4" cy="7" r="1.6"/>',
+  pet: '<path d="M12 12.6c-2.7 0-5.1 2.7-5.1 5.1 0 1.6 1.2 2.6 2.8 2.6.9 0 1.5-.45 2.3-.45s1.4.45 2.3.45c1.6 0 2.8-1 2.8-2.6 0-2.4-2.4-5.1-5.1-5.1z"/><ellipse cx="5.5" cy="10.8" rx="1.9" ry="2.35"/><ellipse cx="18.5" cy="10.8" rx="1.9" ry="2.35"/><ellipse cx="9.1" cy="6.3" rx="1.95" ry="2.45"/><ellipse cx="14.9" cy="6.3" rx="1.95" ry="2.45"/>',
   transfer: '<path d="M4 8.5h14l-3.5-3.5"/><path d="M20 15.5H6l3.5 3.5"/>',
   fees: '<path d="M6 3.5h12v17l-2-1.5-2 1.5-2-1.5-2 1.5-2-1.5-2 1.5z"/><path d="M9 8h6M9 11.5h6M9 15h3.5"/>',
   other: '<circle cx="12" cy="12" r="8.5"/><circle cx="8.3" cy="12" r=".6"/><circle cx="12" cy="12" r=".6"/><circle cx="15.7" cy="12" r=".6"/>',
@@ -958,6 +972,8 @@ function lineChart(cur, prev, h = 150, fit = false) {
 }
 const comp = (parts, sum) => { const top = parts.slice(0, 3), rest = parts.slice(3).reduce((s, p) => s + p.v, 0); return `<div class="comp">${top.map(p => `<i style="flex:${p.v / sum};background:${p.c.c}"></i>`).join('')}${rest > 0 ? `<i style="flex:${rest / sum};background:rgba(242,239,233,.16)"></i>` : ''}</div>`; };
 
+
+function fitBig(el) { const n = Math.max(1, (el.value || el.placeholder || '0').length); el.style.width = (n + .25) + 'ch'; }
 // ================= Синхронизация бот ⇄ сайт =================
 const SYNC_API = 'https://functions.yandexcloud.net/d4ebgj5lmvuc5rbuh3u1';
 const BOT_NAME = 'KontaCieBot';
@@ -1435,12 +1451,12 @@ const bordeauxBg = () => [
 function marbleSVG() {
   const R = rng(29); let g = '', gold = '';
   const vein = (x0, y0, len, w, col, op) => { let d = `M${x0},${y0}`, x = x0, y = y0, a = .45 + R() * .5; for (let i = 0; i < len; i++) { a += (R() - .5) * .38; x += 16 * Math.cos(a); y += 16 * Math.sin(a) * .8; d += `L${x.toFixed(1)},${y.toFixed(1)}`; } return `<path d="${d}" stroke="${col}" stroke-opacity="${op}" stroke-width="${w}"/>`; };
-  for (let i = 0; i < 12; i++) g += vein(-60 + R() * 260, 300 + R() * 600, 34, (.5 + R() * 1.8).toFixed(2), '#f2efe9', (.08 + R() * .16).toFixed(2));
-  for (let i = 0; i < 2; i++) gold += vein(R() * 160, 480 + R() * 260, 30, (.7 + R() * .6).toFixed(2), '#e2c27f', (.22 + R() * .12).toFixed(2));
+  for (let i = 0; i < 12; i++) g += vein(-60 + R() * 260, 20 + R() * 380, 34, (.5 + R() * 1.8).toFixed(2), '#f2efe9', (.08 + R() * .16).toFixed(2));
+  for (let i = 0; i < 2; i++) gold += vein(R() * 160, 60 + R() * 220, 30, (.7 + R() * .6).toFixed(2), '#e2c27f', (.22 + R() * .12).toFixed(2));
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 390 844" preserveAspectRatio="xMidYMid slice"><defs><filter id="b"><feGaussianBlur stdDeviation="1.6"/></filter><filter id="s"><feGaussianBlur stdDeviation="7"/></filter><filter id="g"><feGaussianBlur stdDeviation="2.5"/></filter></defs><g fill="none" stroke-linejoin="round"><g filter="url(#s)" opacity=".7">${g}</g><g filter="url(#b)">${g}</g><g filter="url(#g)">${gold}</g>${gold}</g></svg>`;
 }
 const marbleBg = () => [
-  'linear-gradient(180deg,rgba(0,0,0,.6) 0%,rgba(0,0,0,.5) 35%,rgba(0,0,0,0) 65%,rgba(0,0,0,.25) 100%)',
+  'linear-gradient(180deg,rgba(0,0,0,.35) 0%,rgba(0,0,0,.15) 22%,rgba(0,0,0,.55) 48%,rgba(0,0,0,.82) 70%,rgba(0,0,0,.88) 100%)',
   svgUrl(marbleSVG()) + ' center/cover no-repeat',
   'radial-gradient(70% 34% at 60% 88%,rgba(84,80,74,.35),transparent 72%)','radial-gradient(50% 24% at 20% 100%,rgba(170,138,80,.18),transparent 72%)',
   'linear-gradient(160deg,#141414 0%,#0b0b0b 50%,#060606 100%)'
@@ -1638,18 +1654,42 @@ function feed(list, limit = 0) {
   let days = Object.keys(by).sort().reverse();
   return days.map(d => {
     const arr = by[d].sort((a, b) => b.t - a.t);
-    return `<div class="dh"><span>${dayTitle(d)}</span><span>${rub(total(arr))}</span></div>${arr.map(txRow).join('')}`;
+    return `<div class="dh"><span>${dayTitle(d)}</span><span>${d === todayK() && hMode === 'out' && mOff === 0 ? '' : rub(total(arr))}</span></div>${arr.map(txRow).join('')}`;
   }).join('');
 }
+let CHART = (() => { try { return localStorage.getItem('konta_chart') || 'ticks'; } catch (e) { return 'ticks'; } })();
+const CHARTS = ['ticks', 'curve', 'bars'], CHART_N = { ticks: 'Риски', curve: 'Кривая', bars: 'Столбцы' };
 function ticks(r, vals) {
   const ti = r.current ? r.elapsed - 1 : -1, mx = Math.max(...vals, 1), cl = S.closed || {};
   const dk = i => key(new Date(r.s.getFullYear(), r.s.getMonth(), i + 1, 12));
-  return `<div class="ticks">${vals.map((v, i) => {
+  const last = r.current ? ti : vals.length - 1;
+  if (CHART === 'curve') {
+    const W = 350, H = 44, n = vals.length, cum = []; let s = 0;
+    vals.forEach((v, i) => { s += v; cum.push(s); });
+    const done = cum.slice(0, last + 1), pace = last >= 0 ? cum[last] / (last + 1) : 0, end = Math.max(cum[last] || 0, pace * n, 1);
+    const X = i => (n > 1 ? i / (n - 1) : 0) * W, Y = v => H - 3 - v / end * (H - 8);
+    let d = ''; done.forEach((v, i) => { d += (i ? 'L' : 'M') + X(i).toFixed(1) + ',' + Y(v).toFixed(1); });
+    const proj = r.current && last < n - 1 ? `<path class="pj" d="M${X(last).toFixed(1)},${Y(cum[last]).toFixed(1)}L${W},${Y(pace * n).toFixed(1)}"/>` : '';
+    const area = done.length > 1 ? `<path class="ar" d="${d}L${X(last).toFixed(1)},${H}L0,${H}Z"/>` : '';
+    const dot = last >= 0 ? `<i class="dt" style="left:${(X(last) / W * 100).toFixed(2)}%;top:${Y(cum[last]).toFixed(1)}px"></i>` : '';
+    return `<button class="chart" data-act="chartnext" aria-label="Вид графика"><span class="cvw">${dot}<svg class="cv" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none"><defs><linearGradient id="cvg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="currentColor" stop-opacity=".16"/><stop offset="1" stop-color="currentColor" stop-opacity="0"/></linearGradient></defs>${area}${proj}<path class="ln" d="${d}"/></svg></span></button>`;
+  }
+  const bars = CHART === 'bars';
+  return `<button class="chart" data-act="chartnext" aria-label="Вид графика"><div class="ticks ${bars ? 'bars2' : ''}">${vals.map((v, i) => {
     const c = cl[dk(i)] ? ' cl' : '';
-    if (i === ti) return `<i class="t${c}"></i>`;
-    const past = !r.current || i < ti;
-    return `<i class="${c.trim()}" style="--o:${past ? (v ? .3 + .7 * v / mx : .15) : .08}"></i>`;
-  }).join('')}</div>`;
+    const past = !r.current || i < ti, k = v / mx;
+    if (i === ti) return `<i class="t${c}" style="--h:${bars ? Math.max(.12, k) : 1.5}"></i>`;
+    const h = past ? (v ? (bars ? Math.max(.08, k) : .35 + .65 * k) : (bars ? .04 : .3)) : (bars ? .04 : .3);
+    return `<i class="${c.trim()}" style="--o:${past ? (v ? .35 + .65 * k : .18) : .08};--h:${h.toFixed(3)}"></i>`;
+  }).join('')}</div></button>`;
+}
+function chartNext() {
+  CHART = CHARTS[(CHARTS.indexOf(CHART) + 1) % CHARTS.length];
+  try { localStorage.setItem('konta_chart', CHART); } catch (e) {}
+  haptic();
+  const sc = $('#s-home'), y = sc ? sc.scrollTop : 0; render(); if (sc) sc.scrollTop = y;
+  const c = document.querySelector('#s-home .chart'); if (c) { c.classList.add('swap'); setTimeout(() => c.classList.remove('swap'), 700); }
+  toast(CHART_N[CHART]);
 }
 const stat = (label, val, cls = '') => `<div><span>${label}</span><b class="${cls}">${val}</b></div>`;
 const catLine = (c, v, sum, extra = '') => `<button class="row" data-act="cat" data-c="${c.id}"><span class="ic">${ic(c.id)}</span>
@@ -1662,7 +1702,7 @@ function closeDayRow(v) {
   const k = todayK();
   if (S.closed && S.closed[k]) return `<button class="dayc done" data-act="reopenday">${ic('ui_seal')}<span>${dayNote || 'День закрыт'}</span><em>Открыть</em></button>`;
   if (new Date().getHours() < 18) return '';
-  return `<button class="dayc" data-act="closeday">${ic('ui_check')}<span>Закрыть день</span><em>${rub(v, { round: true })}</em></button>`;
+  return `<button class="dayc" data-act="closeday">${ic('ui_check')}<span>Закрыть день</span></button>`;
 }
 function dayInsight(v) {
   const t = today(), days = [];
@@ -1702,7 +1742,7 @@ function renderHome() {
   } else if (isOut) {
     const b = buckets(r), vals = b.map(x => total(outs.filter(t => t.d === x.from)));
     h += ticks(r, vals) + `</section>`;
-    h += `<div class="meta">${r.current ? `<span>Сегодня <b>${rub(vals[r.elapsed - 1] || 0, { round: true })}</b></span><span>Прогноз <b>${rub(perDay * r.days, { round: true, short: true })}</b></span>` : `<span>В день <b>${rub(perDay, { round: true })}</b></span><span>Операций <b>${outs.length}</b></span>`}</div>`;
+    h += `<div class="meta">${r.current ? `<span>Сегодня <b>${rub(vals[r.elapsed - 1] || 0, { round: true })}</b></span><span>Прогноз <b>${rub(perDay * r.days, { round: true, short: true })}</b>${(() => { const pr = range('m', mOff - 1), pt = total(sel('out', pr.from, pr.to)); if (!pt) return ''; const p = Math.round((perDay * r.days / pt - 1) * 100); return Math.abs(p) < 1 ? '' : `<em class="fc">${p > 0 ? '+' : '−'}${Math.abs(p)}%</em>`; })()}</span>` : `<span>В день <b>${rub(perDay, { round: true })}</b></span><span>Операций <b>${outs.length}</b></span>`}</div>`;
     if (r.current && S.tx.length) h += dailyRow() + closeDayRow(vals[r.elapsed - 1] || 0);
     // лимиты — только когда горит
     const hot = Object.entries(S.limits).filter(([c]) => CAT[c]).map(([c, lim]) => ({ c, lim, s: total(sel('out', r.from, r.to, c)) })).filter(x => x.s / x.lim >= .8);
@@ -2586,7 +2626,8 @@ function dailyCalc() {
 }
 function dailyRow() {
   if (!DAILY) return '';
-  const d = dailyCalc(); if (!d) return '';
+  const d = dailyCalc();
+  if (!d) return `<button class="daily hint" data-act="dailyinc"><span class="dl"><span>Можно тратить сегодня</span></span><span class="dn">Добавьте доход, и я посчитаю дневной ориентир</span></button>`;
   if (d.avail <= 0) return `<button class="daily over" data-act="daily"><span class="dl"><span>Можно тратить сегодня</span><b>0 ₽</b></span><span class="dn">Бюджет месяца исчерпан</span></button>`;
   const pct = d.per ? Math.min(100, d.todayOut / d.per * 100) : 100, over = d.left < 0;
   const tomorrow = d.daysLeft > 1 ? Math.max(0, Math.floor((d.avail - d.todayOut) / (d.daysLeft - 1) / 100) * 100) : 0;
@@ -3270,7 +3311,7 @@ function undoImport(im) {
 const stack = [];
 function open(id) {
   if (stack.includes(id)) return;
-  stack.push(id); $(id).classList.add('on'); $('#veil').classList.add('on'); document.body.classList.add('deep');
+  stack.push(id); $(id).querySelectorAll('.bigin').forEach(fitBig); $(id).classList.add('on'); $('#veil').classList.add('on'); document.body.classList.add('deep');
   $(id).style.zIndex = 11 + stack.length * 2; $('#veil').style.zIndex = 10 + stack.length * 2;
   try { tg && tg.BackButton.show(); } catch (e) {}
 }
@@ -3405,6 +3446,8 @@ document.addEventListener('click', async e => {
   if (a === 'botwrite') return botWrite();
   if (a === 'openbot') { const u = 'https://t.me/KontaCieBot'; if (inTG && tg.openTelegramLink) tg.openTelegramLink(u); else window.open(u, '_blank'); return; }
   if (a === 'daily') return dailyInfo();
+  if (a === 'dailyinc') { haptic('medium'); return openSheet(null, 'in'); }
+  if (a === 'chartnext') return chartNext();
   if (a === 'dailytog') return dailyToggle();
   if (a === 'login') { haptic(); return openLogin(); }
   if (a === 'onblogin') { onbDone(); return openLogin(); }
@@ -3459,7 +3502,7 @@ document.addEventListener('click', async e => {
     S = { v: 2, tx: [], limits: {}, rules: {}, seq: 1, acc: [], rates: {}, prices: {}, capHist: [], onb: true, gid: 1 }; save(); render(); toast('Данные удалены');
   }
 });
-document.addEventListener('input', e => { if (goalInput(e)) return; if (e.target.id === 'f-note') onNote(e.target.value); if (['acc-amt', 'acc-rate', 'acc-price'].includes(e.target.id)) { A.amtS = $('#acc-amt').value; $('#acc-rub').innerHTML = accPreview(); } if (e.target.id === 'acc-tk') onTicker(); if (e.target.id === 'coin-q') onCoinSearch(e.target.value); if (e.target.id === 'f-cq') catFilter(e.target.value); if (e.target.id === 'q-in') { Q.q = e.target.value; clearTimeout(searchRun._t); searchRun._t = setTimeout(searchRun, 120); } });
+document.addEventListener('input', e => { if (e.target.classList && e.target.classList.contains('bigin')) fitBig(e.target); if (goalInput(e)) return; if (e.target.id === 'f-note') onNote(e.target.value); if (['acc-amt', 'acc-rate', 'acc-price'].includes(e.target.id)) { A.amtS = $('#acc-amt').value; $('#acc-rub').innerHTML = accPreview(); } if (e.target.id === 'acc-tk') onTicker(); if (e.target.id === 'coin-q') onCoinSearch(e.target.value); if (e.target.id === 'f-cq') catFilter(e.target.value); if (e.target.id === 'q-in') { Q.q = e.target.value; clearTimeout(searchRun._t); searchRun._t = setTimeout(searchRun, 120); } });
 document.addEventListener('change', e => {
   if (goalChange(e)) return;
   if (e.target.id === 'imp-in') { const f = [...e.target.files]; e.target.value = ''; if (f.length) handleImport(f); return; }
@@ -3551,6 +3594,7 @@ load().then(() => {
   render(); moveInd(); addEventListener('resize', moveInd); if (document.fonts) document.fonts.ready.then(() => { moveInd(); animSegs(); }); fetchRates(); hsInit(); loginFromUrl().then(() => syncNow()); splashEnd(); });
 
 tiltStart();
+['#sheet', '#sheet2'].forEach(id => { const el = $(id); if (el) new MutationObserver(() => el.querySelectorAll('.bigin').forEach(fitBig)).observe(el, { childList: true }); });
 // уведомление сверху можно смахнуть вверх
 (() => {
   const el = $('#toast'); let y0 = null, dy = 0, t0 = 0;
