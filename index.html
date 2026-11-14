@@ -196,6 +196,7 @@ input.lim::placeholder{color:var(--mut2)}
 
 .toast{position:fixed;left:50%;top:calc(10px + var(--st));transform:translate(-50%,-100px);height:42px;padding:0 18px;border-radius:21px;display:flex;align-items:center;font-size:14px;z-index:40;transition:transform .35s cubic-bezier(.2,.9,.25,1);white-space:nowrap}
 .toast.on{transform:translate(-50%,0)}
+.toast{touch-action:none;user-select:none;-webkit-user-select:none}
 .dlg{position:fixed;inset:0;display:grid;place-items:center;z-index:50;background:rgba(0,0,0,.65)}
 .dlg>div{background:#1a1a1c;border-radius:22px;padding:22px;width:min(320px,86vw)}
 .dlg p{margin-bottom:18px;line-height:1.45}
@@ -599,7 +600,7 @@ body.boot .veilb{opacity:0}
 .row .a small{font-size:12px;color:var(--mut)}
 </style>
 </head>
-<body class="boot"><script>(function(){var B="202611142041";try{fetch("/version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.json():null}).then(function(j){if(j&&j.b&&j.b!==B&&sessionStorage.getItem("kupd")!==j.b){sessionStorage.setItem("kupd",j.b);var u=new URL(location.href);u.searchParams.set("v",j.b);location.replace(u.toString())}}).catch(function(){})}catch(e){}})()</script><script>try{var t=localStorage.getItem("konta_theme")||"aurora";var mg={platinum:"cash",franc:"alps",gold:"dial",dollar:"note",vault:"dial",zurich:"cash"};document.documentElement.dataset.th=mg[t]||t}catch(e){}</script>
+<body class="boot"><script>(function(){var B="202611142101";try{fetch("/version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.json():null}).then(function(j){if(j&&j.b&&j.b!==B&&sessionStorage.getItem("kupd")!==j.b){sessionStorage.setItem("kupd",j.b);var u=new URL(location.href);u.searchParams.set("v",j.b);location.replace(u.toString())}}).catch(function(){})}catch(e){}})()</script><script>try{var t=localStorage.getItem("konta_theme")||"aurora";var mg={platinum:"cash",franc:"alps",gold:"dial",dollar:"note",vault:"dial",zurich:"cash"};document.documentElement.dataset.th=mg[t]||t}catch(e){}</script>
 <div class="splash" id="splash"><div class="stage">
 <svg class="g1" viewBox="0 0 390 300"><defs><radialGradient id="spg" cx="195" cy="200" r="200" gradientUnits="userSpaceOnUse" gradientTransform="translate(0 200) scale(1 .62) translate(0 -200)"><stop offset="0" style="stop-color:rgb(var(--sl));stop-opacity:.42"/><stop offset=".35" style="stop-color:rgb(var(--sl));stop-opacity:.14"/><stop offset="1" style="stop-color:rgb(var(--sl));stop-opacity:0"/></radialGradient><clipPath id="spu"><path d="M-10 262 Q195 138 400 262 L400 0 L-10 0Z"/></clipPath></defs><rect class="glw" width="390" height="300" fill="url(#spg)" clip-path="url(#spu)"/></svg>
 <div class="kw"><div class="kk">k</div></div>
@@ -3341,7 +3342,7 @@ function undoDel(rec, i) {
     toast('Вернул');
   }, 8000);
 }
-$('#toast').addEventListener('click', e => { if (toastFn && e.target.closest('u')) { const f = toastFn; toastFn = null; $('#toast').classList.remove('on'); f(); } });
+$('#toast').addEventListener('click', e => { if (Date.now() - ($('#toast')._dragged || 0) < 350) return; if (toastFn && e.target.closest('u')) { const f = toastFn; toastFn = null; $('#toast').classList.remove('on'); f(); } });
 
 // ================= Events =================
 document.addEventListener('click', async e => {
@@ -3550,6 +3551,21 @@ load().then(() => {
   render(); moveInd(); addEventListener('resize', moveInd); if (document.fonts) document.fonts.ready.then(() => { moveInd(); animSegs(); }); fetchRates(); hsInit(); loginFromUrl().then(() => syncNow()); splashEnd(); });
 
 tiltStart();
+// уведомление сверху можно смахнуть вверх
+(() => {
+  const el = $('#toast'); let y0 = null, dy = 0, t0 = 0;
+  el.addEventListener('pointerdown', e => { if (!el.classList.contains('on')) return; y0 = e.clientY; dy = 0; t0 = Date.now(); el.style.transition = 'none'; el._pid = e.pointerId; el._cap = false; });
+  el.addEventListener('pointermove', e => { if (y0 === null) return; dy = e.clientY - y0; if (!el._cap && Math.abs(dy) > 5) { el._cap = true; try { el.setPointerCapture(el._pid); } catch (x) {} } el.style.transform = `translate(-50%,${dy < 0 ? dy : dy * .25}px)`; });
+  const end = () => {
+    if (y0 === null) return;
+    const fast = dy < -8 && Date.now() - t0 < 220;
+    el.style.transition = ''; el.style.transform = '';
+    if (dy < -22 || fast) { el.classList.remove('on'); clearTimeout(toast._t); toastFn = null; haptic(); }
+    if (Math.abs(dy) > 5) el._dragged = Date.now();
+    y0 = null;
+  };
+  el.addEventListener('pointerup', end); el.addEventListener('pointercancel', end);
+})();
 
 </script>
 </body>
