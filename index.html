@@ -466,16 +466,17 @@ html.pwa,html.pwa body,html.pwa #app{height:var(--fullh)!important;min-height:va
 html.pwa .veilb{bottom:auto;top:calc(var(--fullh) - 190px);height:190px}
 html.pwa .veilb i{display:none}
 html.pwa .veilb:after{background:linear-gradient(rgba(0,0,0,0),rgba(0,0,0,.55) 45%,rgba(0,0,0,.82) 75%,rgba(0,0,0,.6))}
-.syn{display:inline-grid;place-items:center;width:26px;height:26px;margin-left:6px;vertical-align:3px;border-radius:50%;color:var(--mut);opacity:.38;transition:opacity .4s,color .4s}
-.syn svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
-.syn .bd{stroke-width:1.9}
-.syn.busy .ar{transform-origin:12px 12px;animation:synr 1.4s linear infinite}
-.syn.busy{opacity:.5}
-.syn.err{color:#e5867a;opacity:.95}
-.syn.err svg{animation:synp 2.4s ease-in-out 2}
+.rb.syn{position:relative;color:rgba(243,237,226,.72)}
+.rb.syn>svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.rb.syn .bd{position:absolute;right:-1px;top:-1px;width:15px;height:15px;border-radius:50%;display:grid;place-items:center;box-shadow:0 0 0 2px rgba(10,10,12,.9)}
+.rb.syn .bd:empty{display:none}
+.rb.syn .bd svg{width:11px;height:11px;fill:none;stroke:#0b0b0c;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.rb.syn.ok .bd{background:var(--sage,#9fbf9a)}
+.rb.syn.err{color:#e5867a;background:rgba(229,134,122,.14)}
+.rb.syn.err .bd{background:#e5867a;animation:synp 1.6s ease-in-out 3}
+.rb.syn.busy .ar{transform-origin:12px 12px;animation:synr 1.2s linear infinite}
 @keyframes synr{to{transform:rotate(360deg)}}
-@keyframes synp{50%{opacity:.4}}
-body.big .syn svg{width:17px;height:17px}
+@keyframes synp{50%{opacity:.35}}
 .gempty{text-align:center;padding:36px 8px 22px}.gempty p{font-size:14.5px;line-height:1.55;color:var(--mut)}
 .gmark{width:64px;height:64px;margin:0 auto 18px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.05);box-shadow:inset 0 0 0 1px rgba(255,255,255,.07);color:var(--acc,#e8e4dc)}.gmark svg{width:28px;height:28px}
 .gmark.on{background:color-mix(in srgb,var(--acc) 16%,transparent);box-shadow:0 0 40px color-mix(in srgb,var(--acc) 30%,transparent)}
@@ -511,7 +512,8 @@ body.big .gcard .gs,body.big .gv,body.big .gtip p{font-size:15px}body.big .gplan
 .drum .dr{display:flex;flex-direction:column;transition:transform .85s cubic-bezier(.16,.84,.24,1)}
 .drum .dr i{display:block;height:1.05em;line-height:1.05em;font-style:normal;text-align:center}
 .drum .sp{white-space:pre}
-.sky{transition:none;will-change:transform}
+.sky{transition:none}
+html.pwa body.deep .screen:not(.hidden){transform:none}
 .screen{transition:transform .5s cubic-bezier(.2,.8,.2,1),border-radius .5s,opacity .5s;transform-origin:50% 40%}
 body.deep .screen:not(.hidden){transform:scale(.94) translateY(6px);border-radius:26px;opacity:.75}
 .gdial{position:relative;width:236px;height:236px;margin:8px auto 4px}
@@ -1094,7 +1096,7 @@ function syncState() {
 }
 function syncIco() {
   const st = syncState(); if (!st) return '';
-  return `<button class="syn ${st}" data-act="synci" aria-label="Синхронизация"><svg viewBox="0 0 24 24"><g class="ar"><path d="M19.5 9.5A8 8 0 0 0 5.2 7.8"/><path d="M5 4v4h4"/><path d="M4.5 14.5a8 8 0 0 0 14.3 1.7"/><path d="M19 20v-4h-4"/></g>${st === 'ok' ? '<path class="bd" d="M9.2 12.2l1.9 1.9 3.8-3.9"/>' : st === 'err' ? '<path class="bd" d="M9.8 9.8l4.4 4.4M14.2 9.8l-4.4 4.4"/>' : ''}</svg></button>`;
+  return `<button class="rb syn ${st}" data-act="synci" aria-label="Синхронизация"><svg viewBox="0 0 24 24"><g class="ar"><path d="M19.5 9.5A8 8 0 0 0 5.2 7.8"/><path d="M5 4v4h4"/><path d="M4.5 14.5a8 8 0 0 0 14.3 1.7"/><path d="M19 20v-4h-4"/></g></svg><i class="bd">${st === 'ok' ? '<svg viewBox="0 0 12 12"><path d="m3.2 6.2 1.9 1.9 3.7-3.9"/></svg>' : st === 'err' ? '<svg viewBox="0 0 12 12"><path d="M6 3.2v3.6M6 8.6v.1"/></svg>' : ''}</i></button>`;
 }
 function syncIcoUpd() {
   const el = document.querySelector('.syn'), st = syncState();
@@ -1514,7 +1516,7 @@ function tiltFeed(beta, gamma) {
 function tiltFrame() {
   TILT.raf = 0;
   TILT.x += (TILT.tx - TILT.x) * .12; TILT.y += (TILT.ty - TILT.y) * .12;
-  const sky = $('.sky'); if (sky) sky.style.transform = `translate3d(${(-TILT.x).toFixed(2)}px,${(-TILT.y).toFixed(2)}px,0) scale(1.05)`;
+  const sky = $('.sky'); if (sky) { const pw = document.documentElement.classList.contains('pwa'); Object.assign(sky.style, { top: `${(-8 - TILT.y).toFixed(1)}px`, left: `${(-8 - TILT.x).toFixed(1)}px`, right: 'auto', bottom: 'auto', width: 'calc(100% + 16px)', height: pw ? 'calc(var(--fullh) + 16px)' : 'calc(100% + 16px)' }); }
   if (Math.abs(TILT.tx - TILT.x) > .05 || Math.abs(TILT.ty - TILT.y) > .05) TILT.raf = requestAnimationFrame(tiltFrame);
 }
 const onDevOr = e => tiltFeed(e.beta, e.gamma);
@@ -1640,7 +1642,7 @@ function renderHome() {
   const prev = prevComparable(r, hMode);
   const days = r.current ? r.elapsed : r.days, perDay = days ? spent / days : 0;
   let h = header(cap(M[r.s.getMonth()]), mOff, 'mnav', r.s.getFullYear() !== today().getFullYear() ? r.s.getFullYear() : '', true);
-  h = h.replace('</h1>', syncIco() + '</h1>');
+  h = h.replace('<div class="arrows">', '<div class="arrows">' + syncIco());
   h += `<div class="seg mode">${[['out', 'Расходы'], ['in', 'Доходы']].map(([k, t]) => `<button class="${hMode === k ? 'on' : ''}" data-act="hmode" data-m="${k}">${t}</button>`).join('')}</div>`;
   h += `<section class="hero"><div class="num ${isOut ? '' : 'sage'}" data-act="priv"><span data-count="${sum}" data-ck="h${hMode}">0</span><small>₽</small></div>
     <div class="cmp">${prev ? `${delta(sum, prev, !isOut)} к ${r.current ? `этой же дате в ${MP[pm]}` : MP[pm].replace(/е$/, 'ю')}` : '&nbsp;'}</div>`;
