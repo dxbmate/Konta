@@ -253,7 +253,8 @@ button.dayc span{color:var(--iv)}button.dayc svg{color:var(--acc,var(--iv))}
 .th.on .tn{color:var(--iv)}
 .thd{font-size:12.5px;color:var(--mut);margin:8px 0 0;min-height:17px}
 
-#app,.dock{transition:opacity .6s ease}
+#app,.dock{transition:opacity .8s ease}
+body.boot .screen{transform:translateY(16px)}
 body.boot #app,body.boot .dock{opacity:0}
 
 /* ---- typography ---- */
@@ -525,6 +526,33 @@ body.deep .screen:not(.hidden){transform:scale(.94) translateY(6px);border-radiu
 .gdial .gp{font-size:12px;letter-spacing:.14em;color:var(--acc);margin-top:10px}
 body.priv .gdial .gn{filter:blur(9px)}
 @media (prefers-reduced-motion:reduce){.screen,.drum .dr,.gdial line{transition:none!important}body.deep .screen:not(.hidden){transform:none;opacity:1}}
+.splash{justify-content:flex-start}
+.splash .stage{position:absolute;left:50%;top:calc(50% - 232px);width:390px;height:300px;margin-left:-195px}
+.splash .stage svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.splash .glw{opacity:0;animation:spFade 1.4s ease .35s forwards}
+.splash .g2 .hl,.splash .g2 .hg{fill:none;stroke-linecap:round;stroke-dasharray:0 100;stroke-dashoffset:-50;animation:hzDraw 1.2s cubic-bezier(.3,.7,.2,1) .15s forwards}
+.splash .g2 .hl{stroke-width:1.4}.splash .g2 .hg{stroke-width:6;opacity:.5}
+@keyframes hzDraw{to{stroke-dasharray:100 0;stroke-dashoffset:0}}
+@keyframes spFade{to{opacity:1}}
+.splash .kw{position:absolute;left:0;right:0;top:0;height:300px;overflow:hidden}
+.splash .kk{position:absolute;left:0;right:0;top:44px;text-align:center;font-family:var(--disp);font-weight:500;font-size:132px;line-height:1;letter-spacing:0;color:#f3ede2;background:linear-gradient(180deg,#fffdf8 0%,#efe8dc 55%,#d6cdbd 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;opacity:0;transform:translateY(120px);animation:kRise 1.2s cubic-bezier(.2,.8,.2,1) .45s forwards}
+@keyframes kRise{to{opacity:1;transform:none}}
+.splash .spt{position:absolute;left:0;right:0;top:calc(50% + 83px);text-align:center;opacity:0;transform:translateY(6px);animation:wmIn 1s cubic-bezier(.2,.9,.25,1) 1.05s forwards}
+.splash .spt .nm{font-family:"Cormorant Garamond",Didot,Georgia,serif;font-size:27px;font-weight:500;letter-spacing:.01em;color:#f3ede2}
+.splash .spt .nm i{font-style:italic;font-weight:400;font-size:19px;color:rgba(243,237,226,.55)}
+.splash .spt .hr{width:26px;height:1px;background:rgba(243,237,226,.3);margin:14px auto 12px}
+.splash .spt .est{font-size:10px;letter-spacing:.42em;padding-left:.42em;color:rgba(243,237,226,.5)}
+.splash .spv{position:absolute;left:0;right:0;bottom:calc(46px + var(--sb,0px));text-align:center;font-size:10px;letter-spacing:.32em;padding-left:.32em;color:rgba(243,237,226,.36);opacity:0;animation:spFade 1s ease 1.3s forwards}
+.splash.out{opacity:0;transform:translateY(-14px) scale(.985);transition:opacity .7s ease,transform .9s cubic-bezier(.2,.8,.2,1)}
+html{--sl:255,232,196;--sl2:255,248,236}
+html[data-th=alps]{--sl:200,222,255;--sl2:236,244,255}
+html[data-th=dial]{--sl:240,212,160;--sl2:255,242,214}
+html[data-th=cash]{--sl:236,204,172;--sl2:255,240,226}
+html[data-th=note]{--sl:160,226,186;--sl2:226,250,236}
+html[data-th=bordeaux]{--sl:255,170,186;--sl2:255,228,232}
+html[data-th=marble]{--sl:232,200,136;--sl2:255,244,220}
+html[data-th=sapphire]{--sl:160,188,255;--sl2:226,234,255}
+@media (prefers-reduced-motion:reduce){.splash .g2 path{animation:none;stroke-dasharray:none}.splash .glw,.splash .kk,.splash .spt,.splash .spv{animation:none;opacity:1;transform:none}}
 html.pwa{background:#000}
 .impact{position:sticky;bottom:calc(-16px - var(--sb));z-index:2;margin:12px -20px calc(-16px - var(--sb));padding:22px 20px calc(16px + var(--sb));background:linear-gradient(rgba(17,17,18,0),#111112 26px)}
 html.pwa .sheet{bottom:calc(var(--vh0) - var(--fullh));max-height:calc(var(--fullh) * .94)}
@@ -544,8 +572,12 @@ body.boot .veilb{opacity:0}
 .row .a small{font-size:12px;color:var(--mut)}
 </style>
 </head>
-<body class="boot">
-<div class="splash" id="splash"><div class="wm"><b>Konta</b><i>&amp; Cie</i></div><div class="tag">Private finance</div></div>
+<body class="boot"><script>try{var t=localStorage.getItem("konta_theme")||"aurora";var mg={platinum:"cash",franc:"alps",gold:"dial",dollar:"note",vault:"dial",zurich:"cash"};document.documentElement.dataset.th=mg[t]||t}catch(e){}</script>
+<div class="splash" id="splash"><div class="stage">
+<svg class="g1" viewBox="0 0 390 300"><defs><radialGradient id="spg" cx="195" cy="200" r="200" gradientUnits="userSpaceOnUse" gradientTransform="translate(0 200) scale(1 .62) translate(0 -200)"><stop offset="0" style="stop-color:rgb(var(--sl));stop-opacity:.42"/><stop offset=".35" style="stop-color:rgb(var(--sl));stop-opacity:.14"/><stop offset="1" style="stop-color:rgb(var(--sl));stop-opacity:0"/></radialGradient><clipPath id="spu"><path d="M-10 262 Q195 138 400 262 L400 0 L-10 0Z"/></clipPath></defs><rect class="glw" width="390" height="300" fill="url(#spg)" clip-path="url(#spu)"/></svg>
+<div class="kw"><div class="kk">k</div></div>
+<svg class="g2" viewBox="0 0 390 300"><defs><linearGradient id="spp" x1="0" y1="140" x2="0" y2="300" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#000" stop-opacity="1"/><stop offset=".45" stop-color="#000" stop-opacity=".85"/><stop offset="1" stop-color="#000" stop-opacity="0"/></linearGradient><linearGradient id="spl" x1="-10" x2="400" gradientUnits="userSpaceOnUse"><stop offset="0" style="stop-color:rgb(var(--sl));stop-opacity:0"/><stop offset=".18" style="stop-color:rgb(var(--sl));stop-opacity:.35"/><stop offset=".5" style="stop-color:rgb(var(--sl2));stop-opacity:1"/><stop offset=".82" style="stop-color:rgb(var(--sl));stop-opacity:.35"/><stop offset="1" style="stop-color:rgb(var(--sl));stop-opacity:0"/></linearGradient><filter id="spb" x="-10%" y="-100%" width="120%" height="300%"><feGaussianBlur stdDeviation="4"/></filter></defs><path d="M-10 262 Q195 138 400 262 L400 300 L-10 300Z" fill="url(#spp)" opacity=".9"/><path class="hg" pathLength="100" d="M-10 262 Q195 138 400 262" stroke="url(#spl)" filter="url(#spb)"/><path class="hl" pathLength="100" d="M-10 262 Q195 138 400 262" stroke="url(#spl)"/></svg></div>
+<div class="spt"><div class="nm">Konta <i>&amp; Cie</i></div><div class="hr"></div><div class="est">EST. 2026</div></div><div class="spv">v 3.2</div></div>
 <div class="sky"></div><div class="grain"></div>
 <div id="app">
   <section class="screen" id="s-home"></section>
@@ -1404,7 +1436,7 @@ function applyTheme() {
     sky.style.background = `linear-gradient(180deg,rgba(0,0,0,.45),rgba(0,0,0,.82) 55%,#000),url(${img}) center/cover no-repeat`;
   } else sky.style.background = themeBg(THEME);
   document.documentElement.style.setProperty('--acc', t.acc);
-  document.body.dataset.theme = THEME;
+  document.body.dataset.theme = THEME; document.documentElement.dataset.th = THEME;
 }
 function setTheme(k) {
   THEME = k; try { localStorage.setItem('konta_theme', k); } catch (e) {}
@@ -1528,6 +1560,7 @@ function dialGo(root) { if (!root) return; requestAnimationFrame(() => requestAn
 let tab = 'home', mOff = 0, aType = 'm', aOff = 0, hMode = 'out', aMore = false, aCats = false;
 const counters = {};
 function animateCounts() {
+  if (document.body.classList.contains('boot')) return;
   document.querySelectorAll('[data-count]').forEach(el => {
     const to = +el.dataset.count, k = el.dataset.ck || 'x', from = counters[k] ?? 0;
     counters[k] = to;
@@ -1719,7 +1752,7 @@ function renderMore() {
     <div class="stack" style="margin-top:14px"><button class="btn ghost" data-act="csv">Экспорт в CSV</button><div id="csvbox"></div>
       ${Object.keys(S.rules).length ? `<button class="btn ghost" data-act="rules">Сбросить выученные категории (${Object.keys(S.rules).length})</button>` : ''}
       <button class="btn danger" data-act="wipe">Удалить все данные</button></div>
-    <div class="wm sm"><b>Konta</b><i>&amp; Cie</i></div><div class="ver">Private finance · версия 3.1</div>`;
+    <div class="wm sm"><b>Konta</b><i>&amp; Cie</i></div><div class="ver">Private finance · версия 3.2</div>`;
   $('#s-more').innerHTML = h;
 }
 
@@ -3329,10 +3362,24 @@ if (!inTG && STANDALONE) {
 // веб-версия: офлайн-кэш и защита данных от автоочистки браузера
 if (!inTG && 'serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => {});
 if (!inTG && navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
+const T0 = performance.now();
+let splashDone = false, splashReady = false;
+function splashEnd(now) {
+  splashReady = true;
+  if (splashDone) return;
+  const wait = now ? 0 : Math.max(0, (S.onb ? 2100 : 2500) - (performance.now() - T0));
+  clearTimeout(splashEnd._t);
+  splashEnd._t = setTimeout(() => {
+    if (splashDone) return; splashDone = true;
+    const s = $('#splash'); s.classList.add('out'); setTimeout(() => s.remove(), 1000);
+    setTimeout(() => { document.body.classList.remove('boot'); setTimeout(animateCounts, 180); if (!S.onb) showOnboarding(); else maybeReport(); if (BIO) unlock(); }, 260);
+  }, wait);
+}
+$('#splash').addEventListener('click', () => { if (splashReady && performance.now() - T0 > 700) splashEnd(true); });
 load().then(() => {
   afterLoad();
   if (!S.onb && (S.tx.length || S.acc.length)) { S.onb = true; save(); }
-  render(); moveInd(); addEventListener('resize', moveInd); if (document.fonts) document.fonts.ready.then(() => { moveInd(); animSegs(); }); fetchRates(); hsInit(); loginFromUrl().then(() => syncNow()); setTimeout(() => { document.body.classList.remove('boot'); const s = $('#splash'); s.classList.add('out'); setTimeout(() => s.remove(), 800); if (!S.onb) showOnboarding(); else maybeReport(); if (BIO) unlock(); }, 1100); });
+  render(); moveInd(); addEventListener('resize', moveInd); if (document.fonts) document.fonts.ready.then(() => { moveInd(); animSegs(); }); fetchRates(); hsInit(); loginFromUrl().then(() => syncNow()); splashEnd(); });
 
 tiltStart();
 
