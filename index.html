@@ -595,6 +595,15 @@ body.big .daily .dl{font-size:15.5px}body.big .daily .dl b{font-size:19px}
 .meta em.fc{font-style:normal;font-size:12px;color:var(--mut);margin-left:7px;letter-spacing:0}
 .daily.hint .dl{color:var(--mut)}.daily.hint .dn{margin-top:4px;color:var(--mut2)}
 body.big .meta em.fc{font-size:13.5px}
+.h2r{display:flex;align-items:baseline;justify-content:space-between}
+.chsw{font-size:12px;font-weight:500;letter-spacing:.02em;color:var(--mut);padding:5px 11px;border-radius:12px;background:rgba(255,255,255,.05);box-shadow:inset 0 1px 0 rgba(255,255,255,.06);text-transform:none}
+.bars.tkm i{width:1.5px;border-radius:1px}
+.bars.cvm i{background:transparent!important}
+.bars.cvm i.sel{background:rgba(255,255,255,.22)!important;width:1px}
+.bars .bcv{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}
+.bars .bcv path{fill:none;stroke:var(--iv);stroke-opacity:.85;stroke-width:1.6;stroke-linejoin:round;stroke-linecap:round;vector-effect:non-scaling-stroke}
+.bars .bdot{position:absolute;width:7px;height:7px;margin:-3.5px 0 0 -3.5px;border-radius:50%;background:var(--acc,#fff);box-shadow:0 0 10px color-mix(in srgb,var(--acc,#fff) 70%,transparent);pointer-events:none}
+.bars.swap{animation:chIn .55s cubic-bezier(.2,.8,.2,1)}
 html.pwa{background:#000}
 .impact{position:sticky;bottom:calc(-16px - var(--sb));z-index:2;margin:12px -20px calc(-16px - var(--sb));padding:22px 20px calc(16px + var(--sb));background:linear-gradient(rgba(17,17,18,0),#111112 26px)}
 html.pwa .sheet{bottom:calc(var(--vh0) - var(--fullh));max-height:calc(var(--fullh) * .94)}
@@ -614,7 +623,7 @@ body.boot .veilb{opacity:0}
 .row .a small{font-size:12px;color:var(--mut)}
 </style>
 </head>
-<body class="boot"><script>(function(){var B="202611142308";try{fetch("/version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.json():null}).then(function(j){if(j&&j.b&&j.b!==B&&sessionStorage.getItem("kupd")!==j.b){sessionStorage.setItem("kupd",j.b);var u=new URL(location.href);u.searchParams.set("v",j.b);location.replace(u.toString())}}).catch(function(){})}catch(e){}})()</script><script>try{var t=localStorage.getItem("konta_theme")||"aurora";var mg={platinum:"cash",franc:"alps",gold:"dial",dollar:"note",vault:"dial",zurich:"cash"};document.documentElement.dataset.th=mg[t]||t}catch(e){}</script>
+<body class="boot"><script>(function(){var B="202611142327";try{fetch("/version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.json():null}).then(function(j){if(j&&j.b&&j.b!==B&&sessionStorage.getItem("kupd")!==j.b){sessionStorage.setItem("kupd",j.b);var u=new URL(location.href);u.searchParams.set("v",j.b);location.replace(u.toString())}}).catch(function(){})}catch(e){}})()</script><script>try{var t=localStorage.getItem("konta_theme")||"aurora";var mg={platinum:"cash",franc:"alps",gold:"dial",dollar:"note",vault:"dial",zurich:"cash"};document.documentElement.dataset.th=mg[t]||t}catch(e){}</script>
 <div class="splash" id="splash"><div class="stage">
 <svg class="g1" viewBox="0 0 390 300"><defs><radialGradient id="spg" cx="195" cy="200" r="200" gradientUnits="userSpaceOnUse" gradientTransform="translate(0 200) scale(1 .62) translate(0 -200)"><stop offset="0" style="stop-color:rgb(var(--sl));stop-opacity:.42"/><stop offset=".35" style="stop-color:rgb(var(--sl));stop-opacity:.14"/><stop offset="1" style="stop-color:rgb(var(--sl));stop-opacity:0"/></radialGradient><clipPath id="spu"><path d="M-10 262 Q195 138 400 262 L400 0 L-10 0Z"/></clipPath></defs><rect class="glw" width="390" height="300" fill="url(#spg)" clip-path="url(#spu)"/></svg>
 <div class="kw"><div class="kk">k</div></div>
@@ -930,10 +939,29 @@ function delta(cur, prev, goodWhenUp = false) {
 }
 
 // ================= Charts =================
-function barChart(vals, b, { hi = -1, color, h = 110, avg = 0, id, wide }) {
+// монотонная кривая через точки (без провалов и «ступенек»)
+function monoPath(xs, ys) {
+  const n = xs.length; if (n < 2) return '';
+  const dx = [], m = [], t = [];
+  for (let i = 0; i < n - 1; i++) { dx[i] = xs[i + 1] - xs[i]; m[i] = (ys[i + 1] - ys[i]) / dx[i]; }
+  t[0] = m[0]; t[n - 1] = m[n - 2];
+  for (let i = 1; i < n - 1; i++) t[i] = m[i - 1] * m[i] <= 0 ? 0 : (m[i - 1] + m[i]) / 2;
+  for (let i = 0; i < n - 1; i++) { if (m[i] === 0) { t[i] = 0; t[i + 1] = 0; continue; } const a = t[i] / m[i], b = t[i + 1] / m[i], h = a * a + b * b; if (h > 9) { const k = 3 / Math.sqrt(h); t[i] = k * a * m[i]; t[i + 1] = k * b * m[i]; } }
+  const f = v => +v.toFixed(2); let d = `M${f(xs[0])},${f(ys[0])}`;
+  for (let i = 0; i < n - 1; i++) d += `C${f(xs[i] + dx[i] / 3)},${f(ys[i] + t[i] * dx[i] / 3)} ${f(xs[i + 1] - dx[i] / 3)},${f(ys[i + 1] - t[i + 1] * dx[i] / 3)} ${f(xs[i + 1])},${f(ys[i + 1])}`;
+  return d;
+}
+function barChart(vals, b, { hi = -1, color, h = 110, avg = 0, id, wide, mode }) {
   const max = Math.max(...vals, avg, 1), n = vals.length;
   const labIdx = n <= 12 ? vals.map((_, i) => i) : [0, Math.floor(n / 4), Math.floor(n / 2), Math.floor(3 * n / 4), n - 1];
-  return `<div class="bars ${wide || n <= 13 ? 'wide' : ''}" data-chart="${id}" style="height:${h}px">` +
+  let over = '';
+  if (mode === 'curve' && n > 1) {
+    const tk = todayK(); let last = n - 1; while (last > 0 && b[last] && b[last].from > tk) last--;
+    const xs = vals.slice(0, last + 1).map((_, i) => (i + .5) / n * 100), ys = vals.slice(0, last + 1).map(v => 100 - v / max * 96 - 2);
+    const di = hi >= 0 && hi <= last ? hi : last;
+    over = `<svg class="bcv" viewBox="0 0 100 100" preserveAspectRatio="none"><path d="${monoPath(xs, ys)}"/></svg>` + (xs.length ? `<b class="bdot" style="left:${xs[di]}%;top:${ys[di]}%"></b>` : '');
+  }
+  return `<div class="bars ${mode === 'bars' || (mode !== 'ticks' && (wide || n <= 13)) ? 'wide' : ''} ${mode === 'curve' ? 'cvm' : mode === 'ticks' ? 'tkm' : ''}" data-chart="${id}" style="height:${h}px">` + over +
     vals.map((v, i) => `<i data-tip="${esc(b[i].tip)}" data-v="${v}" class="${v ? '' : 'z'} ${i === hi ? 'hi' : ''}" style="height:${Math.max(v / max * 100, 2)}%;${color && v && i !== hi ? `background:${color}` : ''}"></i>`).join('') +
     (avg ? `<b class="avgl" style="bottom:${avg / max * 100}%"></b>` : '') +
     `</div><div class="blabs">${labIdx.map(i => `<span>${b[i].lab}</span>`).join('')}</div>`;
@@ -1670,7 +1698,7 @@ function ticks(r, vals) {
     const X = i => (n > 1 ? i / (n - 1) : 0) * W, Y = v => H - 3 - v / end * (H - 8);
     let d = ''; done.forEach((v, i) => { d += (i ? 'L' : 'M') + X(i).toFixed(1) + ',' + Y(v).toFixed(1); });
     const proj = r.current && last < n - 1 ? `<path class="pj" d="M${X(last).toFixed(1)},${Y(cum[last]).toFixed(1)}L${W},${Y(pace * n).toFixed(1)}"/>` : '';
-    const area = done.length > 1 ? `<path class="ar" d="${d}L${X(last).toFixed(1)},${H}L0,${H}Z"/>` : '';
+    const area = '';
     const dot = last >= 0 ? `<i class="dt" style="left:${(X(last) / W * 100).toFixed(2)}%;top:${Y(cum[last]).toFixed(1)}px"></i>` : '';
     return `<button class="chart" data-act="chartnext" aria-label="Вид графика"><span class="cvw">${dot}<svg class="cv" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none"><defs><linearGradient id="cvg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="currentColor" stop-opacity=".16"/><stop offset="1" stop-color="currentColor" stop-opacity="0"/></linearGradient></defs>${area}${proj}<path class="ln" d="${d}"/></svg></span></button>`;
   }
@@ -1687,9 +1715,9 @@ function chartNext() {
   CHART = CHARTS[(CHARTS.indexOf(CHART) + 1) % CHARTS.length];
   try { localStorage.setItem('konta_chart', CHART); } catch (e) {}
   haptic();
-  const sc = $('#s-home'), y = sc ? sc.scrollTop : 0; render(); if (sc) sc.scrollTop = y;
-  const c = document.querySelector('#s-home .chart'); if (c) { c.classList.add('swap'); setTimeout(() => c.classList.remove('swap'), 700); }
-  toast(CHART_N[CHART]);
+  const sc = $('#s-' + tab), y = sc ? sc.scrollTop : 0; render(); if (sc) sc.scrollTop = y;
+  const c = document.querySelector(`#s-${tab} .chart, #s-${tab} .bars[data-chart="dyn"]`); if (c) { c.classList.add('swap'); setTimeout(() => c.classList.remove('swap'), 700); }
+  if (tab === 'home') toast(CHART_N[CHART]);
 }
 const stat = (label, val, cls = '') => `<div><span>${label}</span><b class="${cls}">${val}</b></div>`;
 const catLine = (c, v, sum, extra = '') => `<button class="row" data-act="cat" data-c="${c.id}"><span class="ic">${ic(c.id)}</span>
@@ -1780,7 +1808,7 @@ function renderAn() {
   const hiIdx = r.current ? b.findIndex(x => todayK() >= x.from && todayK() <= x.to) : -1;
   const nb = r.current ? b.filter(x => x.from <= todayK()).length : b.length, avg = nb ? spent / nb : 0;
   const mx = vals.indexOf(Math.max(...vals));
-  h += `<h2>По ${aType === 'q' ? 'неделям' : aType === 'y' ? 'месяцам' : 'дням'}</h2><div class="tip" id="tip-dyn">Пик ${b[mx].tip} — <b>${rub(vals[mx], { round: true })}</b></div>${barChart(vals, b, { hi: hiIdx, avg, id: 'dyn' })}`;
+  h += `<h2 class="h2r">По ${aType === 'q' ? 'неделям' : aType === 'y' ? 'месяцам' : 'дням'}<button class="chsw" data-act="chartnext">${CHART_N[CHART]}</button></h2><div class="tip" id="tip-dyn">Пик ${b[mx].tip} · <b>${rub(vals[mx], { round: true })}</b></div>${barChart(vals, b, { hi: hiIdx, avg, id: 'dyn', mode: CHART })}`;
 
   if (outs.length) {
     const byc = {}; outs.forEach(t => byc[t.c] = (byc[t.c] || 0) + t.a);
@@ -3391,7 +3419,7 @@ document.addEventListener('click', async e => {
   if (bar) {
     const ch = bar.parentElement, tip = $('#tip-' + ch.dataset.chart);
     ch.querySelectorAll('i').forEach(i => i.classList.toggle('sel', i === bar));
-    if (tip) tip.innerHTML = `${esc(bar.dataset.tip)} — <b>${rub(+bar.dataset.v, { round: true })}</b>`;
+    if (tip) tip.innerHTML = `${esc(bar.dataset.tip)} · <b>${rub(+bar.dataset.v, { round: true })}</b>`;
     haptic(); return;
   }
   if (Date.now() - suppressClick < 350) return;
