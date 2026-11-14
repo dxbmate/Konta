@@ -465,6 +465,16 @@ html.pwa,html.pwa body,html.pwa #app{height:var(--fullh)!important;min-height:va
 html.pwa .veilb{bottom:auto;top:calc(var(--fullh) - 190px);height:190px}
 html.pwa .veilb i{display:none}
 html.pwa .veilb:after{background:linear-gradient(rgba(0,0,0,0),rgba(0,0,0,.55) 45%,rgba(0,0,0,.82) 75%,rgba(0,0,0,.6))}
+.syn{display:inline-grid;place-items:center;width:26px;height:26px;margin-left:6px;vertical-align:3px;border-radius:50%;color:var(--mut);opacity:.38;transition:opacity .4s,color .4s}
+.syn svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.syn .bd{stroke-width:1.9}
+.syn.busy .ar{transform-origin:12px 12px;animation:synr 1.4s linear infinite}
+.syn.busy{opacity:.5}
+.syn.err{color:#e5867a;opacity:.95}
+.syn.err svg{animation:synp 2.4s ease-in-out 2}
+@keyframes synr{to{transform:rotate(360deg)}}
+@keyframes synp{50%{opacity:.4}}
+body.big .syn svg{width:17px;height:17px}
 html.pwa{background:#000}
 .impact{position:sticky;bottom:calc(-16px - var(--sb));z-index:2;margin:12px -20px calc(-16px - var(--sb));padding:22px 20px calc(16px + var(--sb));background:linear-gradient(rgba(17,17,18,0),#111112 26px)}
 html.pwa .sheet{bottom:calc(var(--vh0) - var(--fullh));max-height:calc(var(--fullh) * .94)}
@@ -908,7 +918,7 @@ const coreJSON = s => JSON.stringify({ tx: s.tx, acc: s.acc, del: s.del, limits:
 async function syncNow() {
   if (!syncOn()) return;
   if (SYNC.busy) { syncAgain = true; return; }
-  SYNC.busy = true;
+  SYNC.busy = true; syncIcoUpd();
   try {
     const r = await api('load');
     if (r.user && !inTG) { SUSER = Object.assign(SUSER || {}, r.user); try { localStorage.setItem('konta_suser', JSON.stringify(SUSER)); } catch (e) {} }
@@ -925,9 +935,9 @@ async function syncNow() {
       push = coreJSON(S) !== coreJSON(r.data) || (S.ts || 0) > (r.data.ts || 0);
     }
     if (push) await api('save', { data: S });
-    SYNC.at = Date.now(); SYNC.err = ''; SYNC.why = '';
-  } catch (e) { SYNC.err = e.message === 'auth' ? 'auth' : 'net'; }
-  SYNC.busy = false;
+    SYNC.at = Date.now(); SYNC.err = ''; SYNC.why = ''; SYNC.fails = 0;
+  } catch (e) { SYNC.err = e.message === 'auth' ? 'auth' : 'net'; SYNC.fails = (SYNC.fails || 0) + 1; }
+  SYNC.busy = false; syncIcoUpd();
   if (SYNC.err === 'net') { clearTimeout(syncT); syncT = setTimeout(syncNow, 20000); }
   { const el = $('#sync-s'); if (el) el.textContent = syncLine(); }
   if (syncAgain) { syncAgain = false; syncNow(); }
@@ -985,6 +995,30 @@ function syncSection() {
   if (!SESS) return `<h2>Синхронизация</h2><button class="row" data-act="login"><span class="ic">${ic('ui_import')}</span><span class="t"><span class="n">Войти через Telegram</span><span class="s">Те же данные, что в боте @${BOT_NAME}</span></span>${ic('ui_right', 'i chev')}</button>`;
   return `<h2>Синхронизация</h2><div class="row" data-act="synctap"><span class="ic">${ic('ui_check')}</span><span class="t"><span class="n">${esc(SUSER && SUSER.username ? '@' + SUSER.username : SUSER && SUSER.name || 'Telegram')}</span><span class="s" id="sync-s">${syncLine()}</span></span><button class="rb txt" data-act="logout">Выйти</button></div>`;
 }
+
+// Значок синхронизации рядом с месяцем: тихий, когда всё хорошо
+function syncState() {
+  if (!syncOn()) return '';
+  if (SYNC.err === 'auth' || (SYNC.err === 'net' && (SYNC.fails || 0) >= 2)) return 'err';
+  if (SYNC.busy || SYNC.err) return 'busy';
+  return SYNC.at ? 'ok' : 'busy';
+}
+function syncIco() {
+  const st = syncState(); if (!st) return '';
+  return `<button class="syn ${st}" data-act="synci" aria-label="Синхронизация"><svg viewBox="0 0 24 24"><g class="ar"><path d="M19.5 9.5A8 8 0 0 0 5.2 7.8"/><path d="M5 4v4h4"/><path d="M4.5 14.5a8 8 0 0 0 14.3 1.7"/><path d="M19 20v-4h-4"/></g>${st === 'ok' ? '<path class="bd" d="M9.2 12.2l1.9 1.9 3.8-3.9"/>' : st === 'err' ? '<path class="bd" d="M9.8 9.8l4.4 4.4M14.2 9.8l-4.4 4.4"/>' : ''}</svg></button>`;
+}
+function syncIcoUpd() {
+  const el = document.querySelector('.syn'), st = syncState();
+  if (!el) return;
+  if (el.classList.contains(st)) return;
+  const tmp = document.createElement('div'); tmp.innerHTML = syncIco(); if (tmp.firstChild) el.replaceWith(tmp.firstChild); else el.remove();
+}
+function syncIcoTap() {
+  const st = syncState();
+  if (st === 'err') toast(SYNC.err === 'auth' ? (inTG ? 'Сервер не принял вход' : 'Войдите снова в Настройках') : 'Нет связи с облаком — повторяю. Данные сохранены на устройстве');
+  else if (st === 'ok') toast(`Синхронизировано · ${ago(SYNC.at)}`);
+  if (SYNC.err !== 'auth') syncTap();
+}
 // ================= i18n (RU → EN, перевод готового DOM) =================
 let LANG = (() => { try { return localStorage.getItem('konta_lang') || ''; } catch (e) { return ''; } })();
 if (!LANG) { const lc = tg && tg.initDataUnsafe && tg.initDataUnsafe.user && tg.initDataUnsafe.user.language_code; LANG = !lc || lc.startsWith('ru') ? 'ru' : 'en'; }
@@ -1034,7 +1068,7 @@ const DICT = {
   'Выделите и скопируйте вручную': 'Select and copy manually', 'Выученные категории сброшены': 'Learned categories reset', 'Данные удалены': 'Data deleted', 'Демо-данные загружены': 'Demo data loaded',
   'Не удалось обновить курсы': 'Couldn’t update rates', 'Обновляю…': 'Updating…', 'Курсы сохранены': 'Rates saved', 'Удалить запись?': 'Delete this entry?',
   'Удалить все записи, лимиты и выученные категории? Это нельзя отменить.': 'Delete all entries, limits and learned categories? This can’t be undone.',
-  'Тема': 'Theme', 'Женева': 'Geneva', 'Альпы': 'Alps', 'Циферблат': 'Dial', 'Кашемир': 'Cashmere', 'Солнечная гильошировка цвета шампань': 'Champagne sunburst guilloché', 'Тёплый беж и мягкая саржа': 'Warm beige and soft twill', 'Лимиты на месяц': 'Monthly limits', 'Бюджет': 'Budget', 'Не заданы': 'Not set', 'Готово': 'Done', 'Банкнота': 'Banknote', 'Ночное небо и свечение над озером': 'Night sky and the glow over the lake', 'Хребты в тумане и звёзды': 'Ridges in the mist and stars', 'Циферблат двери частного сейфа': 'The dial of a private vault door', 'Модульная сетка и красная линия': 'Modular grid and a red rule', 'Гравировка и зелень доллара': 'Engraving and dollar green', 'Любая картинка с телефона': 'Any picture from your phone', 'Цветы': 'Flowers', 'Кафе': 'Cafés', 'Связь': 'Phone', 'Комиссии': 'Fees', 'Доставка': 'Delivery', 'Кэшбэк': 'Cashback', 'Карта': 'Cards',
+  'Тема': 'Theme', 'Женева': 'Geneva', 'Альпы': 'Alps', 'Циферблат': 'Dial', 'Кашемир': 'Cashmere', 'Солнечная гильошировка цвета шампань': 'Champagne sunburst guilloché', 'Тёплый беж и мягкая саржа': 'Warm beige and soft twill', 'Лимиты на месяц': 'Monthly limits', 'Бюджет': 'Budget', 'Не заданы': 'Not set', 'Готово': 'Done', 'Банкнота': 'Banknote', 'Бордо': 'Bordeaux', 'Мрамор': 'Marble', 'Сапфир': 'Sapphire', 'Винный бархат и муар шёлковой подкладки': 'Wine velvet and a silk-lining moiré', 'Чёрный мрамор с золотой прожилкой': 'Black marble with a vein of gold', 'Грани сапфирового стекла часов': 'The facets of a watch sapphire crystal', 'Синхронизировано': 'Synced', 'Нет связи с облаком': 'No connection to the cloud', 'Ночное небо и свечение над озером': 'Night sky and the glow over the lake', 'Хребты в тумане и звёзды': 'Ridges in the mist and stars', 'Циферблат двери частного сейфа': 'The dial of a private vault door', 'Модульная сетка и красная линия': 'Modular grid and a red rule', 'Гравировка и зелень доллара': 'Engraving and dollar green', 'Любая картинка с телефона': 'Any picture from your phone', 'Цветы': 'Flowers', 'Кафе': 'Cafés', 'Связь': 'Phone', 'Комиссии': 'Fees', 'Доставка': 'Delivery', 'Кэшбэк': 'Cashback', 'Карта': 'Cards',
   'Скрывать суммы': 'Hide amounts',
   'Или коснитесь крупной суммы на любом экране': 'Or tap any large amount',
   'Вход по Face ID': 'Face ID unlock',
@@ -1241,11 +1275,61 @@ function latheSVG(col) {
 }
 const noteBg = () => `${svgUrl(latheSVG('rgba(150,200,160,.16)'))} center bottom/cover no-repeat,radial-gradient(55% 32% at 30% 104%,rgba(60,150,98,.5),transparent 72%),radial-gradient(60% 36% at 72% 106%,rgba(34,96,62,.45),transparent 72%),linear-gradient(180deg,#07140d 0%,#000 46%)`;
 
+// Бордо — винный бархат и муар шёлковой подкладки
+function moireSVG() {
+  let g = '';
+  for (let i = 0; i < 60; i++) { const r = 40 + i * 9; g += `<circle cx="120" cy="900" r="${r}"/><circle cx="300" cy="930" r="${r * 1.02}"/>`; }
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 390 844" preserveAspectRatio="xMidYMax slice"><defs><linearGradient id="f" x1="0" y1="0" x2="0" y2="1"><stop offset=".45" stop-color="#fff" stop-opacity="0"/><stop offset=".85" stop-color="#fff" stop-opacity=".8"/><stop offset="1" stop-color="#fff" stop-opacity=".3"/></linearGradient><mask id="m"><rect width="390" height="844" fill="url(#f)"/></mask></defs><g mask="url(#m)" fill="none" stroke="rgba(255,180,190,.11)" stroke-width=".6">${g}</g></svg>`;
+}
+const bordeauxBg = () => [
+  svgUrl(moireSVG()) + ' center bottom/cover no-repeat',
+  'radial-gradient(70% 34% at 24% 106%,rgba(172,30,62,.78),transparent 72%)',
+  'radial-gradient(62% 32% at 82% 104%,rgba(118,16,44,.75),transparent 72%)',
+  'radial-gradient(90% 40% at 50% -8%,rgba(128,26,48,.5),transparent 70%)',
+  'linear-gradient(180deg,#2a0912 0%,#140509 42%,#0a0204 100%)'
+].join(',');
+
+// Мрамор — чёрный Nero Marquina с белыми и золотыми прожилками
+function marbleSVG() {
+  const R = rng(29); let g = '', gold = '';
+  const vein = (x0, y0, len, w, col, op) => { let d = `M${x0},${y0}`, x = x0, y = y0, a = .45 + R() * .5; for (let i = 0; i < len; i++) { a += (R() - .5) * .38; x += 16 * Math.cos(a); y += 16 * Math.sin(a) * .8; d += `L${x.toFixed(1)},${y.toFixed(1)}`; } return `<path d="${d}" stroke="${col}" stroke-opacity="${op}" stroke-width="${w}"/>`; };
+  for (let i = 0; i < 12; i++) g += vein(-60 + R() * 260, 300 + R() * 600, 34, (.5 + R() * 1.8).toFixed(2), '#f2efe9', (.08 + R() * .16).toFixed(2));
+  for (let i = 0; i < 2; i++) gold += vein(R() * 160, 480 + R() * 260, 30, (.7 + R() * .6).toFixed(2), '#e2c27f', (.22 + R() * .12).toFixed(2));
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 390 844" preserveAspectRatio="xMidYMid slice"><defs><filter id="b"><feGaussianBlur stdDeviation="1.6"/></filter><filter id="s"><feGaussianBlur stdDeviation="7"/></filter><filter id="g"><feGaussianBlur stdDeviation="2.5"/></filter></defs><g fill="none" stroke-linejoin="round"><g filter="url(#s)" opacity=".7">${g}</g><g filter="url(#b)">${g}</g><g filter="url(#g)">${gold}</g>${gold}</g></svg>`;
+}
+const marbleBg = () => [
+  'linear-gradient(180deg,rgba(0,0,0,.6) 0%,rgba(0,0,0,.5) 35%,rgba(0,0,0,0) 65%,rgba(0,0,0,.25) 100%)',
+  svgUrl(marbleSVG()) + ' center/cover no-repeat',
+  'radial-gradient(70% 34% at 60% 88%,rgba(84,80,74,.35),transparent 72%)','radial-gradient(50% 24% at 20% 100%,rgba(170,138,80,.18),transparent 72%)',
+  'linear-gradient(160deg,#141414 0%,#0b0b0b 50%,#060606 100%)'
+].join(',');
+
+// Сапфир — грани сапфирового стекла часов
+function facetSVG() {
+  const R = rng(5), cx = 195, cy = -40; let g = '';
+  const N = 14;
+  for (let i = 0; i < N; i++) {
+    const a1 = Math.PI * (.08 + .84 * i / N), a2 = Math.PI * (.08 + .84 * (i + 1) / N), r1 = 520 + R() * 120, r2 = 520 + R() * 120;
+    const op = (.008 + R() * .045).toFixed(3);
+    g += `<path d="M${cx},${cy}L${(cx + r1 * Math.cos(a1)).toFixed(1)},${(cy + r1 * Math.sin(a1)).toFixed(1)}L${(cx + r2 * Math.cos(a2)).toFixed(1)},${(cy + r2 * Math.sin(a2)).toFixed(1)}Z" fill="#a9c4ff" fill-opacity="${op}" stroke="#cfe0ff" stroke-opacity=".06" stroke-width=".5"/>`;
+  }
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 390 844" preserveAspectRatio="xMidYMin slice"><defs><radialGradient id="f" cx="195" cy="-40" r="600" gradientUnits="userSpaceOnUse"><stop offset=".1" stop-color="#fff"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient><mask id="m"><rect width="390" height="844" fill="url(#f)"/></mask></defs><g mask="url(#m)">${g}</g></svg>`;
+}
+const sapphireBg = () => [
+  svgUrl(facetSVG()) + ' center top/cover no-repeat',
+  'radial-gradient(80% 40% at 50% -6%,rgba(46,78,200,.5),transparent 70%)',
+  'radial-gradient(50% 22% at 50% 104%,rgba(30,60,170,.35),transparent 72%)',
+  'linear-gradient(180deg,#081030 0%,#040818 42%,#000 78%)'
+].join(',');
+
 const THEMES = {
   aurora: { n: 'Женева', d: 'Ночное небо и свечение над озером', bg: genevaBg, acc: '#c9b8ff' },
   alps: { n: 'Альпы', d: 'Хребты в тумане и звёзды', bg: alpsBg, acc: '#9cc3ff' },
   dial: { n: 'Циферблат', d: 'Солнечная гильошировка цвета шампань', bg: dialBg, acc: '#dcc49a' },
   cash: { n: 'Кашемир', d: 'Тёплый беж и мягкая саржа', bg: cashBg, acc: '#d0ac90' },
+  bordeaux: { n: 'Бордо', d: 'Винный бархат и муар шёлковой подкладки', bg: bordeauxBg, acc: '#e0909e' },
+  marble: { n: 'Мрамор', d: 'Чёрный мрамор с золотой прожилкой', bg: marbleBg, acc: '#e3cf9f' },
+  sapphire: { n: 'Сапфир', d: 'Грани сапфирового стекла часов', bg: sapphireBg, acc: '#9db8ff' },
   note: { n: 'Банкнота', d: 'Гравировка и зелень доллара', bg: noteBg, acc: '#7fcf9a' },
   photo: { n: 'Своё фото', d: 'Любая картинка с телефона', acc: '#f2efe9' },
 };
@@ -1396,6 +1480,7 @@ function renderHome() {
   const prev = prevComparable(r, hMode);
   const days = r.current ? r.elapsed : r.days, perDay = days ? spent / days : 0;
   let h = header(cap(M[r.s.getMonth()]), mOff, 'mnav', r.s.getFullYear() !== today().getFullYear() ? r.s.getFullYear() : '', true);
+  h = h.replace('</h1>', syncIco() + '</h1>');
   h += `<div class="seg mode">${[['out', 'Расходы'], ['in', 'Доходы']].map(([k, t]) => `<button class="${hMode === k ? 'on' : ''}" data-act="hmode" data-m="${k}">${t}</button>`).join('')}</div>`;
   h += `<section class="hero"><div class="num ${isOut ? '' : 'sage'}" data-act="priv"><span data-count="${sum}" data-ck="h${hMode}">0</span><small>₽</small></div>
     <div class="cmp">${prev ? `${delta(sum, prev, !isOut)} к ${r.current ? `этой же дате в ${MP[pm]}` : MP[pm].replace(/е$/, 'ю')}` : '&nbsp;'}</div>`;
@@ -2705,6 +2790,7 @@ document.addEventListener('click', async e => {
   if (a === 'addin') return openSheet(null, 'in');
   if (a === 'closeday') return closeDay();
   if (a === 'synctap') return syncTap();
+  if (a === 'synci') return syncIcoTap();
   if (a === 'login') { haptic(); return openLogin(); }
   if (a === 'onblogin') { onbDone(); return openLogin(); }
   if (a === 'logout') { if (!(await confirmDlg('Выйти из аккаунта на этом устройстве? Данные останутся в боте.', 'Выйти'))) return; signOut(); return; }
