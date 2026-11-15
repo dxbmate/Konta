@@ -1,5 +1,5 @@
 // Konta & Cie: офлайн-режим. Сеть ждём недолго (1,2 с для приложения, 2,5 с для остального), иначе кэш.
-const C = 'konta-v25';
+const C = 'konta-v26';
 const CORE = ['./', './index.html', './manifest.webmanifest', './k2-icon-192.png', './k2-touch-180.png'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(C).then(c => c.addAll(CORE)).then(() => self.skipWaiting())); });
 self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== C).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
@@ -24,8 +24,19 @@ self.addEventListener('fetch', e => {
     return;
   }
   const nav = r.mode === 'navigate';
-  const net = fetch(r).then(res => { if (nav && res.ok) { const cp = res.clone(); caches.open(C).then(c => c.put('./index.html', cp)); return res; } return put(r, res); });
+  const net = fetch(r).then(res => {
+    if (nav && res.ok) {
+      const cp = res.clone(), tx = res.clone();
+      caches.open(C).then(c => c.put('./index.html', cp));
+      // вместе со страницей сразу кладём в кэш её код, чтобы офлайн они совпадали
+      tx.text().then(t => { const m = t.match(/app\.js\?v=\d+/); if (m) caches.open(C).then(c => c.match('./' + m[0]).then(h => h || c.add('./' + m[0]))); }).catch(() => {});
+      return res;
+    }
+    return put(r, res);
+  });
   // само приложение: свежее из сети, если ответ пришёл за 1,2 с, иначе из кэша (без лишних перезагрузок)
   if (nav) { e.respondWith(timeout(net, 1200).catch(() => caches.match('./index.html').then(m => m || net))); return; }
+  // код приложения: точная версия из кэша мгновенно, иначе сеть, а без сети любая сохранённая версия
+  if (u.pathname.endsWith('/app.js')) { e.respondWith(caches.match(r).then(m => m || timeout(net, 2500).catch(() => caches.match(r, { ignoreSearch: true }).then(o => o || net)))); return; }
   e.respondWith(timeout(net, 2500).catch(() => caches.match(r).then(m => m || (r.mode === 'navigate' ? caches.match('./index.html') : net))));
 });
