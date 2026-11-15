@@ -3236,9 +3236,7 @@ if (!inTG && STANDALONE) {
   fullH(); addEventListener('resize', fullH); addEventListener('orientationchange', () => setTimeout(fullH, 300));
 }
 // веб-версия: офлайн-кэш и защита данных от автоочистки браузера
-// эксперимент: офлайн-посредник выключен
-if ('serviceWorker' in navigator) navigator.serviceWorker.getRegistrations().then(rs => rs.forEach(r => r.unregister())).catch(() => {});
-if (window.caches) caches.keys().then(ks => ks.forEach(k => caches.delete(k))).catch(() => {});
+if (!inTG && 'serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) navigator.serviceWorker.register('sw.js').catch(() => {});
 if (!inTG && navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
 let T0 = performance.now();
 let splashDone = false, splashReady = false;
