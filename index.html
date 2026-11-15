@@ -2,6 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="utf-8">
+<style>html,body{background:#050507;margin:0}</style>
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>Konta & Cie</title>
 <meta name="description" content="A quiet ledger for your money. Spending, savings and statements — in order.">
@@ -235,6 +236,7 @@ button.dayc span{color:var(--iv)}button.dayc svg{color:var(--acc,var(--iv))}
 
 .splash{position:fixed;inset:0;z-index:100;background:transparent;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .6s ease .1s}
 .splash.out{opacity:0;pointer-events:none}
+.splash.lkwait{opacity:0;transition:none}.splash.lkwait,.splash.lkwait *{animation-play-state:paused!important}
 .splash:after{display:none;content:"";position:absolute;left:-20%;right:-20%;bottom:-10vh;height:40vh;background:radial-gradient(38% 55% at 25% 80%,rgba(222,82,104,.45),transparent 70%),radial-gradient(40% 60% at 52% 88%,rgba(140,66,184,.5),transparent 72%),radial-gradient(42% 60% at 80% 80%,rgba(52,80,210,.55),transparent 72%);filter:blur(26px)}
 .wm{display:flex;align-items:baseline;gap:10px;color:var(--iv);opacity:0;transform:translateY(6px);animation:wmIn .9s cubic-bezier(.2,.9,.25,1) .1s forwards}
 .wm b{font-weight:300;font-size:44px;letter-spacing:-.03em}
@@ -663,7 +665,7 @@ html[data-th] .tabs .ind{background:rgba(var(--sl),.13)}
 html[data-th] .hero .num small{color:rgba(var(--sl),.72)}
 </style>
 </head>
-<body class="boot"><script>(function(){var B="202611152042";try{fetch("/version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.json():null}).then(function(j){if(j&&j.b&&j.b!==B&&sessionStorage.getItem("kupd")!==j.b){sessionStorage.setItem("kupd",j.b);var u=new URL(location.href);u.searchParams.set("v",j.b);location.replace(u.toString())}}).catch(function(){})}catch(e){}})()</script><script>try{var t=localStorage.getItem("konta_theme")||"aurora";var mg={platinum:"cash",franc:"alps",gold:"dial",dollar:"note",vault:"dial",zurich:"cash"};document.documentElement.dataset.th=mg[t]||t}catch(e){}</script>
+<body class="boot"><script>(function(){var B="202611152047";try{fetch("/version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.json():null}).then(function(j){if(j&&j.b&&j.b!==B&&sessionStorage.getItem("kupd")!==j.b){sessionStorage.setItem("kupd",j.b);var u=new URL(location.href);u.searchParams.set("v",j.b);location.replace(u.toString())}}).catch(function(){})}catch(e){}})()</script><script>try{var t=localStorage.getItem("konta_theme")||"aurora";var mg={platinum:"cash",franc:"alps",gold:"dial",dollar:"note",vault:"dial",zurich:"cash"};document.documentElement.dataset.th=mg[t]||t}catch(e){}</script>
 <div class="splash" id="splash"><div class="stage">
 <svg class="g1" viewBox="0 0 390 300"><defs><radialGradient id="spg" cx="195" cy="200" r="200" gradientUnits="userSpaceOnUse" gradientTransform="translate(0 200) scale(1 .62) translate(0 -200)"><stop offset="0" style="stop-color:rgb(var(--sl));stop-opacity:.42"/><stop offset=".35" style="stop-color:rgb(var(--sl));stop-opacity:.14"/><stop offset="1" style="stop-color:rgb(var(--sl));stop-opacity:0"/></radialGradient><clipPath id="spu"><path d="M-10 262 Q195 138 400 262 L400 0 L-10 0Z"/></clipPath></defs><rect class="glw" width="390" height="300" fill="url(#spg)" clip-path="url(#spu)"/></svg>
 <div class="kw"><div class="kk">k</div></div>
@@ -3130,7 +3132,12 @@ function showLock() {
   if (PIN) lockOpen('unlock');
   else if (BIO && !$('#lock')) { const d = document.createElement('div'); d.id = 'lock'; d.innerHTML = `<div class="wm"><b>Konta</b><i>&amp; Cie</i></div><button class="btn ghost" data-act="unlock" style="width:auto;padding:0 28px;margin-top:40px">${ic('ui_face')}Разблокировать</button>`; document.body.appendChild(d); }
 }
-function hideLock() { const d = $('#lock'); if (d) { d.classList.add('out'); setTimeout(() => d.remove(), 450); } }
+function bootUnlocked() {
+  const sp = $('#splash'); if (!sp || !sp.classList.contains('lkwait')) return;
+  sp.classList.remove('lkwait'); T0 = performance.now(); if (splashReady) splashEnd();
+}
+function hideLock() {
+  if (PL.mode === 'unlock' || !$('#lock .lk')) bootUnlocked(); const d = $('#lock'); if (d) { d.classList.add('out'); setTimeout(() => d.remove(), 450); } }
 function lockShake(msg) {
   try { tg && tg.HapticFeedback.notificationOccurred('error'); } catch (e) {} const d = $('#lkd'); if (d) { d.classList.remove('sh'); void d.offsetWidth; d.classList.add('sh'); }
   if (msg) { const t = $('#lkt'); if (t) t.textContent = msg; }
@@ -3234,7 +3241,11 @@ document.addEventListener('keydown', e => {
   else if (e.key === 'Backspace') { e.preventDefault(); e.stopImmediatePropagation(); lockDel(); }
   else if (e.key === 'Escape' && PL.mode !== 'unlock') { e.stopImmediatePropagation(); hideLock(); }
 }, true);
-if (PIN || BIO) showLock();
+if (PIN || BIO) {
+  showLock();
+  const sp = $('#splash'); if (sp) sp.classList.add('lkwait');
+  setTimeout(() => { if ($('#lock')) unlock(); }, 450);
+}
 // ================= Statement engine (pure, без DOM) =================
 // Разбирает строки PDF-выписки (rows: [{p, y, items:[{x, s}]}]) любого табличного банка.
 const ST_DATE = /^(\d{2})\.(\d{2})\.(\d{4})$/;
@@ -3924,17 +3935,18 @@ if (!inTG && STANDALONE) {
 // веб-версия: офлайн-кэш и защита данных от автоочистки браузера
 if (!inTG && 'serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) navigator.serviceWorker.register('sw.js').catch(() => {});
 if (!inTG && navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
-const T0 = performance.now();
+let T0 = performance.now();
 let splashDone = false, splashReady = false;
 function splashEnd(now) {
   splashReady = true;
   if (splashDone) return;
+  const sp0 = $('#splash'); if (sp0 && sp0.classList.contains('lkwait')) return;
   const wait = now ? 0 : Math.max(0, (S.onb ? 2100 : 2500) - (performance.now() - T0));
   clearTimeout(splashEnd._t);
   splashEnd._t = setTimeout(() => {
     if (splashDone) return; splashDone = true;
     const s = $('#splash'); s.classList.add('out'); setTimeout(() => s.remove(), 1000);
-    setTimeout(() => { document.body.classList.remove('boot'); setTimeout(animateCounts, 180); if (!S.onb) showOnboarding(); else maybeReport(); if (BIO || PIN) unlock(); }, 260);
+    setTimeout(() => { document.body.classList.remove('boot'); setTimeout(animateCounts, 180); if (!S.onb) showOnboarding(); else maybeReport(); }, 260);
   }, wait);
 }
 $('#splash').addEventListener('click', () => { if (splashReady && performance.now() - T0 > 700) splashEnd(true); });

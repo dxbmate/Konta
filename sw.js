@@ -1,5 +1,5 @@
-// Konta & Cie: офлайн-режим. Сеть ждём не дольше 2,5 с (белые списки и плохая связь не должны вешать приложение), иначе кэш.
-const C = 'konta-v22';
+// Konta & Cie: офлайн-режим. Приложение открывается из кэша сразу, сеть ждём не дольше 2,5 с.
+const C = 'konta-v23';
 const CORE = ['./', './index.html', './manifest.webmanifest', './k2-icon-192.png', './k2-touch-180.png'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(C).then(c => c.addAll(CORE)).then(() => self.skipWaiting())); });
 self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== C).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
@@ -23,6 +23,15 @@ self.addEventListener('fetch', e => {
     }));
     return;
   }
-  const net = fetch(r).then(res => put(r, res));
+  const nav = r.mode === 'navigate';
+  const net = fetch(r).then(res => { if (nav && res.ok) { const cp = res.clone(); caches.open(C).then(c => c.put('./index.html', cp)); return res; } return put(r, res); });
+  // само приложение: мгновенно из кэша, свежая версия качается в фоне (о ней сообщит version.json)
+  if (nav && !u.searchParams.has('v')) {
+    e.respondWith(caches.match('./index.html').then(m => {
+      if (m) { net.catch(() => {}); return m; }
+      return timeout(net, 2500).catch(() => net);
+    }));
+    return;
+  }
   e.respondWith(timeout(net, 2500).catch(() => caches.match(r).then(m => m || (r.mode === 'navigate' ? caches.match('./index.html') : net))));
 });
