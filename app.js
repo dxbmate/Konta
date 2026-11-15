@@ -3052,6 +3052,9 @@ document.addEventListener('click', async e => {
   if (t.dataset.act === 'swdel') return deleteTx(+t.dataset.id);
   if (t.dataset.act === 'swedit') { const w = t.closest('.swr'); closeSw(w); return setTimeout(() => openSheet(+t.dataset.id), 120); }
   if (t.dataset.tab) {
+    // повторное нажатие на «Ещё» внутри группы возвращает к списку настроек
+    if (t.dataset.tab === 'more' && tab === 'more') { if (MSUB) moreGo(null); else { const m = $('#s-more'); if (m) m.scrollTo({ top: 0, behavior: 'smooth' }); } return; }
+    if (t.dataset.tab === 'more') MSUB = null;
     tab = t.dataset.tab;
     document.querySelectorAll('.tabs [data-tab]').forEach(b => b.classList.toggle('on', b.dataset.tab === tab));
     SCREENS.forEach(s => $('#s-' + s).classList.toggle('hidden', s !== tab));
