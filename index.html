@@ -349,6 +349,22 @@ body.priv .hero .num::before{content:"••••••";display:inline-block;f
 #lock{position:fixed;inset:0;z-index:300;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .45s}
 #lock.out{opacity:0;pointer-events:none}
 #lock .btn svg{width:20px;height:20px}
+#lock .lk{width:100%;max-width:340px;display:flex;flex-direction:column;align-items:center;padding:0 24px}
+#lock .lk .wm{margin-bottom:46px}
+.lkt{font-size:16px;color:var(--mut);min-height:22px;text-align:center}
+.lkd{display:flex;gap:18px;margin:22px 0 46px}
+.lkd i{width:12px;height:12px;border-radius:50%;box-shadow:inset 0 0 0 1.5px rgba(var(--sl),.55);transition:background .15s,transform .15s}
+.lkd i.on{background:rgb(var(--sl2));box-shadow:none;transform:scale(1.08)}
+.lkd.sh{animation:lksh .42s}
+@keyframes lksh{0%,100%{transform:none}20%{transform:translateX(-12px)}40%{transform:translateX(10px)}60%{transform:translateX(-7px)}80%{transform:translateX(4px)}}
+.lkp{display:grid;grid-template-columns:repeat(3,76px);gap:16px 26px}
+.lkp button,.lkp span{width:76px;height:76px;border-radius:50%;display:grid;place-items:center;font-size:30px;font-weight:300}
+.lkp button[data-act=lkkey]{background:rgba(var(--sl),.07);box-shadow:inset 0 0 0 1px rgba(var(--sl),.12)}
+.lkp button:active{background:rgba(var(--sl),.18)}
+.lkp svg{width:26px;height:26px;color:var(--mut)}
+.lkp .lkx{font-size:15px;color:var(--mut)}
+.lkf{margin-top:34px;font-size:14px;color:var(--mut);min-height:20px}
+#lock.sheetlk{background:rgba(0,0,0,.94)}
 /* ---- toggles ---- */
 .sw2{flex:none;width:50px;height:30px;border-radius:15px;background:rgba(255,255,255,.14);position:relative;transition:background .3s}
 .sw2 i{position:absolute;top:2px;left:2px;width:26px;height:26px;border-radius:50%;background:#fff;transition:transform .45s var(--spring);box-shadow:0 2px 6px rgba(0,0,0,.35)}
@@ -647,7 +663,7 @@ html[data-th] .tabs .ind{background:rgba(var(--sl),.13)}
 html[data-th] .hero .num small{color:rgba(var(--sl),.72)}
 </style>
 </head>
-<body class="boot"><script>(function(){var B="202611151454";try{fetch("/version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.json():null}).then(function(j){if(j&&j.b&&j.b!==B&&sessionStorage.getItem("kupd")!==j.b){sessionStorage.setItem("kupd",j.b);var u=new URL(location.href);u.searchParams.set("v",j.b);location.replace(u.toString())}}).catch(function(){})}catch(e){}})()</script><script>try{var t=localStorage.getItem("konta_theme")||"aurora";var mg={platinum:"cash",franc:"alps",gold:"dial",dollar:"note",vault:"dial",zurich:"cash"};document.documentElement.dataset.th=mg[t]||t}catch(e){}</script>
+<body class="boot"><script>(function(){var B="202611152042";try{fetch("/version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.json():null}).then(function(j){if(j&&j.b&&j.b!==B&&sessionStorage.getItem("kupd")!==j.b){sessionStorage.setItem("kupd",j.b);var u=new URL(location.href);u.searchParams.set("v",j.b);location.replace(u.toString())}}).catch(function(){})}catch(e){}})()</script><script>try{var t=localStorage.getItem("konta_theme")||"aurora";var mg={platinum:"cash",franc:"alps",gold:"dial",dollar:"note",vault:"dial",zurich:"cash"};document.documentElement.dataset.th=mg[t]||t}catch(e){}</script>
 <div class="splash" id="splash"><div class="stage">
 <svg class="g1" viewBox="0 0 390 300"><defs><radialGradient id="spg" cx="195" cy="200" r="200" gradientUnits="userSpaceOnUse" gradientTransform="translate(0 200) scale(1 .62) translate(0 -200)"><stop offset="0" style="stop-color:rgb(var(--sl));stop-opacity:.42"/><stop offset=".35" style="stop-color:rgb(var(--sl));stop-opacity:.14"/><stop offset="1" style="stop-color:rgb(var(--sl));stop-opacity:0"/></radialGradient><clipPath id="spu"><path d="M-10 262 Q195 138 400 262 L400 0 L-10 0Z"/></clipPath></defs><rect class="glw" width="390" height="300" fill="url(#spg)" clip-path="url(#spu)"/></svg>
 <div class="kw"><div class="kk">k</div></div>
@@ -1291,6 +1307,28 @@ const DICT = {
   'Через Telegram': 'Via Telegram',
   'Доступно внутри Telegram': 'Available inside Telegram',
   'Приватность': 'Privacy',
+  'Код-пароль': 'Passcode',
+  '4 цифры при входе в Konta': '4 digits to open Konta',
+  'Сменить код': 'Change passcode',
+  'Запрашивать код': 'Require passcode',
+  'Сразу': 'Immediately',
+  '1 мин': '1 min',
+  '5 мин': '5 min',
+  'После того как приложение свернули. При каждом запуске код спрашивается всегда.': 'After the app goes to background. Always required on launch.',
+  'Суммы': 'Amounts',
+  'Введите код': 'Enter passcode',
+  'Придумайте код': 'Create a passcode',
+  'Повторите код': 'Repeat passcode',
+  'Введите текущий код': 'Enter current passcode',
+  'Неверный код': 'Wrong passcode',
+  'Коды не совпали. Ещё раз': 'Codes didn’t match. Try again',
+  'Забыли код?': 'Forgot passcode?',
+  'Отмена': 'Cancel',
+  'Вместо кода': 'Instead of passcode',
+  'Код-пароль включён': 'Passcode on',
+  'Код-пароль выключен': 'Passcode off',
+  'Код изменён': 'Passcode changed',
+  'Код сброшен': 'Passcode reset',
   'Каждый день': 'Every day',
   'Параметры': 'Preferences',
   'Главный экран': 'Home screen',
@@ -2812,7 +2850,6 @@ function toggleBio() {
     else BM.requestAccess({ reason: 'Чтобы защищать Konta' }, ok => ok ? enable() : toast('Доступ не выдан'));
   });
 }
-if (BIO) { showLock(); }
 
 // ================= Base currency =================
 const BASES = ['RUB', 'USD', 'EUR', 'CHF'];
@@ -2998,7 +3035,7 @@ function mMain() {
     ${mGrp('look', 'ui_spark', 'Оформление', THEMES[THEME] ? THEMES[THEME].n : '')}
     ${mGrp('home', 'ui_overview', 'Главный экран', CHART_N[CHART])}
     ${mGrp('budget', 'ui_cap', 'Бюджет и валюта', baseCur() + (ids ? ` · ${ids} ${plural(ids, 'лимит', 'лимита', 'лимитов')}` : ''))}
-    ${mGrp('priv', 'ui_shield', 'Приватность', PRIV ? 'Суммы скрыты' : (inTG && BIO ? 'Face ID' : ''))}
+    ${mGrp('priv', 'ui_shield', 'Приватность', PIN ? 'Код' + (bioOn() ? ' · Face ID' : '') : PRIV ? 'Суммы скрыты' : '')}
     ${mGrp('data', 'ui_copy', 'Данные', fmtN(String(S.tx.length)) + ' ' + plural(S.tx.length, 'запись', 'записи', 'записей'))}
     ${mHomeRows()}
     <div class="wm sm"><b>Konta</b><i>&amp; Cie</i></div><div class="ver">Private finance · версия 3.2</div>`;
@@ -3008,8 +3045,7 @@ function mSub(s) {
   if (s === 'look') return head + settingsExtra().replace(/<h2>Оформление<\/h2>/, '').replace(dailySetRow(), '');
   if (s === 'home') return head + dailySetRow() + `<h2>Вид графика</h2><div class="seg" style="margin-top:2px">${CHARTS.map(c => `<button class="${CHART === c ? 'on' : ''}" data-act="chartset" data-c="${c}">${CHART_N[c]}</button>`).join('')}</div><p class="note" style="margin-top:10px">Ещё можно переключать касанием по графику.</p>`;
   if (s === 'budget') return head + limitsRow() + `<h2>Валюта капитала</h2><div class="seg" style="margin-top:2px">${BASES.map(c => `<button class="${baseCur() === c ? 'on' : ''}" data-act="base" data-c="${c}">${c}</button>`).join('')}</div>`;
-  if (s === 'priv') return head + `<button class="row" data-act="priv"><span class="ic">${ic(PRIV ? 'ui_eyeoff' : 'ui_eye')}</span><span class="t"><span class="n">Скрывать суммы</span><span class="s">Или коснитесь крупной суммы на любом экране</span></span><span class="sw2 ${PRIV ? 'on' : ''}"><i></i></span></button>
-    ${inTG ? `<button class="row" data-act="bio"><span class="ic">${ic('ui_face')}</span><span class="t"><span class="n">Вход по Face ID</span><span class="s">${BM ? 'Через Telegram' : 'Доступно внутри Telegram'}</span></span><span class="sw2 ${BIO ? 'on' : ''}"><i></i></span></button>` : ''}
+  if (s === 'priv') return head + lockRows() + `<h2>Суммы</h2><button class="row" data-act="priv"><span class="ic">${ic(PRIV ? 'ui_eyeoff' : 'ui_eye')}</span><span class="t"><span class="n">Скрывать суммы</span><span class="s">Или коснитесь крупной суммы на любом экране</span></span><span class="sw2 ${PRIV ? 'on' : ''}"><i></i></span></button>
     ${inTG || (SYNC_API && SESS) ? '' : `<p class="note" style="margin:6px 0 10px">${SYNC_API ? 'Пока вы не вошли через Telegram, данные хранятся только на этом устройстве.' : 'Веб-версия хранит данные только на этом устройстве. Раз в месяц делайте экспорт в CSV.'}</p>`}`;
   if (s === 'data') {
     const L = (S.imports || []).length ? S.imports[S.imports.length - 1] : null, n = L ? S.tx.filter(t => t.im === L.im).length : 0;
@@ -3032,6 +3068,173 @@ function moreGo(s) {
   animSegs(); if (typeof enterFx === 'function') enterFx();
 }
 function chartSet(c) { CHART = c; try { localStorage.setItem('konta_chart', CHART); } catch (e) {} haptic(); render(); }
+
+// ================= Код-пароль =================
+// Код хранится только как хэш PBKDF2 с солью, на этом устройстве. Закрывает интерфейс, данные не шифрует.
+const LS = (k, v) => { try { if (v === undefined) return localStorage.getItem(k); if (v === null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch (e) { return null; } };
+let PIN = (() => { try { return JSON.parse(LS('konta_pin') || 'null'); } catch (e) { return null; } })();
+let PIN_AFTER = +(LS('konta_pin_after') || 60);
+let WA = LS('konta_wa'); // id ключа Face ID для веб-версии
+const b64 = u => btoa(String.fromCharCode(...new Uint8Array(u)));
+const ub64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
+async function pinHash(code, salt) {
+  const k = await crypto.subtle.importKey('raw', new TextEncoder().encode(code), 'PBKDF2', false, ['deriveBits']);
+  return b64(await crypto.subtle.deriveBits({ name: 'PBKDF2', salt, iterations: 120000, hash: 'SHA-256' }, k, 256));
+}
+async function pinSave(code) {
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  PIN = { s: b64(salt), h: await pinHash(code, salt) }; LS('konta_pin', JSON.stringify(PIN)); LS('konta_pin_fail', null);
+}
+async function pinCheck(code) { return !!PIN && (await pinHash(code, ub64(PIN.s))) === PIN.h; }
+const pinFail = () => { try { return JSON.parse(LS('konta_pin_fail') || '{"n":0,"u":0}'); } catch (e) { return { n: 0, u: 0 }; } };
+
+// --- Face ID в веб-версии (WebAuthn, ключ платформы) ---
+let waOk = false;
+try { if (window.PublicKeyCredential && PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable) PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable().then(v => { waOk = !!v && !inTG; if (tab === 'more') renderMore(); }).catch(() => {}); } catch (e) {}
+async function waCreate() {
+  const c = await navigator.credentials.create({ publicKey: { rp: { name: 'Konta & Cie' }, user: { id: crypto.getRandomValues(new Uint8Array(16)), name: 'konta', displayName: 'Konta & Cie' }, challenge: crypto.getRandomValues(new Uint8Array(32)), pubKeyCredParams: [{ type: 'public-key', alg: -7 }, { type: 'public-key', alg: -257 }], authenticatorSelection: { authenticatorAttachment: 'platform', userVerification: 'required', residentKey: 'discouraged' }, timeout: 60000 } });
+  WA = b64(c.rawId); LS('konta_wa', WA);
+}
+async function waGet() {
+  await navigator.credentials.get({ publicKey: { challenge: crypto.getRandomValues(new Uint8Array(32)), allowCredentials: [{ type: 'public-key', id: ub64(WA) }], userVerification: 'required', timeout: 60000 } });
+}
+const bioOn = () => inTG ? BIO : !!(WA && waOk);
+const bioName = () => inTG ? bioType : 'Face ID';
+
+// --- экран ввода ---
+// mode: 'unlock' | 'set' | 'confirm' | 'check'
+let PL = { mode: 'unlock', code: '', first: '', done: null, title: '' };
+function lockHTML() {
+  const t = PL.mode === 'set' ? 'Придумайте код' : PL.mode === 'confirm' ? 'Повторите код' : PL.title || 'Введите код';
+  const f = pinFail(), wait = Math.max(0, Math.ceil((f.u - Date.now()) / 1000));
+  const keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'bio', '0', 'del'];
+  const canBio = PL.mode === 'unlock' && bioOn();
+  return `<div class="lk">
+    <div class="wm"><b>Konta</b><i>&amp; Cie</i></div>
+    <div class="lkt" id="lkt">${wait ? `Попробуйте через ${wait} с` : t}</div>
+    <div class="lkd" id="lkd">${[0, 1, 2, 3].map(i => `<i class="${i < PL.code.length ? 'on' : ''}"></i>`).join('')}</div>
+    <div class="lkp">${keys.map(k => k === 'bio' ? (canBio ? `<button data-act="lkbio" aria-label="${bioName()}">${ic('ui_face')}</button>` : PL.mode !== 'unlock' ? `<button data-act="lkcancel" class="lkx">Отмена</button>` : '<span></span>') : k === 'del' ? `<button data-act="lkdel" aria-label="Стереть">${ic('ui_back')}</button>` : `<button data-act="lkkey" data-k="${k}">${k}</button>`).join('')}</div>
+    ${PL.mode === 'unlock' ? '<button class="lkf" data-act="lkforgot">Забыли код?</button>' : '<span class="lkf"></span>'}
+  </div>`;
+}
+function lockDraw() { const d = $('#lock'); if (d) d.innerHTML = lockHTML(); }
+function lockOpen(mode, o = {}) {
+  PL = { mode, code: '', first: '', done: o.done || null, title: o.title || '' };
+  let d = $('#lock');
+  if (!d) { d = document.createElement('div'); d.id = 'lock'; document.body.appendChild(d); }
+  d.className = mode === 'unlock' ? '' : 'sheetlk';
+  d.innerHTML = lockHTML();
+  if (mode === 'unlock') { document.activeElement && document.activeElement.blur && document.activeElement.blur(); }
+}
+function showLock() {
+  if (PIN) lockOpen('unlock');
+  else if (BIO && !$('#lock')) { const d = document.createElement('div'); d.id = 'lock'; d.innerHTML = `<div class="wm"><b>Konta</b><i>&amp; Cie</i></div><button class="btn ghost" data-act="unlock" style="width:auto;padding:0 28px;margin-top:40px">${ic('ui_face')}Разблокировать</button>`; document.body.appendChild(d); }
+}
+function hideLock() { const d = $('#lock'); if (d) { d.classList.add('out'); setTimeout(() => d.remove(), 450); } }
+function lockShake(msg) {
+  try { tg && tg.HapticFeedback.notificationOccurred('error'); } catch (e) {} const d = $('#lkd'); if (d) { d.classList.remove('sh'); void d.offsetWidth; d.classList.add('sh'); }
+  if (msg) { const t = $('#lkt'); if (t) t.textContent = msg; }
+}
+let LQ = Promise.resolve();
+function lockKey(k) { LQ = LQ.then(() => lockKey0(k)).catch(() => {}); return LQ; }
+async function lockKey0(k) {
+  if (PL.mode === 'unlock') { const f = pinFail(); if (f.u > Date.now()) { lockShake(); return; } }
+  if (PL.code.length >= 4) return;
+  PL.code += k; haptic();
+  const ds = document.querySelectorAll('#lkd i'); ds.forEach((e, i) => e.classList.toggle('on', i < PL.code.length));
+  if (PL.code.length < 4) return;
+  const c = PL.code;
+  await new Promise(r => setTimeout(r, 140));
+  if (PL.mode === 'set') { PL.first = c; PL.mode = 'confirm'; PL.code = ''; lockDraw(); return; }
+  if (PL.mode === 'confirm') {
+    if (c !== PL.first) { PL.mode = 'set'; PL.code = ''; PL.first = ''; lockDraw(); lockShake('Коды не совпали. Ещё раз'); return; }
+    await pinSave(c); hapticOk(); hideLock(); PL.done && PL.done(true); return;
+  }
+  if (await pinCheck(c)) {
+    LS('konta_pin_fail', null); hapticOk(); hideLock(); PL.done && PL.done(true); return;
+  }
+  PL.code = '';
+  if (PL.mode === 'unlock') {
+    const f = pinFail(); f.n++;
+    if (f.n >= 5) f.u = Date.now() + 30000 * Math.pow(2, Math.min(f.n - 5, 5));
+    LS('konta_pin_fail', JSON.stringify(f));
+    lockDraw(); lockShake(f.n >= 5 ? `Попробуйте через ${Math.ceil((f.u - Date.now()) / 1000)} с` : `Неверный код${f.n >= 3 ? ` · осталось ${5 - f.n}` : ''}`);
+    if (f.u > Date.now()) lockTick();
+  } else { lockDraw(); lockShake('Неверный код'); }
+}
+let lockTimer = 0;
+function lockTick() {
+  clearInterval(lockTimer);
+  lockTimer = setInterval(() => { const f = pinFail(), t = $('#lkt'); if (!t) { clearInterval(lockTimer); return; } const w = Math.ceil((f.u - Date.now()) / 1000); if (w > 0) t.textContent = `Попробуйте через ${w} с`; else { clearInterval(lockTimer); t.textContent = 'Введите код'; } }, 500);
+}
+function lockDel() { if (!PL.code) return; PL.code = PL.code.slice(0, -1); haptic(); document.querySelectorAll('#lkd i').forEach((e, i) => e.classList.toggle('on', i < PL.code.length)); }
+async function lockBio() {
+  if (inTG) {
+    if (!BM) return;
+    bioInit(() => { if (!bioAvail) return; try { BM.authenticate({ reason: 'Вход в Konta' }, ok => { if (ok) { LS('konta_pin_fail', null); hapticOk(); hideLock(); } }); } catch (e) {} });
+    return;
+  }
+  try { await waGet(); LS('konta_pin_fail', null); hapticOk(); hideLock(); } catch (e) {}
+}
+function unlock() { if (PIN) { if (bioOn()) lockBio(); return; } if (BIO) lockBio(); }
+async function lockForgot() {
+  if (inTG) {
+    if (!(await confirmDlg('Сбросить код? Вы вошли через свой Telegram, поэтому данные останутся на месте. Новый код можно поставить в Настройках.', 'Сбросить код'))) return;
+    pinOff(); hideLock(); toast('Код сброшен'); return;
+  }
+  if (SYNC_API && SESS) {
+    if (!(await confirmDlg('Чтобы сбросить код, выйдите и войдите снова через Telegram. Данные на этом устройстве удалятся и вернутся из облака после входа.', 'Выйти'))) return;
+    pinOff(); signOut(true);
+    S = { v: 2, tx: [], limits: {}, rules: {}, seq: 1, acc: [], rates: {}, prices: {}, capHist: [], onb: true, gid: 1 }; save();
+    hideLock(); render(); setTimeout(() => openLogin && openLogin(), 500); return;
+  }
+  if (!(await confirmDlg('Без входа через Telegram код не восстановить. Можно только удалить все данные на этом устройстве и начать заново.', 'Удалить всё'))) return;
+  pinOff(); S = { v: 2, tx: [], limits: {}, rules: {}, seq: 1, acc: [], rates: {}, prices: {}, capHist: [], onb: true, gid: 1 }; save();
+  hideLock(); render(); toast('Данные удалены, код сброшен');
+}
+function pinOff() { PIN = null; LS('konta_pin', null); LS('konta_pin_fail', null); WA = null; LS('konta_wa', null); if (inTG && BIO) { BIO = false; LS('konta_bio', '0'); } }
+
+// --- настройки ---
+function pinToggle() {
+  if (!crypto.subtle) { toast('Код недоступен в этом браузере'); return; }
+  if (!PIN) { lockOpen('set', { done: () => { render(); toast('Код-пароль включён'); } }); return; }
+  lockOpen('check', { title: 'Введите текущий код', done: () => { pinOff(); render(); toast('Код-пароль выключен'); } });
+}
+function pinChange() { lockOpen('check', { title: 'Введите текущий код', done: () => setTimeout(() => lockOpen('set', { done: () => toast('Код изменён') }), 460) }); }
+function pinAfter(v) { PIN_AFTER = +v; LS('konta_pin_after', String(PIN_AFTER)); haptic(); render(); }
+async function bioToggle() {
+  if (!PIN) { toast('Сначала включите код-пароль'); return; }
+  if (inTG) { toggleBio(); return; }
+  if (WA) { WA = null; LS('konta_wa', null); render(); toast('Face ID выключен'); return; }
+  try { await waCreate(); render(); toast('Вход по Face ID включён'); } catch (e) { toast('Face ID не подключён'); }
+}
+const AFTER_N = { 0: 'Сразу', 60: '1 мин', 300: '5 мин' };
+function lockRows() {
+  const sw = on => `<span class="sw2 ${on ? 'on' : ''}"><i></i></span>`;
+  let h = `<button class="row" data-act="pin"><span class="ic">${ic('ui_shield')}</span><span class="t"><span class="n">Код-пароль</span><span class="s">4 цифры при входе в Konta</span></span>${sw(!!PIN)}</button>`;
+  if (PIN) {
+    const canBio = inTG ? !!BM : waOk;
+    if (canBio) h += `<button class="row" data-act="lkbiot"><span class="ic">${ic('ui_face')}</span><span class="t"><span class="n">Вход по ${inTG ? (bioType || 'Face ID') : 'Face ID'}</span><span class="s">Вместо кода</span></span>${sw(bioOn())}</button>`;
+    h += `<button class="row" data-act="pinchg"><span class="ic">${ic('ui_edit')}</span><span class="t"><span class="n">Сменить код</span></span>${ic('ui_right', 'i chev')}</button>`;
+    h += `<h2>Запрашивать код</h2><div class="seg" style="margin-top:2px">${[0, 60, 300].map(v => `<button class="${PIN_AFTER === v ? 'on' : ''}" data-act="pinafter" data-v="${v}">${AFTER_N[v]}</button>`).join('')}</div><p class="note" style="margin-top:10px">После того как приложение свернули. При каждом запуске код спрашивается всегда.</p>`;
+  }
+  return h;
+}
+// при сворачивании
+let hiddenAt = 0;
+document.addEventListener('visibilitychange', () => {
+  if (!PIN) return;
+  if (document.hidden) { hiddenAt = Date.now(); return; }
+  if (hiddenAt && Date.now() - hiddenAt >= PIN_AFTER * 1000 && !$('#lock')) { lockOpen('unlock'); unlock(); }
+});
+// клавиатура компьютера на экране кода
+document.addEventListener('keydown', e => {
+  if (!$('#lock .lk')) return;
+  if (/^[0-9]$/.test(e.key)) { e.preventDefault(); e.stopImmediatePropagation(); lockKey(e.key); }
+  else if (e.key === 'Backspace') { e.preventDefault(); e.stopImmediatePropagation(); lockDel(); }
+  else if (e.key === 'Escape' && PL.mode !== 'unlock') { e.stopImmediatePropagation(); hideLock(); }
+}, true);
+if (PIN || BIO) showLock();
 // ================= Statement engine (pure, без DOM) =================
 // Разбирает строки PDF-выписки (rows: [{p, y, items:[{x, s}]}]) любого табличного банка.
 const ST_DATE = /^(\d{2})\.(\d{2})\.(\d{4})$/;
@@ -3554,6 +3757,15 @@ document.addEventListener('click', async e => {
   if (a === 'saveacc') return saveAcc();
   if (a === 'delacc') { if (!(await confirmDlg('Удалить «' + A.n + '»?', 'Удалить'))) return; capFlow(-accRub(S.acc.find(x => x.id === A.id))); S.acc = S.acc.filter(x => x.id !== A.id); snapshot(); save(); while (stack.length) close(); render(); toast('Удалено'); return; }
   if (a === 'rates') return openRates();
+  if (a === 'lkkey') return lockKey(t.dataset.k);
+  if (a === 'lkdel') return lockDel();
+  if (a === 'lkbio') return lockBio();
+  if (a === 'lkforgot') return lockForgot();
+  if (a === 'lkcancel') return hideLock();
+  if (a === 'pin') return pinToggle();
+  if (a === 'pinchg') return pinChange();
+  if (a === 'pinafter') return pinAfter(t.dataset.v);
+  if (a === 'lkbiot') return bioToggle();
   if (a === 'msub') return moreGo(t.dataset.s);
   if (a === 'mback') return moreGo(null);
   if (a === 'chartset') return chartSet(t.dataset.c);
@@ -3722,7 +3934,7 @@ function splashEnd(now) {
   splashEnd._t = setTimeout(() => {
     if (splashDone) return; splashDone = true;
     const s = $('#splash'); s.classList.add('out'); setTimeout(() => s.remove(), 1000);
-    setTimeout(() => { document.body.classList.remove('boot'); setTimeout(animateCounts, 180); if (!S.onb) showOnboarding(); else maybeReport(); if (BIO) unlock(); }, 260);
+    setTimeout(() => { document.body.classList.remove('boot'); setTimeout(animateCounts, 180); if (!S.onb) showOnboarding(); else maybeReport(); if (BIO || PIN) unlock(); }, 260);
   }, wait);
 }
 $('#splash').addEventListener('click', () => { if (splashReady && performance.now() - T0 > 700) splashEnd(true); });
