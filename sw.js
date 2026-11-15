@@ -1,5 +1,5 @@
 // Konta & Cie: офлайн-режим. Сеть ждём недолго (1,2 с для приложения, 2,5 с для остального), иначе кэш.
-const C = 'konta-v24';
+const C = 'konta-v25';
 const CORE = ['./', './index.html', './manifest.webmanifest', './k2-icon-192.png', './k2-touch-180.png'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(C).then(c => c.addAll(CORE)).then(() => self.skipWaiting())); });
 self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== C).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
