@@ -624,6 +624,14 @@ body.boot .veilb{opacity:0}
 .curl{font-size:13px;color:var(--mut);margin-top:6px;min-height:17px}
 .chips.curs{justify-content:flex-start;margin:10px -20px 0;padding:0 20px}
 .row .a small{font-size:12px;color:var(--mut)}
+.row .rv{color:var(--mut);font-size:14px;white-space:nowrap;margin-left:6px;max-width:44%;overflow:hidden;text-overflow:ellipsis}
+.mprof{margin:4px 0 6px}.mprof .ic{width:44px;height:44px}
+.msubh{justify-content:flex-start;gap:14px}.msubh h1{font-size:24px!important}
+.mdanger{margin-top:34px}
+#s-more.mpush{animation:mpush .38s var(--ease)}#s-more.mpop{animation:mpop .38s var(--ease)}
+@keyframes mpush{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:none}}
+@keyframes mpop{from{opacity:0;transform:translateX(-24px)}to{opacity:1;transform:none}}
+html.pwa #s-more.mpush,html.pwa #s-more.mpop{animation-name:mfade}@keyframes mfade{from{opacity:0}to{opacity:1}}
 /* Интерфейс в цвет темы */
 html[data-th=aurora]{--sl:200,184,255;--sl2:236,230,255}
 html[data-th=photo]{--sl:242,239,233;--sl2:255,255,255}
@@ -636,7 +644,7 @@ html[data-th] .tabs .ind{background:rgba(var(--sl),.13)}
 html[data-th] .hero .num small{color:rgba(var(--sl),.72)}
 </style>
 </head>
-<body class="boot"><script>(function(){var B="202611151431";try{fetch("/version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.json():null}).then(function(j){if(j&&j.b&&j.b!==B&&sessionStorage.getItem("kupd")!==j.b){sessionStorage.setItem("kupd",j.b);var u=new URL(location.href);u.searchParams.set("v",j.b);location.replace(u.toString())}}).catch(function(){})}catch(e){}})()</script><script>try{var t=localStorage.getItem("konta_theme")||"aurora";var mg={platinum:"cash",franc:"alps",gold:"dial",dollar:"note",vault:"dial",zurich:"cash"};document.documentElement.dataset.th=mg[t]||t}catch(e){}</script>
+<body class="boot"><script>(function(){var B="202611151443";try{fetch("/version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.json():null}).then(function(j){if(j&&j.b&&j.b!==B&&sessionStorage.getItem("kupd")!==j.b){sessionStorage.setItem("kupd",j.b);var u=new URL(location.href);u.searchParams.set("v",j.b);location.replace(u.toString())}}).catch(function(){})}catch(e){}})()</script><script>try{var t=localStorage.getItem("konta_theme")||"aurora";var mg={platinum:"cash",franc:"alps",gold:"dial",dollar:"note",vault:"dial",zurich:"cash"};document.documentElement.dataset.th=mg[t]||t}catch(e){}</script>
 <div class="splash" id="splash"><div class="stage">
 <svg class="g1" viewBox="0 0 390 300"><defs><radialGradient id="spg" cx="195" cy="200" r="200" gradientUnits="userSpaceOnUse" gradientTransform="translate(0 200) scale(1 .62) translate(0 -200)"><stop offset="0" style="stop-color:rgb(var(--sl));stop-opacity:.42"/><stop offset=".35" style="stop-color:rgb(var(--sl));stop-opacity:.14"/><stop offset="1" style="stop-color:rgb(var(--sl));stop-opacity:0"/></radialGradient><clipPath id="spu"><path d="M-10 262 Q195 138 400 262 L400 0 L-10 0Z"/></clipPath></defs><rect class="glw" width="390" height="300" fill="url(#spg)" clip-path="url(#spu)"/></svg>
 <div class="kw"><div class="kk">k</div></div>
@@ -1280,6 +1288,16 @@ const DICT = {
   'Через Telegram': 'Via Telegram',
   'Доступно внутри Telegram': 'Available inside Telegram',
   'Приватность': 'Privacy',
+  'Каждый день': 'Every day',
+  'Параметры': 'Preferences',
+  'Главный экран': 'Home screen',
+  'Бюджет и валюта': 'Budget & currency',
+  'Данные': 'Data',
+  'Вид графика': 'Chart style',
+  'Напишите боту «кофе 350»': 'Text the bot “coffee 350”',
+  'PDF или CSV из любого банка': 'PDF or CSV from any bank',
+  'Ещё можно переключать касанием по графику.': 'You can also tap the chart to switch.',
+  'Суммы скрыты': 'Amounts hidden',
   'Валюта капитала': 'Capital currency',
   'Банк': 'Bank',
   'Импорт выписки': 'Import statement',
@@ -2650,6 +2668,7 @@ function goalDone(g, n) {
   GV = g.id; if (!stack.includes('#sheet2')) open('#sheet2');
 }
 function goTab(n) {
+  if (n === 'more' && typeof MSUB !== 'undefined') MSUB = null;
   tab = n;
   document.querySelectorAll('.tabs [data-tab]').forEach(b => b.classList.toggle('on', b.dataset.tab === tab));
   SCREENS.forEach(s => $('#s-' + s).classList.toggle('hidden', s !== tab)); moveInd(); render();
@@ -2944,6 +2963,72 @@ function botWrite() {
     <div class="stack"><button class="btn" data-act="openbot">Открыть @KontaCieBot</button></div>`;
   open('#sheet2');
 }
+
+// ================= «Ещё»: короткий главный экран + группы =================
+let MSUB = null;
+const MSUB_T = { look: 'Оформление', home: 'Главный экран', budget: 'Бюджет и валюта', priv: 'Приватность', data: 'Данные' };
+const mRow = (act, icon, n, s, v, extra = '') => `<button class="row" data-act="${act}"${extra}><span class="ic">${icon}</span><span class="t"><span class="n">${n}</span>${s ? `<span class="s">${s}</span>` : ''}</span>${v ? `<span class="rv">${v}</span>` : ''}${ic('ui_right', 'i chev')}</button>`;
+const mGrp = (s, icon, n, v) => mRow('msub', ic(icon), n, '', v, ` data-s="${s}"`);
+function mProfile() {
+  if (!SYNC_API) return '';
+  if (inTG) return `<div class="row mprof" data-act="synctap"><span class="ic">${ic('ui_check')}</span><span class="t"><span class="n">Бот и сайт связаны</span><span class="s" id="sync-s">${syncLine()}</span></span></div>`;
+  if (!SESS) return `<button class="row mprof" data-act="login"><span class="ic">${ic('ui_import')}</span><span class="t"><span class="n">Войти через Telegram</span><span class="s">Те же данные, что в боте @${BOT_NAME}</span></span>${ic('ui_right', 'i chev')}</button>`;
+  return `<div class="row mprof" data-act="synctap"><span class="ic">${ic('ui_check')}</span><span class="t"><span class="n">${esc(SUSER && SUSER.username ? '@' + SUSER.username : SUSER && SUSER.name || 'Telegram')}</span><span class="s" id="sync-s">${syncLine()}</span></span><button class="rb txt" data-act="logout">Выйти</button></div>`;
+}
+function mHomeRows() {
+  let h = '';
+  if (!inTG && !STANDALONE) h += mRow('pwahelp', ic('ui_plus'), 'Установить на экран «Домой»', 'Откроется на весь экран, как обычное приложение');
+  if (inTG) h += mRow('webapphelp', ic('ui_overview'), 'Приложение на экране «Домой»', 'kontacie.com, на весь экран, без Telegram');
+  if (HS === 'missed' || HS === 'unknown') h += mRow('homescreen', ic('ui_plus'), 'Добавить на экран «Домой»', 'Konta & Cie откроется одним касанием');
+  return h ? `<h2>Быстрый доступ</h2>${h}` : '';
+}
+function mMain() {
+  const ids = Object.keys(S.limits).filter(id => CAT[id]).length;
+  const homeOn = [DAILY].filter(Boolean).length;
+  return `<header class="hdr"><div><h1>Настройки</h1></div></header>
+    ${mProfile()}
+    <h2>Каждый день</h2>${mRow('botwrite', '<svg class="i" viewBox="0 0 24 24"><path d="M20.5 4.5 3.8 11c-.9.4-.9 1.6 0 1.9l4.1 1.4 1.6 5c.3.8 1.3 1 1.9.4l2.3-2.2 4.2 3.1c.7.5 1.7.1 1.9-.7l2.7-13.6c.2-1-.8-1.8-1.7-1.4z"/><path d="m8 14.3 9-7"/></svg>', 'Записывать сообщением', 'Напишите боту «кофе 350»')}
+    ${mRow('import', ic('ui_import'), 'Импорт выписки', 'PDF или CSV из любого банка')}
+    ${mRow('report', ic('ui_letter'), 'Итоги прошлого месяца', 'Письмо от Konta & Cie')}
+    <input type="file" id="imp-in" accept=".pdf,.csv,.txt,application/pdf,text/csv" multiple hidden>
+    <h2>Параметры</h2>
+    ${mGrp('look', 'ui_spark', 'Оформление', THEMES[THEME] ? THEMES[THEME].n : '')}
+    ${mGrp('home', 'ui_overview', 'Главный экран', CHART_N[CHART])}
+    ${mGrp('budget', 'ui_cap', 'Бюджет и валюта', baseCur() + (ids ? ` · ${ids} ${plural(ids, 'лимит', 'лимита', 'лимитов')}` : ''))}
+    ${mGrp('priv', 'ui_shield', 'Приватность', PRIV ? 'Суммы скрыты' : (inTG && BIO ? 'Face ID' : ''))}
+    ${mGrp('data', 'ui_copy', 'Данные', fmtN(String(S.tx.length)) + ' ' + plural(S.tx.length, 'запись', 'записи', 'записей'))}
+    ${mHomeRows()}
+    <div class="wm sm"><b>Konta</b><i>&amp; Cie</i></div><div class="ver">Private finance · версия 3.2</div>`;
+}
+function mSub(s) {
+  const head = `<header class="hdr msubh"><button class="rb" data-act="mback" aria-label="Назад">${ic('ui_left')}</button><h1>${MSUB_T[s]}</h1><i></i></header>`;
+  if (s === 'look') return head + settingsExtra().replace(/<h2>Оформление<\/h2>/, '').replace(dailySetRow(), '');
+  if (s === 'home') return head + dailySetRow() + `<h2>Вид графика</h2><div class="seg" style="margin-top:2px">${CHARTS.map(c => `<button class="${CHART === c ? 'on' : ''}" data-act="chartset" data-c="${c}">${CHART_N[c]}</button>`).join('')}</div><p class="note" style="margin-top:10px">Ещё можно переключать касанием по графику.</p>`;
+  if (s === 'budget') return head + limitsRow() + `<h2>Валюта капитала</h2><div class="seg" style="margin-top:2px">${BASES.map(c => `<button class="${baseCur() === c ? 'on' : ''}" data-act="base" data-c="${c}">${c}</button>`).join('')}</div>`;
+  if (s === 'priv') return head + `<button class="row" data-act="priv"><span class="ic">${ic(PRIV ? 'ui_eyeoff' : 'ui_eye')}</span><span class="t"><span class="n">Скрывать суммы</span><span class="s">Или коснитесь крупной суммы на любом экране</span></span><span class="sw2 ${PRIV ? 'on' : ''}"><i></i></span></button>
+    ${inTG ? `<button class="row" data-act="bio"><span class="ic">${ic('ui_face')}</span><span class="t"><span class="n">Вход по Face ID</span><span class="s">${BM ? 'Через Telegram' : 'Доступно внутри Telegram'}</span></span><span class="sw2 ${BIO ? 'on' : ''}"><i></i></span></button>` : ''}
+    ${inTG || (SYNC_API && SESS) ? '' : `<p class="note" style="margin:6px 0 10px">${SYNC_API ? 'Пока вы не вошли через Telegram, данные хранятся только на этом устройстве.' : 'Веб-версия хранит данные только на этом устройстве. Раз в месяц делайте экспорт в CSV.'}</p>`}`;
+  if (s === 'data') {
+    const L = (S.imports || []).length ? S.imports[S.imports.length - 1] : null, n = L ? S.tx.filter(t => t.im === L.im).length : 0;
+    return head + `<p class="note" style="margin-top:2px">${cloud ? 'Хранятся в облаке и синхронизируются между устройствами.' : 'Сейчас хранятся в этом браузере.'} ${fmtN(String(S.tx.length))} ${plural(S.tx.length, 'запись', 'записи', 'записей')}.</p>
+      ${n ? `<button class="row" data-act="undoimp" data-im="${L.im}"><span class="ic">${ic('ui_back')}</span><span class="t"><span class="n">Отменить последний импорт</span><span class="s">${L.banks.join(', ')} · ${fmtN(String(n))} ${plural(n, 'операция', 'операции', 'операций')}</span></span></button>` : ''}
+      <div class="stack" style="margin-top:14px"><button class="btn ghost" data-act="csv">Экспорт в CSV</button><div id="csvbox"></div>
+      ${Object.keys(S.rules).length ? `<button class="btn ghost" data-act="rules">Сбросить выученные категории (${Object.keys(S.rules).length})</button>` : ''}</div>
+      <div class="stack mdanger"><button class="btn danger" data-act="wipe">Удалить все данные</button></div>`;
+  }
+  return '';
+}
+function renderMore() {
+  const el = $('#s-more'); if (!el) return;
+  el.innerHTML = MSUB ? mSub(MSUB) : mMain();
+}
+function moreGo(s) {
+  haptic(); const el = $('#s-more');
+  MSUB = s; renderMore(); if (el) el.scrollTop = 0;
+  if (el) { el.classList.remove('mpush', 'mpop'); void el.offsetWidth; el.classList.add(s ? 'mpush' : 'mpop'); }
+  animSegs(); if (typeof enterFx === 'function') enterFx();
+}
+function chartSet(c) { CHART = c; try { localStorage.setItem('konta_chart', CHART); } catch (e) {} haptic(); render(); }
 // ================= Statement engine (pure, без DOM) =================
 // Разбирает строки PDF-выписки (rows: [{p, y, items:[{x, s}]}]) любого табличного банка.
 const ST_DATE = /^(\d{2})\.(\d{2})\.(\d{4})$/;
@@ -3466,6 +3551,9 @@ document.addEventListener('click', async e => {
   if (a === 'saveacc') return saveAcc();
   if (a === 'delacc') { if (!(await confirmDlg('Удалить «' + A.n + '»?', 'Удалить'))) return; capFlow(-accRub(S.acc.find(x => x.id === A.id))); S.acc = S.acc.filter(x => x.id !== A.id); snapshot(); save(); while (stack.length) close(); render(); toast('Удалено'); return; }
   if (a === 'rates') return openRates();
+  if (a === 'msub') return moreGo(t.dataset.s);
+  if (a === 'mback') return moreGo(null);
+  if (a === 'chartset') return chartSet(t.dataset.c);
   if (a === 'theme') return setTheme(t.dataset.t);
   if (a === 'priv') return togglePriv();
   if (a === 'cyclebase') { e.stopPropagation(); return setBase(BASES[(BASES.indexOf(baseCur()) + 1) % BASES.length]); }
