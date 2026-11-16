@@ -612,6 +612,15 @@ const DICT = {
   'Через Telegram': 'Via Telegram',
   'Доступно внутри Telegram': 'Available inside Telegram',
   'Приватность': 'Privacy',
+  'Регулярные платежи': 'Recurring payments',
+  'Подписки': 'Subscriptions',
+  'Каждый месяц': 'Every month',
+  'Каждую неделю': 'Every week',
+  'В месяц': 'Per month',
+  'В год': 'Per year',
+  'в месяц': 'per month',
+  'Коснитесь строки, если это не подписка': 'Tap a row if it isn’t a subscription',
+  'Нашли по платежам, которые повторяются с одной суммой каждый месяц или неделю.': 'Found from payments that repeat with the same amount every month or week.',
   'Код-пароль': 'Passcode',
   '4 цифры при входе в Konta': '4 digits to open Konta',
   'Сменить код': 'Change passcode',
@@ -1203,6 +1212,7 @@ function renderAn() {
     }).join('') + (parts.length > 5 ? `<button class="morebtn" data-act="acats">${aCats ? 'Свернуть' : `Все категории · ${parts.length}`}</button>` : '');
   }
 
+  h += subsBlock();
   h += `<button class="morebtn big" data-act="amore">${aMore ? 'Скрыть подробности' : 'Подробнее'}${ic(aMore ? 'ui_down' : 'ui_down', 'i chev' + (aMore ? ' up' : ''))}</button>`;
   if (aMore) {
     h += `<div class="stats" style="margin-top:6px">${stat('Операций', outs.length)}${stat('Средний чек', rub(avgCheck, { round: true }))}${r.current ? stat('Прогноз', rub(days ? spent / days * r.days : 0, { round: true, short: true })) : stat('Отложено', income ? Math.max(0, Math.round((income - spent) / income * 100)) + '%' : '—')}</div>`;
@@ -2549,6 +2559,58 @@ if (PIN || BIO) {
   const sp = $('#splash'); if (sp) sp.classList.add('lkwait');
   setTimeout(() => { if ($('#lock')) unlock(); }, 450);
 }
+
+// ================= Подписки: регулярные списания =================
+const subN = s => (s || '').toLowerCase().replace(/ё/g, 'е').replace(/[^a-zа-я+ ]/g, ' ').replace(/\s+/g, ' ').trim();
+const medOf = a => { const s = [...a].sort((x, y) => x - y); return s[Math.floor(s.length / 2)]; };
+function findSubs() {
+  const from = key(addD(today(), -125)), hide = S.subsHide || [], g = {};
+  S.tx.forEach(t => { if (t.k !== 'out' || t.d < from || !t.n || t.c === 'transfer') return; const k = subN(t.n); if (!k || hide.includes(k)) return; (g[k] = g[k] || []).push(t); });
+  const res = [];
+  for (const [k, arr] of Object.entries(g)) {
+    if (arr.length < 2) continue;
+    arr.sort((a, b) => a.d < b.d ? -1 : a.d > b.d ? 1 : 0);
+    const ds = arr.map(t => new Date(t.d + 'T12:00'));
+    const gaps = []; for (let i = 1; i < ds.length; i++) gaps.push(Math.round((ds[i] - ds[i - 1]) / 864e5));
+    const gm = medOf(gaps);
+    let per = null;
+    if (gm >= 26 && gm <= 35 && gaps.every(x => x >= 20 && x <= 40)) per = 'm';
+    else if (arr.length >= 3 && gm >= 6 && gm <= 8 && gaps.every(x => x >= 5 && x <= 9)) per = 'w';
+    if (!per) continue;
+    const am = arr.map(t => t.a), mA = medOf(am);
+    if (Math.max(...am) > mA * 1.2 || Math.min(...am) < mA * 0.8) continue;
+    const last = arr[arr.length - 1], since = (today() - new Date(last.d + 'T12:00')) / 864e5;
+    if (since > (per === 'm' ? 45 : 12)) continue; // давно не списывали: видимо, отменили
+    res.push({ k, n: last.n, c: last.c, a: mA, per, month: per === 'm' ? mA : Math.round(mA * 52 / 12), next: addD(new Date(last.d + 'T12:00'), gm) });
+  }
+  return res.sort((a, b) => b.month - a.month);
+}
+const subsWord = n => plural(n, 'подписка', 'подписки', 'подписок');
+function subsBlock() {
+  const L = findSubs(); if (!L.length) return '';
+  const m = L.reduce((s, x) => s + x.month, 0);
+  return `<h2>Регулярные платежи</h2><button class="row" data-act="subs"><span class="ic">${ic('subs')}</span><span class="t"><span class="n">${L.length} ${subsWord(L.length)}</span><span class="s">${rub(m * 12, { round: true })} в год</span></span><span class="a">${rub(m, { round: true })}<small>в месяц</small></span>${ic('ui_right', 'i chev')}</button>`;
+}
+function openSubs() {
+  const L = findSubs(); haptic();
+  const m = L.reduce((s, x) => s + x.month, 0);
+  const nx = d => { const dd = Math.round((d - today()) / 864e5); return dd <= 0 ? 'ожидается' : dd === 1 ? 'завтра' : `≈ ${d.getDate()} ${MG[d.getMonth()]}`; };
+  const top = L[0];
+  $('#sheet2').innerHTML = `<div class="grab"></div><h2 style="margin-top:4px">Подписки</h2>
+    <p class="note" style="margin:6px 2px 14px;line-height:1.5">Нашли по платежам, которые повторяются с одной суммой каждый месяц или неделю.</p>
+    <div class="dcalc"><div class="dline"><span>В месяц</span><b>${rub(m, { round: true })}</b></div><div class="dline"><span>В год</span><b>${rub(m * 12, { round: true })}</b></div></div>
+    <div style="height:10px"></div>
+    ${L.map(x => `<button class="row" data-act="subhide" data-k="${esc(x.k)}"><span class="ic">${ic((CAT[x.c] || CAT.other).id)}</span><span class="t"><span class="n">${esc(x.n)}</span><span class="s">${x.per === 'w' ? 'Каждую неделю · ' : ''}Следующий ${nx(x.next)}</span></span><span class="a">${rub(x.a, { round: true })}</span></button>`).join('')}
+    ${top ? `<p class="note" style="margin:14px 2px 0;line-height:1.5">Самая дорогая, ${esc(top.n)}, за год обходится в <span style="white-space:nowrap">${rub(top.month * 12, { round: true })}</span>.</p>` : ''}
+    <p class="note" style="margin:10px 2px 0;text-align:center">Коснитесь строки, если это не подписка</p>`;
+  open('#sheet2');
+}
+async function subHide(k) {
+  if (!(await confirmDlg('Убрать из подписок? Сами платежи останутся в истории.', 'Убрать'))) return;
+  S.subsHide = [...(S.subsHide || []), k]; save(); haptic();
+  if (findSubs().length) openSubs(); else close();
+  render();
+}
 // ================= Statement engine (pure, без DOM) =================
 // Разбирает строки PDF-выписки (rows: [{p, y, items:[{x, s}]}]) любого табличного банка.
 const ST_DATE = /^(\d{2})\.(\d{2})\.(\d{4})$/;
@@ -3074,6 +3136,8 @@ document.addEventListener('click', async e => {
   if (a === 'saveacc') return saveAcc();
   if (a === 'delacc') { if (!(await confirmDlg('Удалить «' + A.n + '»?', 'Удалить'))) return; capFlow(-accRub(S.acc.find(x => x.id === A.id))); S.acc = S.acc.filter(x => x.id !== A.id); snapshot(); save(); while (stack.length) close(); render(); toast('Удалено'); return; }
   if (a === 'rates') return openRates();
+  if (a === 'subs') return openSubs();
+  if (a === 'subhide') return subHide(t.dataset.k);
   if (a === 'lkkey') return lockKey(t.dataset.k);
   if (a === 'lkdel') return lockDel();
   if (a === 'lkbio') return lockBio();
@@ -3210,6 +3274,11 @@ function seed() {
         const d = m === 0 ? addD(now, -Math.floor(R() * days)) : addD(new Date(now.getFullYear(), now.getMonth() - m, 1, 12), Math.floor(R() * 28));
         S.tx.push({ id: newId(), k: 'out', a: Math.round(a * (0.6 + R() * 0.8)) * 100, n, c, d: key(d), t: d.getTime() + i });
       }
+    });
+    // демо-подписки: одна сумма каждый месяц
+    [['Яндекс Плюс', 'subs', 399, 7], ['iCloud+', 'subs', 149, 12], ['Okko', 'subs', 399, 18], ['Telegram Premium', 'subs', 299, 3]].forEach(([n, c, a, day]) => {
+      const d = new Date(now.getFullYear(), now.getMonth() - m, day, 12); if (key(d) > todayK()) return;
+      S.tx.push({ id: newId(), k: 'out', a: a * 100, n, c, d: key(d), t: d.getTime() });
     });
     const base = new Date(now.getFullYear(), now.getMonth() - m, 1, 12);
     [['Зарплата', 'salary', 45000, 5], ['Аванс', 'salary', 30000, 20], ['Перевод', 'in_transfer', 5000, 12], ['Кэшбэк', 'cashback', 640, 3]].forEach(([n, c, a, day]) => {
