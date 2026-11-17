@@ -1492,6 +1492,7 @@ function onKey(k) {
   const l = $('#curl'); if (l) l.innerHTML = curLine();
 }
 function submit() {
+  ymGoal(F.id ? 'tx_edit' : 'tx_add', { kind: F.kind || '' });
   const oa = Math.round(parseFloat((F.amt || '0').replace(',', '.')) * 100);
   let a = oa;
   if (F.cur !== 'RUB') { const r = rate(F.cur); if (!r) { toast('Нет курса — проверьте интернет'); return; } a = Math.round(oa * r / 100) * 100 || 100; }
@@ -1986,6 +1987,7 @@ function drawGoalEdit() {
 const fitSum = el => { const n = (el.value || '0').length; el.style.width = Math.max(1, n + .3) + 'ch'; const v = el.closest('.v'); if (v) v.style.fontSize = n > 9 ? '36px' : n > 6 ? '44px' : ''; };
 function geSync() { if ($('#ge-n')) GE.n = $('#ge-n').value; if ($('#ge-sum')) GE.sumS = String(num($('#ge-sum').value)); }
 function saveGoal() {
+  ymGoal('goal_save');
   geSync();
   const sum = Math.round(num(GE.sumS) * 100), n = (GE.n || '').trim();
   if (!sum) { toast('Введите сумму'); return; }
@@ -3463,3 +3465,14 @@ setTimeout(() => { if (navigator.onLine === false || !('serviceWorker' in naviga
     setTimeout(send, 4000);
   } catch (e) {}
 })();
+
+// Яндекс Метрика: грузится после заставки, без вебвизора и записи экрана (суммы не уходят наружу)
+const YM_ID = 114305391;
+const ymGoal = (g, p) => { try { window.ym && ym(YM_ID, 'reachGoal', g, p); } catch (e) {} };
+setTimeout(() => {
+  try {
+    (function (m, e, t, r, i, k, a) { m[i] = m[i] || function () { (m[i].a = m[i].a || []).push(arguments); }; m[i].l = 1 * new Date(); k = e.createElement(t), a = e.getElementsByTagName(t)[0], k.async = 1, k.src = r, a.parentNode.insertBefore(k, a); })(window, document, 'script', 'https://mc.yandex.ru/metrika/tag.js?id=' + YM_ID, 'ym');
+    const src = (() => { try { const q = new URLSearchParams(location.search); return q.get('from') || q.get('utm_source') || (tg && tg.initDataUnsafe && tg.initDataUnsafe.start_param) || ''; } catch (e) { return ''; } })();
+    ym(YM_ID, 'init', { webvisor: false, clickmap: false, trackLinks: true, accurateTrackBounce: true, referrer: document.referrer, url: location.href, params: { platform: inTG ? 'telegram' : STANDALONE ? 'home_screen' : 'web', lang: LANG, theme: THEME, mode: typeof MODE !== 'undefined' ? MODE : 'dark', from: src || undefined } });
+  } catch (e) {}
+}, 3500);
