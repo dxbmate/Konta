@@ -667,9 +667,109 @@ html.pwa #s-more.mpush,html.pwa #s-more.mpop{animation-name:mfade}@keyframes mfa
 /* вебка: текст на 10% крупнее штатным масштабом текста iOS, ширина блоков не меняется (как в Telegram) */
 html.wb,html.wb body{-webkit-text-size-adjust:110%!important;text-size-adjust:110%!important}
 html.wb .screen{overflow-x:hidden}
-/* iOS 26: система не рисует нижнюю полосу высотой со строку состояния; к этой линии всё уже уходит в чёрное */
-html.pwa .veilb{top:calc(var(--fullh) - 190px - var(--st));height:calc(190px + var(--st))}
-html.pwa .veilb:after{background:linear-gradient(rgba(0,0,0,0),rgba(0,0,0,.55) 38%,rgba(0,0,0,.93) 70%,#000 80%,#000)}
+/* iOS 26: система не рисует самый низ экрана, поэтому в приложении с экрана «Домой» меню стоит на сплошной чёрной панели, и эта зона становится её продолжением */
+html.pwa .veilb{display:none}
+html.pwa .dock{left:0;right:0;bottom:0;padding:10px 16px 6px;background:#000;box-shadow:0 -1px 0 rgba(var(--sl),.12),0 -30px 40px -10px rgba(0,0,0,.85)}
+html.pwa .tabs.glass{background:transparent!important;box-shadow:none!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+html.pwa .screen{padding-bottom:110px}
+
+/* ===== Светлая тема ===== */
+html.light{--bg:#f2eee6;--iv:#1c1a16;--mut:#7d776c;--mut2:#b4ada0;--line:rgba(28,25,20,.09);color-scheme:light}
+html.light,html.light body{background:#f2eee6}
+html.light .sky:before{display:none}
+html.light .grain{opacity:.35}
+html.light .ic{color:var(--iv)!important}
+html.light .fab{background:#1c1a16;color:#f6f2ea}
+html.light .glass{background:rgba(250,247,241,.82)!important;border-color:rgba(28,25,20,.08)!important}
+html.light .sheet{background:#faf7f1;color:var(--iv)}
+html.light .dlg>div,html.light .dlg .box{background:#faf7f1}
+html.light .sw2 i{background:#fff}
+html.light .lc .sun{background:var(--iv);box-shadow:0 0 12px 3px rgba(60,45,25,.12)}
+html.light.pwa .dock{background:#f2eee6;box-shadow:0 -1px 0 rgba(28,25,20,.08),0 -30px 40px -10px rgba(242,238,230,.9)}
+html.light .veilb:after{background:linear-gradient(rgba(242,238,230,0),rgba(242,238,230,.7) 70%,rgba(242,238,230,.9))}
+html.light .toast{background:rgba(250,247,241,.96);color:var(--iv);box-shadow:0 10px 30px rgba(60,45,25,.15)}
+html.light .hero .num small{color:rgba(var(--sl),1);filter:brightness(.55)}
+html.light :root{--line:rgba(28,25,20,0.092)}
+html.light .sky:before{background:linear-gradient(180deg,#101830 0%,#0b1020 35%,rgba(40,32,22,0) 100%)}
+html.light .rb{background:rgba(28,25,20,0.0805)}
+html.light .ic{background:rgba(28,25,20,0.0805)}
+html.light input.lim{background:rgba(28,25,20,0.069)}
+html.light .ln{background:rgba(28,25,20,0.115)}
+html.light .bars i{background:rgba(28,25,20,0.69)}
+html.light .bars i.z{background:rgba(28,25,20,0.138)}
+html.light .bars .avgl{border-top:1px dashed rgba(28,25,20,0.253)}
+html.light .lc .sun{background:#1c1914}
+html.light .wd i{background:rgba(28,25,20,0.517)}
+html.light .seg{background:rgba(28,25,20,0.069)}
+html.light .seg button.on{background:rgba(28,25,20,0.138)}
+html.light .glass{border:1px solid rgba(28,25,20,0.092);box-shadow:inset 0 1px 0 rgba(28,25,20,0.092),0 10px 30px rgba(60,45,25,0.125)}
+html.light .tabs button.on{background:rgba(28,25,20,0.103)}
+html.light .fab{box-shadow:0 10px 30px rgba(60,45,25,0.125)}
+html.light .btn.ghost{background:rgba(28,25,20,0.0805)}
+html.light .veil{background:rgba(40,32,22,0.27)}
+html.light .grab{background:rgba(28,25,20,0.184)}
+html.light .ktoggle{background:rgba(28,25,20,0.069)}
+html.light .ktoggle button.on{background:rgba(28,25,20,0.138)}
+html.light .frow input.inp{background:rgba(28,25,20,0.069)}
+html.light .datep{background:rgba(28,25,20,0.069)}
+html.light .csr{background:rgba(28,25,20,0.069)}
+html.light .csr.on{background:rgba(28,25,20,0.115)}
+html.light .chip{background:rgba(28,25,20,0.069)}
+html.light .pad button:active{background:rgba(28,25,20,0.092)}
+html.light .dlg{background:rgba(40,32,22,0.293)}
+html.light textarea.csv{background:rgba(28,25,20,0.0575)}
+html.light .th .sw{box-shadow:inset 0 0 0 1px rgba(28,25,20,0.092)}
+html.light .th.on .sw{box-shadow:inset 0 0 0 1.5px var(--iv),0 0 0 3px rgba(28,25,20,0.069)}
+html.light .pad button:active{background:rgba(28,25,20,0.115)}
+html.light .row:after,html.light .crow:after,html.light .line:after{background:rgba(28,25,20,0.0633)}
+html.light .tabs .ind{background:rgba(28,25,20,0.115)}
+html.light .seg .sind,html.light .ktoggle .sind{background:rgba(28,25,20,0.149)}
+html.light .swr .del button{color:#fff}
+html.light .toast u{background:rgba(28,25,20,0.138);color:#fff}
+html.light .toast u circle{stroke:rgba(28,25,20,0.207)}
+html.light .toast u .cd{stroke:var(--acc,#fff)}
+html.light #lock.sheetlk{background:rgba(40,32,22,0.423)}
+html.light .sw2{background:rgba(28,25,20,0.161)}
+html.light .sw2 i{background:#1c1914;box-shadow:0 2px 6px rgba(60,45,25,0.0875)}
+html.light .qchip{background:rgba(28,25,20,0.115);border:1px solid rgba(28,25,20,0.138)}
+html.light .dots i{background:rgba(28,25,20,0.287)}
+html.light .ticks i.t{box-shadow:0 0 10px color-mix(in srgb,var(--acc,#fff) 55%,transparent)}
+html.light .sbox{background:rgba(28,25,20,0.0805)}
+html.light.pwa .veilb:after{background:linear-gradient(rgba(40,32,22,0),rgba(40,32,22,0.248) 45%,rgba(40,32,22,0.369) 75%,rgba(40,32,22,0.27))}
+html.light .gmark{background:rgba(28,25,20,0.0575);box-shadow:inset 0 0 0 1px rgba(28,25,20,0.0805)}
+html.light .gcard{background:rgba(28,25,20,0.0517);box-shadow:inset 0 0 0 1px rgba(28,25,20,0.069)}
+html.light .gbar{background:rgba(28,25,20,0.092)}
+html.light .gclr{text-decoration-color:rgba(28,25,20,0.23)}
+html.light .gplanb{background:color-mix(in srgb,var(--acc) 10%,rgba(28,25,20,0.0345))}
+html.light .gplan{background:rgba(28,25,20,0.046);box-shadow:inset 0 0 0 1px rgba(28,25,20,0.069)}
+html.light .gin{background:rgba(28,25,20,0.0575)}
+html.light .gtip{background:rgba(28,25,20,0.046)}
+html.light .gdial line{stroke:rgba(28,25,20,0.149)}
+html.light .ic{box-shadow:inset 0 0 0 1px rgba(28,25,20,0.0805),inset 0 0 0 3.5px rgba(60,45,25,0.045),inset 0 0 0 4.5px rgba(28,25,20,0.0517),inset 0 1px 0 rgba(28,25,20,0.092)}
+html.light .rb,html.light .seg,html.light .chip,html.light .gcard,html.light .gplan,html.light .gin,html.light .btn.ghost{box-shadow:inset 0 1px 0 rgba(28,25,20,0.0862),inset 0 0 0 1px rgba(28,25,20,0.0403)}
+html.light .fab{box-shadow:0 10px 30px rgba(60,45,25,0.125),inset 0 -2px 6px rgba(60,45,25,0.03),inset 0 1px 0 rgba(28,25,20,1)}
+html.light .daily .dbar{background:rgba(28,25,20,0.092)}
+html.light .dcalc{background:rgba(28,25,20,0.046)}
+html.light .botex code{background:rgba(28,25,20,0.0805)}
+html.light .engr{stroke:rgba(28,25,20,0.437)}
+html.light .engr pattern path{stroke:rgba(28,25,20,0.368)}
+html.light .cvw .dt{background:var(--acc,#fff);box-shadow:0 0 10px color-mix(in srgb,var(--acc,#fff) 70%,transparent)}
+html.light .chsw{background:rgba(28,25,20,0.0575);box-shadow:inset 0 1px 0 rgba(28,25,20,0.069)}
+html.light .bars.cvm i.sel{background:rgba(28,25,20,0.253)!important}
+html.light .bars .bdot{background:var(--acc,#fff);box-shadow:0 0 10px color-mix(in srgb,var(--acc,#fff) 70%,transparent)}
+html.light .veilb:after{background:linear-gradient(rgba(40,32,22,0),rgba(40,32,22,0.126) 70%,rgba(40,32,22,0.18))}
+html.light .curb{background:rgba(28,25,20,0.092)}
+html.light.pwa .dock{box-shadow:0 -1px 0 rgba(var(--sl),.12),0 -30px 40px -10px rgba(60,45,25,0.212)}
+html.light .btn:not(.ghost):not(.danger){background:#1c1a16;color:#f6f2ea}
+html.light .btn:not(.ghost):not(.danger){background:#1c1a16;color:#f6f2ea}
+/* в приложении с экрана «Домой» значки строки состояния всегда белые: под ними лёгкая тень */
+html.light.pwa body:before{content:"";position:fixed;left:0;right:0;top:0;height:calc(var(--st) + 18px);background:linear-gradient(rgba(28,25,20,.5),rgba(28,25,20,.32) 55%,rgba(28,25,20,0));z-index:6;pointer-events:none}
+
+html.light .sw2 i{background:#fff!important}
+html.light .sw2.on i{background:#fff!important}
+.lc{color:#eeeae3}html.light .lc{color:var(--iv)}
+html.light #lock,html.light #lock.sheetlk{background:#f2eee6!important;color:var(--iv)}
+html.light .lkd i.on{background:var(--iv)}
 /* Интерфейс в цвет темы */
 html[data-th=aurora]{--sl:200,184,255;--sl2:236,230,255}
 html[data-th=photo]{--sl:242,239,233;--sl2:255,255,255}
@@ -684,7 +784,7 @@ html[data-th] .tabs .ind{background:rgba(var(--sl),.13)}
 html[data-th] .hero .num small{color:rgba(var(--sl),.72)}
 </style>
 </head>
-<body class="boot"><script>(function(){var B="202611171506";try{if(navigator.serviceWorker&&navigator.serviceWorker.controller)return;fetch("/version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.json():null}).then(function(j){if(j&&j.b&&j.b!==B&&sessionStorage.getItem("kupd")!==j.b){sessionStorage.setItem("kupd",j.b);var u=new URL(location.href);u.searchParams.set("v",j.b);location.replace(u.toString())}}).catch(function(){})}catch(e){}})()</script><script>try{var t=localStorage.getItem("konta_theme")||"aurora";var mg={platinum:"cash",franc:"alps",gold:"dial",dollar:"note",vault:"dial",zurich:"cash"};document.documentElement.dataset.th=mg[t]||t}catch(e){}</script>
+<body class="boot"><script>(function(){var B="202611171522";try{if(navigator.serviceWorker&&navigator.serviceWorker.controller)return;fetch("/version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.json():null}).then(function(j){if(j&&j.b&&j.b!==B&&sessionStorage.getItem("kupd")!==j.b){sessionStorage.setItem("kupd",j.b);var u=new URL(location.href);u.searchParams.set("v",j.b);location.replace(u.toString())}}).catch(function(){})}catch(e){}})()</script><script>try{var t=localStorage.getItem("konta_theme")||"aurora";var mg={platinum:"cash",franc:"alps",gold:"dial",dollar:"note",vault:"dial",zurich:"cash"};document.documentElement.dataset.th=mg[t]||t;var m=localStorage.getItem("konta_mode")||"dark",tw=window.Telegram&&Telegram.WebApp;var L=m==="light"||(m==="auto"&&(tw&&tw.colorScheme?tw.colorScheme==="light":matchMedia("(prefers-color-scheme: light)").matches));if(L)document.documentElement.classList.add("light")}catch(e){}</script>
 <div class="splash" id="splash"><div class="stage">
 <svg class="g1" viewBox="0 0 390 300"><defs><radialGradient id="spg" cx="195" cy="200" r="200" gradientUnits="userSpaceOnUse" gradientTransform="translate(0 200) scale(1 .62) translate(0 -200)"><stop offset="0" style="stop-color:rgb(var(--sl));stop-opacity:.42"/><stop offset=".35" style="stop-color:rgb(var(--sl));stop-opacity:.14"/><stop offset="1" style="stop-color:rgb(var(--sl));stop-opacity:0"/></radialGradient><clipPath id="spu"><path d="M-10 262 Q195 138 400 262 L400 0 L-10 0Z"/></clipPath></defs><rect class="glw" width="390" height="300" fill="url(#spg)" clip-path="url(#spu)"/></svg>
 <div class="kw"><div class="kk">k</div></div>
@@ -713,6 +813,6 @@ html[data-th] .hero .num small{color:rgba(var(--sl),.72)}
 <div class="sheet" id="sheet"></div>
 <div class="sheet" id="sheet2"></div>
 <div class="toast glass" id="toast"></div>
-<script src="app.js?v=202611171506" defer></script>
+<script src="app.js?v=202611171522" defer></script>
 </body>
 </html>

@@ -337,10 +337,10 @@ function lineChart(cur, prev, h = 150, fit = false) {
   const last = cur.length - 1;
   const area = cur.length > 1 ? path(cur) + `L${X(last)},100L0,100Z` : '';
   return `<div class="lc"><svg viewBox="0 0 100 100" preserveAspectRatio="none" style="height:${h}px">
-    <defs><linearGradient id="lg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#eeeae3" stop-opacity=".14"/><stop offset="1" stop-color="#eeeae3" stop-opacity="0"/></linearGradient></defs>
-    ${prev.length > 1 ? `<path d="${path(prev)}" fill="none" stroke="rgba(238,234,227,.22)" stroke-width="1.2" stroke-dasharray="3 4" vector-effect="non-scaling-stroke"/>` : ''}
+    <defs><linearGradient id="lg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="currentColor" stop-opacity=".14"/><stop offset="1" stop-color="currentColor" stop-opacity="0"/></linearGradient></defs>
+    ${prev.length > 1 ? `<path d="${path(prev)}" fill="none" stroke="currentColor" stroke-opacity=".22" stroke-width="1.2" stroke-dasharray="3 4" vector-effect="non-scaling-stroke"/>` : ''}
     <path d="${area}" fill="url(#lg)"/>
-    ${cur.length > 1 ? `<path class="ln" pathLength="100" d="${path(cur)}" fill="none" stroke="rgba(238,234,227,.85)" stroke-width="1.6" vector-effect="non-scaling-stroke"/>` : ''}
+    ${cur.length > 1 ? `<path class="ln" pathLength="100" d="${path(cur)}" fill="none" stroke="currentColor" stroke-opacity=".85" stroke-width="1.6" vector-effect="non-scaling-stroke"/>` : ''}
   </svg>${last >= 0 ? `<span class="sun" style="left:${X(last)}%;top:${Y(cur[last]) / 100 * h}px"></span>` : ''}</div>`;
 }
 const comp = (parts, sum) => { const top = parts.slice(0, 3), rest = parts.slice(3).reduce((s, p) => s + p.v, 0); return `<div class="comp">${top.map(p => `<i style="flex:${p.v / sum};background:${p.c.c}"></i>`).join('')}${rest > 0 ? `<i style="flex:${rest / sum};background:rgba(242,239,233,.16)"></i>` : ''}</div>`; };
@@ -612,6 +612,9 @@ const DICT = {
   'Через Telegram': 'Via Telegram',
   'Доступно внутри Telegram': 'Available inside Telegram',
   'Приватность': 'Privacy',
+  'Тёмная': 'Dark',
+  'Светлая': 'Light',
+  'Как в системе': 'System',
   'Face ID выключен': 'Face ID off',
   'Face ID не подключён': 'Face ID not set up',
   'Без входа через Telegram код не восстановить. Можно только удалить все данные на этом устройстве и начать заново.': 'Without a Telegram sign-in the passcode can’t be recovered. You can only delete all data on this device and start over.',
@@ -971,6 +974,14 @@ const THEME_MIGRATE = { platinum: 'cash', franc: 'alps', gold: 'dial', dollar: '
 let THEME = (() => { try { const t = localStorage.getItem('konta_theme') || 'aurora'; return THEME_MIGRATE[t] || t; } catch (e) { return 'aurora'; } })();
 const themeCache = {};
 const themeBg = k => themeCache[k] || (themeCache[k] = THEMES[k].bg());
+// режим: тёмный, светлый или как в системе (в Telegram: как в Telegram)
+let MODE = (() => { try { return localStorage.getItem('konta_mode') || 'dark'; } catch (e) { return 'dark'; } })();
+const LIGHT_SKY = 'radial-gradient(90% 38% at 75% -6%,rgba(var(--sl),.45),rgba(var(--sl),0) 70%),radial-gradient(70% 30% at 0% 0%,rgba(var(--sl),.18),rgba(var(--sl),0) 70%),linear-gradient(180deg,#f7f3eb 0%,#f1ece2 60%,#ece6da 100%)';
+const sysLight = () => tg && tg.colorScheme ? tg.colorScheme === 'light' : !!(window.matchMedia && matchMedia('(prefers-color-scheme: light)').matches);
+const isLight = () => MODE === 'light' || (MODE === 'auto' && sysLight());
+function setMode(m) { MODE = m; try { localStorage.setItem('konta_mode', m); } catch (e) {} haptic(); applyTheme(); render(); }
+try { matchMedia('(prefers-color-scheme: light)').addEventListener('change', () => { if (MODE === 'auto') { applyTheme(); render(); } }); } catch (e) {}
+try { tg && tg.onEvent && tg.onEvent('themeChanged', () => { if (MODE === 'auto') { applyTheme(); render(); } }); } catch (e) {}
 function applyTheme() {
   const sky = $('.sky'); let t = THEMES[THEME];
   if (!t) { THEME = 'aurora'; t = THEMES.aurora; }
@@ -979,7 +990,10 @@ function applyTheme() {
     let img = null; try { img = localStorage.getItem('konta_photo'); } catch (e) {}
     if (!img) { THEME = 'aurora'; return applyTheme(); }
     sky.style.background = `linear-gradient(180deg,rgba(0,0,0,.45),rgba(0,0,0,.82) 55%,#000),url(${img}) center/cover no-repeat`;
-  } else sky.style.background = themeBg(THEME);
+  } else sky.style.background = isLight() ? LIGHT_SKY : themeBg(THEME);
+  if (THEME === 'photo' && isLight()) sky.style.background = LIGHT_SKY;
+  document.documentElement.classList.toggle('light', isLight());
+  if (tg) { const c = isLight() ? '#f2eee6' : '#000000'; try { tg.setHeaderColor(c); tg.setBackgroundColor(c); tg.setBottomBarColor && tg.setBottomBarColor(c); } catch (e) {} }
   document.documentElement.style.setProperty('--acc', t.acc);
   document.body.dataset.theme = THEME; document.documentElement.dataset.th = THEME;
 }
@@ -1014,7 +1028,7 @@ function swBg(k) {
   return themeBg(k);
 }
 function settingsExtra() {
-  return `<h2>Оформление</h2><div class="themes">${Object.entries(THEMES).map(([k, t]) => `<button class="th ${THEME === k ? 'on' : ''}" data-act="${k === 'photo' ? 'photo' : 'theme'}" data-t="${k}"><span class="sw" style='background:${swBg(k)}'>${k === 'photo' ? ic('ui_plus') : ''}<i class="acc" style="background:${t.acc}"></i></span><span class="tn">${t.n}</span></button>`).join('')}</div><p class="thd">${(THEMES[THEME] || THEMES.aurora).d}</p>
+  return `<h2>Оформление</h2><div class="seg" style="margin:4px 0 14px">${[['dark', 'Тёмная'], ['light', 'Светлая'], ['auto', 'Как в системе']].map(([k, n]) => `<button class="${MODE === k ? 'on' : ''}" data-act="mode" data-m="${k}">${n}</button>`).join('')}</div><div class="themes">${Object.entries(THEMES).map(([k, t]) => `<button class="th ${THEME === k ? 'on' : ''}" data-act="${k === 'photo' ? 'photo' : 'theme'}" data-t="${k}"><span class="sw" style='background:${swBg(k)}'>${k === 'photo' ? ic('ui_plus') : ''}<i class="acc" style="background:${t.acc}"></i></span><span class="tn">${t.n}</span></button>`).join('')}</div><p class="thd">${(THEMES[THEME] || THEMES.aurora).d}</p>
     <input type="file" id="photo-in" accept="image/*" hidden>
     <button class="row" data-act="bigtext" style="margin-top:10px"><span class="ic"><svg class="i" viewBox="0 0 24 24"><path d="M4 18L8.5 6 13 18M5.6 14h5.8M15 18l3-8 3 8M15.9 15.6h4.2"/></svg></span><span class="t"><span class="n">Крупный текст</span><span class="s">Подписи и мелкий текст крупнее и контрастнее</span></span><span class="sw2 ${BIGT ? 'on' : ''}"><i></i></span></button>${typeof tiltRow === 'function' ? tiltRow() : ''}${typeof dailySetRow === 'function' ? dailySetRow() : ''}
     <h2>Язык</h2><div class="seg" style="width:220px"><button class="${LANG === 'ru' ? 'on' : ''}" data-act="lang" data-l="ru">Русский</button><button class="${LANG === 'en' ? 'on' : ''}" data-act="lang" data-l="en">English</button></div>`;
@@ -3207,6 +3221,7 @@ document.addEventListener('click', async e => {
   if (a === 'msub') return moreGo(t.dataset.s);
   if (a === 'mback') return moreGo(null);
   if (a === 'chartset') return chartSet(t.dataset.c);
+  if (a === 'mode') return setMode(t.dataset.m);
   if (a === 'theme') return setTheme(t.dataset.t);
   if (a === 'priv') return togglePriv();
   if (a === 'cyclebase') { e.stopPropagation(); return setBase(BASES[(BASES.indexOf(baseCur()) + 1) % BASES.length]); }
