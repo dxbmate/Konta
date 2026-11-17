@@ -3423,7 +3423,7 @@ function seed() {
 
 // экран «Домой» на iPhone: растягиваем всё до нижнего края, под полоску жеста
 if (!inTG && STANDALONE) {
-  const fullH = () => { const r = document.documentElement; const h = window.__physH ? __physH() : Math.max(innerHeight, screen.height > screen.width === innerHeight > innerWidth ? screen.height : screen.width); r.style.setProperty('--sbx', h - innerHeight > 8 ? '30px' : 'env(safe-area-inset-bottom)'); r.style.setProperty('--fullh', h + 'px'); r.style.setProperty('--vh0', innerHeight + 'px'); r.style.setProperty('--gap', Math.max(0, h - innerHeight) + 'px'); r.classList.add('pwa'); r.classList.toggle('pwacut', innerHeight < screen.height - 20 && screen.height > screen.width); };
+  const fullH = () => { const r = document.documentElement; const h = window.__physH ? __physH() : Math.max(screen.height, screen.width); /* innerHeight на iOS 27 врёт, верим размеру экрана */ r.style.setProperty('--fullh', h + 'px'); r.style.setProperty('--vh0', innerHeight + 'px'); r.style.setProperty('--gap', Math.max(0, h - innerHeight) + 'px'); r.classList.add('pwa'); r.classList.toggle('pwacut', innerHeight < screen.height - 20 && screen.height > screen.width); };
   fullH(); addEventListener('resize', fullH); addEventListener('orientationchange', () => setTimeout(fullH, 300));
   // баг WebKit: в режиме «Домой» вьюпорт иногда «застревает» укороченным (после клавиатуры, сворачивания),
   // снизу остаётся чёрная полоса. Лечится пересчётом: на мгновение прячем полноэкранный контейнер.
