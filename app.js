@@ -1019,6 +1019,7 @@ function applyTheme() {
   } else sky.style.background = isLight() ? lightBg(THEME) : themeBg(THEME);
   if (THEME === 'photo' && isLight()) sky.style.background = LIGHT_SKY;
   document.documentElement.classList.toggle('light', isLight());
+  if (isLight() && THEME !== 'photo') document.documentElement.style.setProperty('--spbg', themeBg(THEME));
   if (tg) { const c = isLight() ? '#f2eee6' : '#000000'; try { tg.setHeaderColor(c); tg.setBackgroundColor(c); tg.setBottomBarColor && tg.setBottomBarColor(c); } catch (e) {} }
   document.documentElement.style.setProperty('--acc', t.acc);
   document.body.dataset.theme = THEME; document.documentElement.dataset.th = THEME;
