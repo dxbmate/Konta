@@ -2458,7 +2458,7 @@ function mMain() {
     ${mGrp('budget', 'ui_cap', 'Бюджет и валюта', baseCur())}
     ${mGrp('safe', 'ui_shield', 'Приватность и данные', PIN ? 'Код' + (bioOn() ? ' · Face ID' : '') : PRIV ? 'Суммы скрыты' : fmtN(String(S.tx.length)) + ' ' + plural(S.tx.length, 'запись', 'записи', 'записей'))}
     <h2>Konta &amp; Cie</h2>
-    <div class="mlinks"><button class="mlink" data-act="tgchan"><span class="ic">${PLANE}</span><span class="n">Канал</span><span class="s">Новости и обновления</span></button><button class="mlink" data-act="tgsup"><span class="ic">${BUBBLE}</span><span class="n">Поддержка</span><span class="s">Ответим в Telegram</span></button></div>
+    <div class="mlinks"><a class="mlink" href="${TG_CHANNEL}" target="_blank" rel="noopener" data-lnk="channel"><span class="ic">${PLANE}</span><span class="n">Канал</span><span class="s">Новости и обновления</span></a><a class="mlink" href="${TG_SUPPORT}" target="_blank" rel="noopener" data-lnk="support"><span class="ic">${BUBBLE}</span><span class="n">Поддержка</span><span class="s">Ответим в Telegram</span></a></div>
     ${mHomeRows()}
     <div class="wm sm"><b>Konta</b><i>&amp; Cie</i></div><div class="ver">Private finance · версия 3.2</div>`;
 }
@@ -2491,6 +2491,14 @@ function moreGo(s) {
   animSegs(); if (typeof enterFx === 'function') enterFx();
 }
 function chartSet(c) { CHART = c; try { localStorage.setItem('konta_chart', CHART); } catch (e) {} haptic(); render(); }
+
+// ссылки на канал и поддержку: настоящие <a>, в Telegram открываем нативно
+document.addEventListener('click', e => {
+  const l = e.target.closest && e.target.closest('a.mlink'); if (!l) return;
+  try { haptic(); } catch (x) {}
+  if (typeof ymGoal === 'function') ymGoal(l.dataset.lnk);
+  if (inTG && tg && tg.openTelegramLink) { e.preventDefault(); e.stopPropagation(); tg.openTelegramLink(l.href); }
+}, true);
 
 // ================= Код-пароль =================
 // Код хранится только как хэш PBKDF2 с солью, на этом устройстве. Закрывает интерфейс, данные не шифрует.
@@ -3163,7 +3171,7 @@ $('#veil').onclick = close;
 
 // ================= Swipe to delete =================
 let sw = null, suppressClick = 0;
-function openSw(w) { w.classList.add('open'); w.querySelector('.row').style.transform = 'translateX(-172px)'; w.querySelector('.del').style.width = '172px'; }
+function openSw(w) { w.classList.add('open'); w.querySelector('.row').style.transform = 'translateX(-184px)'; w.querySelector('.del').style.width = '184px'; }
 function closeSw(w) { w.classList.remove('open'); w.querySelector('.row').style.transform = ''; w.querySelector('.del').style.width = ''; }
 function deleteTx(id) {
   const w = document.querySelector(`.swr[data-id="${id}"]`), i = S.tx.findIndex(x => x.id === id); if (i < 0) return;
@@ -3176,7 +3184,7 @@ document.addEventListener('touchstart', e => {
   const w = e.target.closest('.swr');
   document.querySelectorAll('.swr.open').forEach(o => { if (o !== w) closeSw(o); });
   if (!w || e.target.closest('.del button')) { sw = null; return; }
-  sw = { w, row: w.querySelector('.row'), del: w.querySelector('.del'), x0: e.touches[0].clientX, y0: e.touches[0].clientY, base: w.classList.contains('open') ? -172 : 0, dx: 0, lock: null };
+  sw = { w, row: w.querySelector('.row'), del: w.querySelector('.del'), x0: e.touches[0].clientX, y0: e.touches[0].clientY, base: w.classList.contains('open') ? -184 : 0, dx: 0, lock: null };
 }, { passive: true });
 document.addEventListener('touchmove', e => {
   if (!sw) return; const dx = e.touches[0].clientX - sw.x0, dy = e.touches[0].clientY - sw.y0;
@@ -3484,3 +3492,34 @@ setTimeout(() => {
     ym(YM_ID, 'init', { webvisor: false, clickmap: false, trackLinks: true, accurateTrackBounce: true, referrer: document.referrer, url: location.href, params: { platform: inTG ? 'telegram' : STANDALONE ? 'home_screen' : 'web', lang: LANG, theme: THEME, mode: typeof MODE !== 'undefined' ? MODE : 'dark', from: src || undefined } });
   } catch (e) {}
 }, 3500);
+
+// ================= свайп между вкладками =================
+(() => {
+  let g = null;
+  const SKIP = '.swr,.chips,.themes,.slides,.seg,.qchips,input,textarea,select,[data-noswipe]';
+  document.addEventListener('touchstart', e => {
+    g = null; if (e.touches.length !== 1) return;
+    const scr = e.target.closest && e.target.closest('.screen'); if (!scr || scr.classList.contains('hidden') || e.target.closest(SKIP)) return;
+    const x = e.touches[0].clientX; if (!inTG && !STANDALONE && (x < 20 || x > innerWidth - 20)) return; // не мешаем жесту «назад» в Safari
+    g = { scr, x0: x, y0: e.touches[0].clientY, t0: performance.now(), dx: 0, lock: null };
+  }, { passive: true });
+  document.addEventListener('touchmove', e => {
+    if (!g) return; const dx = e.touches[0].clientX - g.x0, dy = e.touches[0].clientY - g.y0;
+    if (!g.lock) { if (Math.abs(dx) < 10 && Math.abs(dy) < 10) return; g.lock = Math.abs(dx) > Math.abs(dy) * 1.4 ? 'x' : 'y'; if (g.lock === 'y') { g = null; return; } g.scr.style.transition = 'none'; }
+    e.preventDefault(); g.dx = dx;
+    const i = SCREENS.indexOf(tab), edge = (dx > 0 && i === 0 && !MSUB) || (dx < 0 && i === SCREENS.length - 1);
+    const k = edge ? .12 : .28; g.scr.style.transform = `translateX(${dx * k}px)`; g.scr.style.opacity = String(1 - Math.min(Math.abs(dx) / 900, .25));
+  }, { passive: false });
+  const end = () => {
+    if (!g || g.lock !== 'x') { g = null; return; }
+    const s = g, v = Math.abs(s.dx) / Math.max(1, performance.now() - s.t0); g = null;
+    s.scr.style.transition = 'transform .35s var(--spring), opacity .3s'; s.scr.style.transform = ''; s.scr.style.opacity = '';
+    setTimeout(() => { s.scr.style.transition = ''; }, 380);
+    if (Math.abs(s.dx) < 60 && v < .45) return;
+    suppressClick = Date.now();
+    if (tab === 'more' && MSUB && s.dx > 0) return moreGo(null);
+    const n = SCREENS[SCREENS.indexOf(tab) + (s.dx < 0 ? 1 : -1)]; if (!n) return;
+    const b = document.querySelector(`.tabs [data-tab="${n}"]`); if (b) { suppressClick = 0; b.click(); }
+  };
+  document.addEventListener('touchend', end); document.addEventListener('touchcancel', end);
+})();
