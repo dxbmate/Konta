@@ -789,11 +789,22 @@ html[data-th] .hero .num small{color:rgba(var(--sl),.72)}
 html.light[data-th] .ic,html.light .ic{background:linear-gradient(180deg,#fffdf9,#efe9de)!important;box-shadow:inset 0 0 0 1px rgba(28,25,20,.14),inset 0 1px 0 #fff,0 1px 2px rgba(60,45,25,.10)!important;color:#2a261f!important}
 html.light[data-th] .rb,html.light .rb{background:linear-gradient(180deg,#fffdf9,#efe9de)!important;box-shadow:inset 0 0 0 1px rgba(28,25,20,.14),0 1px 2px rgba(60,45,25,.10)!important;color:#2a261f!important}
 html.light .row .chev,html.light .chev{color:rgba(28,25,20,.35)}
-/* заставка всегда в тёмном варианте темы, даже в светлом режиме */
-html.light .splash{--iv:#f2efe9;--mut:#8a8781;--mut2:#4d4b48;color:#f2efe9;background:var(--spbg,#000)}
+/* светлая заставка: рассвет. Фон и узор светлой темы, планета цвета слоновой кости, «k» тушью, горизонт в глубоком тоне темы */
+html.light .splash{--sl:var(--sld,120,98,62);--sl2:var(--sld2,92,74,44);background:transparent}
+html.light .splash .kk{color:#1c1914;background:linear-gradient(180deg,#4a4237 0%,#1c1914 55%,#3a3128 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 1px 0 rgba(255,255,255,.6))}
+html.light #spp stop{stop-color:#f7f3ec}
+html.light #spg stop{stop-color:rgb(var(--sll,233,207,160))!important}
+html.light #spg stop:first-child{stop-opacity:.75!important}
+html.light .splash .g2 .hl{stroke-width:1.6}
+html.light .splash .g2 .hg{opacity:.35}
+html.light .splash .spt .nm{color:#1c1a16}
+html.light .splash .spt .nm i{color:rgba(28,26,22,.5)}
+html.light .splash .spt .hr{background:rgba(28,26,22,.25)}
+html.light .splash .spt .est{color:rgba(28,26,22,.5)}
+html.light .splash .spv{color:rgba(28,26,22,.35)}
 </style>
 </head>
-<body class="boot"><script>(function(){var B="202611171536";try{if(navigator.serviceWorker&&navigator.serviceWorker.controller)return;fetch("/version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.json():null}).then(function(j){if(j&&j.b&&j.b!==B&&sessionStorage.getItem("kupd")!==j.b){sessionStorage.setItem("kupd",j.b);var u=new URL(location.href);u.searchParams.set("v",j.b);location.replace(u.toString())}}).catch(function(){})}catch(e){}})()</script><script>try{var t=localStorage.getItem("konta_theme")||"aurora";var mg={platinum:"cash",franc:"alps",gold:"dial",dollar:"note",vault:"dial",zurich:"cash"};document.documentElement.dataset.th=mg[t]||t;var m=localStorage.getItem("konta_mode")||"dark",tw=window.Telegram&&Telegram.WebApp;var L=m==="light"||(m==="auto"&&(tw&&tw.colorScheme?tw.colorScheme==="light":matchMedia("(prefers-color-scheme: light)").matches));if(L)document.documentElement.classList.add("light")}catch(e){}</script>
+<body class="boot"><script>(function(){var B="202611171541";try{if(navigator.serviceWorker&&navigator.serviceWorker.controller)return;fetch("/version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.json():null}).then(function(j){if(j&&j.b&&j.b!==B&&sessionStorage.getItem("kupd")!==j.b){sessionStorage.setItem("kupd",j.b);var u=new URL(location.href);u.searchParams.set("v",j.b);location.replace(u.toString())}}).catch(function(){})}catch(e){}})()</script><script>try{var t=localStorage.getItem("konta_theme")||"aurora";var mg={platinum:"cash",franc:"alps",gold:"dial",dollar:"note",vault:"dial",zurich:"cash"};document.documentElement.dataset.th=mg[t]||t;var m=localStorage.getItem("konta_mode")||"dark",tw=window.Telegram&&Telegram.WebApp;var L=m==="light"||(m==="auto"&&(tw&&tw.colorScheme?tw.colorScheme==="light":matchMedia("(prefers-color-scheme: light)").matches));if(L)document.documentElement.classList.add("light")}catch(e){}</script>
 <div class="splash" id="splash"><div class="stage">
 <svg class="g1" viewBox="0 0 390 300"><defs><radialGradient id="spg" cx="195" cy="200" r="200" gradientUnits="userSpaceOnUse" gradientTransform="translate(0 200) scale(1 .62) translate(0 -200)"><stop offset="0" style="stop-color:rgb(var(--sl));stop-opacity:.42"/><stop offset=".35" style="stop-color:rgb(var(--sl));stop-opacity:.14"/><stop offset="1" style="stop-color:rgb(var(--sl));stop-opacity:0"/></radialGradient><clipPath id="spu"><path d="M-10 262 Q195 138 400 262 L400 0 L-10 0Z"/></clipPath></defs><rect class="glw" width="390" height="300" fill="url(#spg)" clip-path="url(#spu)"/></svg>
 <div class="kw"><div class="kk">k</div></div>
@@ -822,6 +833,6 @@ html.light .splash{--iv:#f2efe9;--mut:#8a8781;--mut2:#4d4b48;color:#f2efe9;backg
 <div class="sheet" id="sheet"></div>
 <div class="sheet" id="sheet2"></div>
 <div class="toast glass" id="toast"></div>
-<script src="app.js?v=202611171536" defer></script>
+<script src="app.js?v=202611171541" defer></script>
 </body>
 </html>
