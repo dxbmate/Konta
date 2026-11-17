@@ -982,6 +982,32 @@ const isLight = () => MODE === 'light' || (MODE === 'auto' && sysLight());
 function setMode(m) { MODE = m; try { localStorage.setItem('konta_mode', m); } catch (e) {} haptic(); applyTheme(); render(); }
 try { matchMedia('(prefers-color-scheme: light)').addEventListener('change', () => { if (MODE === 'auto') { applyTheme(); render(); } }); } catch (e) {}
 try { tg && tg.onEvent && tg.onEvent('themeChanged', () => { if (MODE === 'auto') { applyTheme(); render(); } }); } catch (e) {}
+
+// светлая версия рисунка темы: инвертируем яркость каждого цвета, сохраняя оттенок (тёмный мрамор становится белым с тёмными прожилками)
+function lightColor(r, g, b, a) {
+  r /= 255; g /= 255; b /= 255;
+  const mx = Math.max(r, g, b), mn = Math.min(r, g, b); let h = 0, sat = 0; const l = (mx + mn) / 2;
+  if (mx !== mn) { const d = mx - mn; sat = l > .5 ? d / (2 - mx - mn) : d / (mx + mn); h = mx === r ? (g - b) / d + (g < b ? 6 : 0) : mx === g ? (b - r) / d + 2 : (r - g) / d + 4; h /= 6; }
+  let L = 1 - l; if (L > .8) { L = .9 + (L - .8) * .4; if (sat < .25) { h = 40 / 360; sat = Math.max(sat, .3); } }
+  const q = L < .5 ? L * (1 + sat) : L + sat - L * sat, pp = 2 * L - q;
+  const hk = t => { t = (t + 1) % 1; return t < 1 / 6 ? pp + (q - pp) * 6 * t : t < .5 ? q : t < 2 / 3 ? pp + (q - pp) * (2 / 3 - t) * 6 : pp; };
+  const R = Math.round(hk(h + 1 / 3) * 255), G = Math.round(hk(h) * 255), B = Math.round(hk(h - 1 / 3) * 255);
+  return a == null ? `rgb(${R},${G},${B})` : `rgba(${R},${G},${B},${a})`;
+}
+function lightCss(str) {
+  // один проход, чтобы уже осветлённый цвет не инвертировался второй раз
+  return str.replace(/#([0-9a-f]{6}|[0-9a-f]{3})\b|rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*([\d.]+)\s*)?\)|(^|[\s,(])(black|white)\b/gi, (m, hx, r, g, b, a, p0, w) => {
+    if (hx) { if (hx.length === 3) hx = hx.split('').map(c => c + c).join(''); return lightColor(parseInt(hx.slice(0, 2), 16), parseInt(hx.slice(2, 4), 16), parseInt(hx.slice(4, 6), 16)); }
+    if (w) return p0 + (w.toLowerCase() === 'black' ? 'rgb(246,242,234)' : 'rgb(28,26,22)');
+    return lightColor(+r, +g, +b, a == null ? null : +a);
+  });
+}
+const lightCache = {};
+function lightBg(k) {
+  if (lightCache[k]) return lightCache[k];
+  const src = themeBg(k).replace(/url\("data:image\/svg\+xml;utf8,([^"]+)"\)/g, (m, enc) => svgUrl(lightCss(decodeURIComponent(enc))));
+  return (lightCache[k] = lightCss(src.replace(/url\("data:image\/svg\+xml;utf8,[^"]+"\)/g, u => '\u0000' + btoa(unescape(encodeURIComponent(u))) + '\u0000')).replace(/\u0000([^\u0000]+)\u0000/g, (m, b) => decodeURIComponent(escape(atob(b)))));
+}
 function applyTheme() {
   const sky = $('.sky'); let t = THEMES[THEME];
   if (!t) { THEME = 'aurora'; t = THEMES.aurora; }
@@ -990,7 +1016,7 @@ function applyTheme() {
     let img = null; try { img = localStorage.getItem('konta_photo'); } catch (e) {}
     if (!img) { THEME = 'aurora'; return applyTheme(); }
     sky.style.background = `linear-gradient(180deg,rgba(0,0,0,.45),rgba(0,0,0,.82) 55%,#000),url(${img}) center/cover no-repeat`;
-  } else sky.style.background = isLight() ? LIGHT_SKY : themeBg(THEME);
+  } else sky.style.background = isLight() ? lightBg(THEME) : themeBg(THEME);
   if (THEME === 'photo' && isLight()) sky.style.background = LIGHT_SKY;
   document.documentElement.classList.toggle('light', isLight());
   if (tg) { const c = isLight() ? '#f2eee6' : '#000000'; try { tg.setHeaderColor(c); tg.setBackgroundColor(c); tg.setBottomBarColor && tg.setBottomBarColor(c); } catch (e) {} }
