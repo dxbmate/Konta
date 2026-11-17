@@ -3423,7 +3423,7 @@ function seed() {
 
 // экран «Домой» на iPhone: растягиваем всё до нижнего края, под полоску жеста
 if (!inTG && STANDALONE) {
-  const fullH = () => { const r = document.documentElement; const h = window.__physH ? __physH() : Math.max(screen.height, screen.width); /* innerHeight на iOS 27 врёт, верим размеру экрана */ r.style.setProperty('--fullh', h + 'px'); r.style.setProperty('--vh0', innerHeight + 'px'); r.style.setProperty('--gap', Math.max(0, h - innerHeight) + 'px'); r.classList.add('pwa'); r.classList.toggle('pwacut', innerHeight < screen.height - 20 && screen.height > screen.width); };
+  const fullH = () => { const r = document.documentElement; const h = Math.max(innerHeight, screen.height > screen.width === innerHeight > innerWidth ? screen.height : screen.width); r.style.setProperty('--fullh', h + 'px'); r.style.setProperty('--vh0', innerHeight + 'px'); r.style.setProperty('--gap', Math.max(0, h - innerHeight) + 'px'); r.classList.add('pwa'); r.classList.toggle('pwacut', innerHeight < screen.height - 20 && screen.height > screen.width); };
   fullH(); addEventListener('resize', fullH); addEventListener('orientationchange', () => setTimeout(fullH, 300));
   // баг WebKit: в режиме «Домой» вьюпорт иногда «застревает» укороченным (после клавиатуры, сворачивания),
   // снизу остаётся чёрная полоса. Лечится пересчётом: на мгновение прячем полноэкранный контейнер.
@@ -3437,17 +3437,6 @@ if (!inTG && STANDALONE) {
     app.style.display = 'none'; void app.offsetHeight; app.style.display = '';
     if (sc) sc.scrollTop = y; fullH();
   };
-  // документ во весь экран может чуть прокручиваться: держим его на месте
-  addEventListener('scroll', () => { if (scrollY || scrollX) scrollTo(0, 0); }, { passive: true });
-  document.addEventListener('touchmove', e => { if (!e.target.closest('.screen,.sheet,.dlg,#lock,#onb,.themes,.chips,.slides,.seg')) e.preventDefault(); }, { passive: false });
-  // временная диагностика размеров (тап по плашке убирает её)
-  const dbg = () => {
-    let el = document.getElementById('kdbg'); if (!el) { el = document.createElement('div'); el.id = 'kdbg'; el.onclick = () => el.remove(); document.body.appendChild(el); }
-    const sh = document.getElementById('sheet'), r = sh ? sh.getBoundingClientRect() : {}, vv = window.visualViewport || {}, cs = getComputedStyle(document.documentElement);
-    el.textContent = `ih ${innerHeight} sh ${screen.height}x${screen.width} full ${cs.getPropertyValue('--fullh')} sbx ${cs.getPropertyValue('--sbx')} body ${document.body.offsetHeight} sy ${scrollY} vv ${Math.round(vv.height || 0)}/${Math.round(vv.offsetTop || 0)} sheet ${Math.round(r.top)}-${Math.round(r.bottom)} dpr ${devicePixelRatio}`;
-  };
-  setTimeout(dbg, 600); setTimeout(dbg, 2500); addEventListener('resize', () => setTimeout(dbg, 200)); document.addEventListener('visibilitychange', () => setTimeout(dbg, 400));
-  addEventListener('pageshow', () => { scrollTo(0, 0); fullH(); setTimeout(dbg, 300); });
   const later = () => setTimeout(remeasure, 160);
   later(); addEventListener('load', later); addEventListener('pageshow', later);
   document.addEventListener('visibilitychange', () => { if (!document.hidden) later(); });

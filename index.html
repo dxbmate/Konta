@@ -27,7 +27,7 @@
 <link rel="apple-touch-startup-image" media="(device-width: 360px) and (device-height: 780px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="launch-1080x2340.png">
 <link rel="apple-touch-startup-image" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="launch-750x1334.png">
 <link rel="apple-touch-startup-image" media="(device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="launch-1242x2208.png">
-<script>(function(){try{var d=document.documentElement,tg=/tgWebApp/.test(location.hash+location.search)||!!window.TelegramWebviewProxy;if(tg)return;d.classList.add("wb");if(!(matchMedia("(display-mode: standalone)").matches||navigator.standalone===true))return;if(innerHeight<screen.height-20&&screen.height>screen.width)d.classList.add("pwacut");var P={375:812,390:844,393:852,402:874,414:896,420:912,428:926,430:932,440:956};window.__physH=function(){var sw=Math.min(screen.width,screen.height),sh=Math.max(screen.width,screen.height),por=(window.matchMedia&&matchMedia("(orientation: portrait)").matches)!==false;if(!por)return sw;return P[sw]&&P[sw]-sh<90?Math.max(sh,P[sw]):sh};var h=__physH();d.style.setProperty("--fullh",h+"px");d.style.setProperty("--gap",Math.max(0,h-innerHeight)+"px");d.style.setProperty("--vh0",innerHeight+"px");d.classList.add("pwa")}catch(e){}})()</script>
+<script>(function(){try{var d=document.documentElement,tg=/tgWebApp/.test(location.hash+location.search)||!!window.TelegramWebviewProxy;if(tg)return;d.classList.add("wb");if(!(matchMedia("(display-mode: standalone)").matches||navigator.standalone===true))return;if(innerHeight<screen.height-20&&screen.height>screen.width)d.classList.add("pwacut");var h=Math.max(innerHeight,(screen.height>screen.width)===(innerHeight>innerWidth)?screen.height:screen.width);d.style.setProperty("--fullh",h+"px");d.style.setProperty("--gap",Math.max(0,h-innerHeight)+"px");d.style.setProperty("--vh0",innerHeight+"px");d.classList.add("pwa")}catch(e){}})()</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700&family=Cormorant+Garamond:ital,wght@0,500;1,400&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
@@ -826,25 +826,9 @@ html.light .swr .del .edt{color:var(--iv);box-shadow:inset 0 1px 0 rgba(255,255,
 body.big .swr .del button{font-size:14px}
 .swr+.swr .row{border-top:0!important}
 .swr+.swr:before{content:"";position:absolute;left:20px;right:20px;top:0;border-top:1px solid var(--line);z-index:1;pointer-events:none}
-
-/* PWA iOS 27: окно приложения короче экрана, а overflow:hidden у корня и position:fixed обрезаются по нему.
-   Обычный документ рисуется до самого низа, поэтому корень не режем, а закреплённые слои ставим absolute к body высотой во весь экран. */
-html.pwa,html.pwa body{overflow:visible!important;overscroll-behavior:none}
-html.pwa body{position:relative}
-html.pwa .sky,html.pwa .splash,html.pwa .grain,html.pwa .veilb,html.pwa .dock,html.pwa #veil,html.pwa .veil,html.pwa .sheet,html.pwa .toast,html.pwa .dlg,html.pwa #lock,html.pwa #onb,html.pwa .seal,html.light.pwa body:before{position:absolute!important}
-html.pwa .sheet{bottom:0!important}
-html.pwa .screen{overscroll-behavior-y:contain}
-
-html.pwa .dock{bottom:calc(12px + var(--sbx,var(--sb)))}
-html.pwa .sheet{padding-bottom:calc(16px + var(--sbx,var(--sb)))}
-html.pwa #onb{padding-bottom:calc(22px + var(--sbx,var(--sb)))}
-
-html.pwa .sheet:not(.on){visibility:hidden;transition:transform .5s var(--ease),visibility 0s linear .5s}
-html.pwa .sheet.on{visibility:visible;transition:transform .5s var(--ease),visibility 0s}
-#kdbg{position:absolute;left:8px;top:calc(var(--st,44px) + 2px);z-index:9999;font:10px/1.3 ui-monospace,monospace;color:#7f7;background:rgba(0,0,0,.7);padding:4px 6px;border-radius:6px;pointer-events:auto;max-width:70%}
 </style>
 </head>
-<body class="boot"><script>(function(){var B="202611180132";try{if(navigator.serviceWorker&&navigator.serviceWorker.controller)return;fetch("/version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.json():null}).then(function(j){if(j&&j.b&&j.b!==B&&sessionStorage.getItem("kupd")!==j.b){sessionStorage.setItem("kupd",j.b);var u=new URL(location.href);u.searchParams.set("v",j.b);location.replace(u.toString())}}).catch(function(){})}catch(e){}})()</script><script>try{var t=localStorage.getItem("konta_theme")||"aurora";var mg={platinum:"cash",franc:"alps",gold:"dial",dollar:"note",vault:"dial",zurich:"cash"};document.documentElement.dataset.th=mg[t]||t;var m=localStorage.getItem("konta_mode")||"dark",tw=window.Telegram&&Telegram.WebApp;var L=m==="light"||(m==="auto"&&(tw&&tw.colorScheme?tw.colorScheme==="light":matchMedia("(prefers-color-scheme: light)").matches));if(L)document.documentElement.classList.add("light")}catch(e){}</script>
+<body class="boot"><script>(function(){var B="202611180136";try{if(navigator.serviceWorker&&navigator.serviceWorker.controller)return;fetch("/version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.json():null}).then(function(j){if(j&&j.b&&j.b!==B&&sessionStorage.getItem("kupd")!==j.b){sessionStorage.setItem("kupd",j.b);var u=new URL(location.href);u.searchParams.set("v",j.b);location.replace(u.toString())}}).catch(function(){})}catch(e){}})()</script><script>try{var t=localStorage.getItem("konta_theme")||"aurora";var mg={platinum:"cash",franc:"alps",gold:"dial",dollar:"note",vault:"dial",zurich:"cash"};document.documentElement.dataset.th=mg[t]||t;var m=localStorage.getItem("konta_mode")||"dark",tw=window.Telegram&&Telegram.WebApp;var L=m==="light"||(m==="auto"&&(tw&&tw.colorScheme?tw.colorScheme==="light":matchMedia("(prefers-color-scheme: light)").matches));if(L)document.documentElement.classList.add("light")}catch(e){}</script>
 <div class="splash" id="splash"><div class="stage">
 <svg class="g1" viewBox="0 0 390 300"><defs><radialGradient id="spg" cx="195" cy="200" r="200" gradientUnits="userSpaceOnUse" gradientTransform="translate(0 200) scale(1 .62) translate(0 -200)"><stop offset="0" style="stop-color:rgb(var(--sl));stop-opacity:.42"/><stop offset=".35" style="stop-color:rgb(var(--sl));stop-opacity:.14"/><stop offset="1" style="stop-color:rgb(var(--sl));stop-opacity:0"/></radialGradient><clipPath id="spu"><path d="M-10 262 Q195 138 400 262 L400 0 L-10 0Z"/></clipPath></defs><rect class="glw" width="390" height="300" fill="url(#spg)" clip-path="url(#spu)"/></svg>
 <div class="kw"><div class="kk">k</div></div>
@@ -873,6 +857,6 @@ html.pwa .sheet.on{visibility:visible;transition:transform .5s var(--ease),visib
 <div class="sheet" id="sheet"></div>
 <div class="sheet" id="sheet2"></div>
 <div class="toast glass" id="toast"></div>
-<script src="app.js?v=202611180132" defer></script>
+<script src="app.js?v=202611180136" defer></script>
 </body>
 </html>
