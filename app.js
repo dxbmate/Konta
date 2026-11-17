@@ -693,6 +693,7 @@ const DICT = {
   'Параметры': 'Preferences',
   'Главный экран': 'Home screen',
   'Бюджет и валюта': 'Budget & currency',
+  'Приватность и данные': 'Privacy & data', 'Канал': 'Channel', 'Новости и обновления': 'News and updates', 'Поддержка': 'Support', 'Ответим в Telegram': 'We reply in Telegram',
   'Данные': 'Data',
   'Вид графика': 'Chart style',
   'Напишите боту «кофе 350»': 'Text the bot “coffee 350”',
@@ -2423,7 +2424,11 @@ function botWrite() {
 
 // ================= «Ещё»: короткий главный экран + группы =================
 let MSUB = null;
-const MSUB_T = { look: 'Оформление', home: 'Главный экран', budget: 'Бюджет и валюта', priv: 'Приватность', data: 'Данные' };
+const MSUB_T = { look: 'Оформление', home: 'Главный экран', budget: 'Бюджет и валюта', safe: 'Приватность и данные', priv: 'Приватность', data: 'Данные' };
+const TG_CHANNEL = 'https://t.me/kontacie', TG_SUPPORT = 'https://t.me/KontaCieSupport';
+const PLANE = '<svg class="i" viewBox="0 0 24 24"><path d="M20.5 4.5 3.8 11c-.9.4-.9 1.6 0 1.9l4.1 1.4 1.6 5c.3.8 1.3 1 1.9.4l2.3-2.2 4.2 3.1c.7.5 1.7.1 1.9-.7l2.7-13.6c.2-1-.8-1.8-1.7-1.4z"/><path d="m8 14.3 9-7"/></svg>';
+const BUBBLE = '<svg class="i" viewBox="0 0 24 24"><path d="M4.5 12a7.5 7.5 0 1 1 3.4 6.3L4 19.5l1.2-3.6A7.4 7.4 0 0 1 4.5 12z"/><path d="M9 10.5h6M9 13.5h4"/></svg>';
+function tgLink(u) { haptic(); if (inTG && tg.openTelegramLink) tg.openTelegramLink(u); else window.open(u, '_blank', 'noopener'); }
 const mRow = (act, icon, n, s, v, extra = '') => `<button class="row" data-act="${act}"${extra}><span class="ic">${icon}</span><span class="t"><span class="n">${n}</span>${s ? `<span class="s">${s}</span>` : ''}</span>${v ? `<span class="rv">${v}</span>` : ''}${ic('ui_right', 'i chev')}</button>`;
 const mGrp = (s, icon, n, v) => mRow('msub', ic(icon), n, '', v, ` data-s="${s}"`);
 function mProfile() {
@@ -2437,7 +2442,7 @@ function mHomeRows() {
   if (!inTG && !STANDALONE) h += mRow('pwahelp', ic('ui_plus'), 'Установить на экран «Домой»', 'Откроется на весь экран, как обычное приложение');
   if (inTG) h += mRow('webapphelp', ic('ui_overview'), 'Приложение на экране «Домой»', 'kontacie.com, на весь экран, без Telegram');
   if (HS === 'missed' || HS === 'unknown') h += mRow('homescreen', ic('ui_plus'), 'Добавить на экран «Домой»', 'Konta & Cie откроется одним касанием');
-  return h ? `<h2>Быстрый доступ</h2>${h}` : '';
+  return h;
 }
 function mMain() {
   const ids = Object.keys(S.limits).filter(id => CAT[id]).length;
@@ -2450,16 +2455,17 @@ function mMain() {
     <input type="file" id="imp-in" accept=".pdf,.csv,.txt,application/pdf,text/csv" multiple hidden>
     <h2>Параметры</h2>
     ${mGrp('look', 'ui_spark', 'Оформление', THEMES[THEME] ? THEMES[THEME].n : '')}
-    ${mGrp('home', 'ui_overview', 'Главный экран', CHART_N[CHART])}
     ${mGrp('budget', 'ui_cap', 'Бюджет и валюта', baseCur())}
-    ${mGrp('priv', 'ui_shield', 'Приватность', PIN ? 'Код' + (bioOn() ? ' · Face ID' : '') : PRIV ? 'Суммы скрыты' : '')}
-    ${mGrp('data', 'ui_copy', 'Данные', fmtN(String(S.tx.length)) + ' ' + plural(S.tx.length, 'запись', 'записи', 'записей'))}
+    ${mGrp('safe', 'ui_shield', 'Приватность и данные', PIN ? 'Код' + (bioOn() ? ' · Face ID' : '') : PRIV ? 'Суммы скрыты' : fmtN(String(S.tx.length)) + ' ' + plural(S.tx.length, 'запись', 'записи', 'записей'))}
+    <h2>Konta &amp; Cie</h2>
+    <div class="mlinks"><button class="mlink" data-act="tgchan"><span class="ic">${PLANE}</span><span class="n">Канал</span><span class="s">Новости и обновления</span></button><button class="mlink" data-act="tgsup"><span class="ic">${BUBBLE}</span><span class="n">Поддержка</span><span class="s">Ответим в Telegram</span></button></div>
     ${mHomeRows()}
     <div class="wm sm"><b>Konta</b><i>&amp; Cie</i></div><div class="ver">Private finance · версия 3.2</div>`;
 }
 function mSub(s) {
   const head = `<header class="hdr msubh"><button class="rb" data-act="mback" aria-label="Назад">${ic('ui_left')}</button><h1>${MSUB_T[s]}</h1><i></i></header>`;
-  if (s === 'look') return head + settingsExtra().replace(/<h2>Оформление<\/h2>/, '').replace(dailySetRow(), '');
+  if (s === 'look') return head + settingsExtra().replace(/<h2>Оформление<\/h2>/, '').replace(dailySetRow(), '') + mSub('home').replace(/^[\s\S]*?<\/header>/, '<h2>Главный экран</h2>');
+  if (s === 'safe') return head + mSub('priv').replace(/^[\s\S]*?<\/header>/, '') + '<h2>Данные</h2>' + mSub('data').replace(/^[\s\S]*?<\/header>/, '');
   if (s === 'home') return head + dailySetRow() + `<h2>Вид графика</h2><div class="seg" style="margin-top:2px">${CHARTS.map(c => `<button class="${CHART === c ? 'on' : ''}" data-act="chartset" data-c="${c}">${CHART_N[c]}</button>`).join('')}</div><p class="note" style="margin-top:10px">Ещё можно переключать касанием по графику.</p>`;
   if (s === 'budget') return head + limitsRow() + `<h2>Валюта капитала</h2><div class="seg" style="margin-top:2px">${BASES.map(c => `<button class="${baseCur() === c ? 'on' : ''}" data-act="base" data-c="${c}">${c}</button>`).join('')}</div>`;
   if (s === 'priv') return head + lockRows() + `<h2>Суммы</h2><button class="row" data-act="priv"><span class="ic">${ic(PRIV ? 'ui_eyeoff' : 'ui_eye')}</span><span class="t"><span class="n">Скрывать суммы</span><span class="s">Или коснитесь крупной суммы на любом экране</span></span><span class="sw2 ${PRIV ? 'on' : ''}"><i></i></span></button>
@@ -3278,6 +3284,8 @@ document.addEventListener('click', async e => {
   if (a === 'synctap') return syncTap();
   if (a === 'synci') return syncIcoTap();
   if (a === 'botwrite') return botWrite();
+  if (a === 'tgchan') { if (typeof ymGoal === 'function') ymGoal('channel'); return tgLink(TG_CHANNEL); }
+  if (a === 'tgsup') { if (typeof ymGoal === 'function') ymGoal('support'); return tgLink(TG_SUPPORT); }
   if (a === 'openbot') { const u = 'https://t.me/KontaCieBot'; if (inTG && tg.openTelegramLink) tg.openTelegramLink(u); else window.open(u, '_blank'); return; }
   if (a === 'daily') return dailyInfo();
   if (a === 'dailyinc') { haptic('medium'); return openSheet(null, 'in'); }
