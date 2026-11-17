@@ -806,11 +806,12 @@ html.light .splash .spv{color:rgba(28,26,22,.35)}
 /* iOS 26: закреплённые элементы кончаются выше края экрана на --gap; панель опускаем до самого края, а фон страницы красим в её цвет */
 html.pwa,html.pwa body{background:#000!important}
 html.light.pwa,html.light.pwa body{background:#f2eee6!important}
-html.pwa .dock{bottom:calc(-1 * var(--gap,0px));padding-bottom:calc(6px + var(--gap,0px))}
+/* в iOS со строкой состояния black-translucent «низ» закреплённых элементов поднят ровно на высоту верхней безопасной зоны: опускаем панель на неё, меню встаёт над полоской жеста */
+html.pwa .dock{bottom:calc(-1 * env(safe-area-inset-top,0px));padding-bottom:max(8px,calc(env(safe-area-inset-bottom,0px) - 10px))}
 html.pwa .dock:after{display:none}
 </style>
 </head>
-<body class="boot"><script>(function(){var B="202611180008";try{if(navigator.serviceWorker&&navigator.serviceWorker.controller)return;fetch("/version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.json():null}).then(function(j){if(j&&j.b&&j.b!==B&&sessionStorage.getItem("kupd")!==j.b){sessionStorage.setItem("kupd",j.b);var u=new URL(location.href);u.searchParams.set("v",j.b);location.replace(u.toString())}}).catch(function(){})}catch(e){}})()</script><script>try{var t=localStorage.getItem("konta_theme")||"aurora";var mg={platinum:"cash",franc:"alps",gold:"dial",dollar:"note",vault:"dial",zurich:"cash"};document.documentElement.dataset.th=mg[t]||t;var m=localStorage.getItem("konta_mode")||"dark",tw=window.Telegram&&Telegram.WebApp;var L=m==="light"||(m==="auto"&&(tw&&tw.colorScheme?tw.colorScheme==="light":matchMedia("(prefers-color-scheme: light)").matches));if(L)document.documentElement.classList.add("light")}catch(e){}</script>
+<body class="boot"><script>(function(){var B="202611180014";try{if(navigator.serviceWorker&&navigator.serviceWorker.controller)return;fetch("/version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.json():null}).then(function(j){if(j&&j.b&&j.b!==B&&sessionStorage.getItem("kupd")!==j.b){sessionStorage.setItem("kupd",j.b);var u=new URL(location.href);u.searchParams.set("v",j.b);location.replace(u.toString())}}).catch(function(){})}catch(e){}})()</script><script>try{var t=localStorage.getItem("konta_theme")||"aurora";var mg={platinum:"cash",franc:"alps",gold:"dial",dollar:"note",vault:"dial",zurich:"cash"};document.documentElement.dataset.th=mg[t]||t;var m=localStorage.getItem("konta_mode")||"dark",tw=window.Telegram&&Telegram.WebApp;var L=m==="light"||(m==="auto"&&(tw&&tw.colorScheme?tw.colorScheme==="light":matchMedia("(prefers-color-scheme: light)").matches));if(L)document.documentElement.classList.add("light")}catch(e){}</script>
 <div class="splash" id="splash"><div class="stage">
 <svg class="g1" viewBox="0 0 390 300"><defs><radialGradient id="spg" cx="195" cy="200" r="200" gradientUnits="userSpaceOnUse" gradientTransform="translate(0 200) scale(1 .62) translate(0 -200)"><stop offset="0" style="stop-color:rgb(var(--sl));stop-opacity:.42"/><stop offset=".35" style="stop-color:rgb(var(--sl));stop-opacity:.14"/><stop offset="1" style="stop-color:rgb(var(--sl));stop-opacity:0"/></radialGradient><clipPath id="spu"><path d="M-10 262 Q195 138 400 262 L400 0 L-10 0Z"/></clipPath></defs><rect class="glw" width="390" height="300" fill="url(#spg)" clip-path="url(#spu)"/></svg>
 <div class="kw"><div class="kk">k</div></div>
@@ -839,6 +840,6 @@ html.pwa .dock:after{display:none}
 <div class="sheet" id="sheet"></div>
 <div class="sheet" id="sheet2"></div>
 <div class="toast glass" id="toast"></div>
-<script src="app.js?v=202611180008" defer></script>
+<script src="app.js?v=202611180014" defer></script>
 </body>
 </html>
