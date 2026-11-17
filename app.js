@@ -3440,6 +3440,14 @@ if (!inTG && STANDALONE) {
   // документ во весь экран может чуть прокручиваться: держим его на месте
   addEventListener('scroll', () => { if (scrollY || scrollX) scrollTo(0, 0); }, { passive: true });
   document.addEventListener('touchmove', e => { if (!e.target.closest('.screen,.sheet,.dlg,#lock,#onb,.themes,.chips,.slides,.seg')) e.preventDefault(); }, { passive: false });
+  // временная диагностика размеров (тап по плашке убирает её)
+  const dbg = () => {
+    let el = document.getElementById('kdbg'); if (!el) { el = document.createElement('div'); el.id = 'kdbg'; el.onclick = () => el.remove(); document.body.appendChild(el); }
+    const sh = document.getElementById('sheet'), r = sh ? sh.getBoundingClientRect() : {}, vv = window.visualViewport || {}, cs = getComputedStyle(document.documentElement);
+    el.textContent = `ih ${innerHeight} sh ${screen.height}x${screen.width} full ${cs.getPropertyValue('--fullh')} sbx ${cs.getPropertyValue('--sbx')} body ${document.body.offsetHeight} sy ${scrollY} vv ${Math.round(vv.height || 0)}/${Math.round(vv.offsetTop || 0)} sheet ${Math.round(r.top)}-${Math.round(r.bottom)} dpr ${devicePixelRatio}`;
+  };
+  setTimeout(dbg, 600); setTimeout(dbg, 2500); addEventListener('resize', () => setTimeout(dbg, 200)); document.addEventListener('visibilitychange', () => setTimeout(dbg, 400));
+  addEventListener('pageshow', () => { scrollTo(0, 0); fullH(); setTimeout(dbg, 300); });
   const later = () => setTimeout(remeasure, 160);
   later(); addEventListener('load', later); addEventListener('pageshow', later);
   document.addEventListener('visibilitychange', () => { if (!document.hidden) later(); });
