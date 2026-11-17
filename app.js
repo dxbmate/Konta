@@ -3425,6 +3425,23 @@ function seed() {
 if (!inTG && STANDALONE) {
   const fullH = () => { const r = document.documentElement; const h = Math.max(innerHeight, screen.height > screen.width === innerHeight > innerWidth ? screen.height : screen.width); r.style.setProperty('--fullh', h + 'px'); r.style.setProperty('--vh0', innerHeight + 'px'); r.style.setProperty('--gap', Math.max(0, h - innerHeight) + 'px'); r.classList.add('pwa'); r.classList.toggle('pwacut', innerHeight < screen.height - 20 && screen.height > screen.width); };
   fullH(); addEventListener('resize', fullH); addEventListener('orientationchange', () => setTimeout(fullH, 300));
+  // баг WebKit: в режиме «Домой» вьюпорт иногда «застревает» укороченным (после клавиатуры, сворачивания),
+  // снизу остаётся чёрная полоса. Лечится пересчётом: на мгновение прячем полноэкранный контейнер.
+  const fullScr = () => screen.height > screen.width === innerHeight > innerWidth ? screen.height : screen.width;
+  let rmN = 0, rmT = 0;
+  const remeasure = () => {
+    if (fullScr() - innerHeight <= 4) return;
+    const now = Date.now(); if (now - rmT > 5000) rmN = 0; if (rmN >= 2) return; rmN++; rmT = now; // без зацикливания
+    const app = document.getElementById('app'); if (!app) return;
+    const sc = document.querySelector('.screen:not(.hidden)'), y = sc ? sc.scrollTop : 0;
+    app.style.display = 'none'; void app.offsetHeight; app.style.display = '';
+    if (sc) sc.scrollTop = y; fullH();
+  };
+  const later = () => setTimeout(remeasure, 160);
+  later(); addEventListener('load', later); addEventListener('pageshow', later);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) later(); });
+  document.addEventListener('focusout', e => { if (e.target && /^(INPUT|TEXTAREA)$/.test(e.target.tagName)) later(); });
+  addEventListener('resize', later);
 }
 // веб-версия: офлайн-кэш и защита данных от автоочистки браузера
 if (!inTG && 'serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) navigator.serviceWorker.register('sw.js').catch(() => {});
