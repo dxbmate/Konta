@@ -664,11 +664,12 @@ body.boot .veilb{opacity:0}
 @keyframes mpush{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:none}}
 @keyframes mpop{from{opacity:0;transform:translateX(-24px)}to{opacity:1;transform:none}}
 html.pwa #s-more.mpush,html.pwa #s-more.mpop{animation-name:mfade}@keyframes mfade{from{opacity:0}to{opacity:1}}
-/* вебка: всё на 10% крупнее, как в Telegram */
-html.wb .screen>*{zoom:1.1}
-/* iOS 26: система не рисует самый низ экрана; плавно уводим контент в чёрное у края */
-html.pwa.pwacut .veilb{top:auto;bottom:0;height:170px}
-html.pwa.pwacut .veilb:after{background:linear-gradient(rgba(0,0,0,0),rgba(0,0,0,.55) 40%,rgba(0,0,0,.92) 80%,#000)}
+/* вебка: текст на 10% крупнее штатным масштабом текста iOS, ширина блоков не меняется (как в Telegram) */
+html.wb,html.wb body{-webkit-text-size-adjust:110%!important;text-size-adjust:110%!important}
+html.wb .screen{overflow-x:hidden}
+/* iOS 26: система не рисует нижнюю полосу высотой со строку состояния; к этой линии всё уже уходит в чёрное */
+html.pwa .veilb{top:calc(var(--fullh) - 190px - var(--st));height:calc(190px + var(--st))}
+html.pwa .veilb:after{background:linear-gradient(rgba(0,0,0,0),rgba(0,0,0,.55) 38%,rgba(0,0,0,.93) 70%,#000 80%,#000)}
 /* Интерфейс в цвет темы */
 html[data-th=aurora]{--sl:200,184,255;--sl2:236,230,255}
 html[data-th=photo]{--sl:242,239,233;--sl2:255,255,255}
@@ -683,7 +684,7 @@ html[data-th] .tabs .ind{background:rgba(var(--sl),.13)}
 html[data-th] .hero .num small{color:rgba(var(--sl),.72)}
 </style>
 </head>
-<body class="boot"><script>(function(){var B="202611171501";try{if(navigator.serviceWorker&&navigator.serviceWorker.controller)return;fetch("/version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.json():null}).then(function(j){if(j&&j.b&&j.b!==B&&sessionStorage.getItem("kupd")!==j.b){sessionStorage.setItem("kupd",j.b);var u=new URL(location.href);u.searchParams.set("v",j.b);location.replace(u.toString())}}).catch(function(){})}catch(e){}})()</script><script>try{var t=localStorage.getItem("konta_theme")||"aurora";var mg={platinum:"cash",franc:"alps",gold:"dial",dollar:"note",vault:"dial",zurich:"cash"};document.documentElement.dataset.th=mg[t]||t}catch(e){}</script>
+<body class="boot"><script>(function(){var B="202611171506";try{if(navigator.serviceWorker&&navigator.serviceWorker.controller)return;fetch("/version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.json():null}).then(function(j){if(j&&j.b&&j.b!==B&&sessionStorage.getItem("kupd")!==j.b){sessionStorage.setItem("kupd",j.b);var u=new URL(location.href);u.searchParams.set("v",j.b);location.replace(u.toString())}}).catch(function(){})}catch(e){}})()</script><script>try{var t=localStorage.getItem("konta_theme")||"aurora";var mg={platinum:"cash",franc:"alps",gold:"dial",dollar:"note",vault:"dial",zurich:"cash"};document.documentElement.dataset.th=mg[t]||t}catch(e){}</script>
 <div class="splash" id="splash"><div class="stage">
 <svg class="g1" viewBox="0 0 390 300"><defs><radialGradient id="spg" cx="195" cy="200" r="200" gradientUnits="userSpaceOnUse" gradientTransform="translate(0 200) scale(1 .62) translate(0 -200)"><stop offset="0" style="stop-color:rgb(var(--sl));stop-opacity:.42"/><stop offset=".35" style="stop-color:rgb(var(--sl));stop-opacity:.14"/><stop offset="1" style="stop-color:rgb(var(--sl));stop-opacity:0"/></radialGradient><clipPath id="spu"><path d="M-10 262 Q195 138 400 262 L400 0 L-10 0Z"/></clipPath></defs><rect class="glw" width="390" height="300" fill="url(#spg)" clip-path="url(#spu)"/></svg>
 <div class="kw"><div class="kk">k</div></div>
@@ -712,6 +713,6 @@ html[data-th] .hero .num small{color:rgba(var(--sl),.72)}
 <div class="sheet" id="sheet"></div>
 <div class="sheet" id="sheet2"></div>
 <div class="toast glass" id="toast"></div>
-<script src="app.js?v=202611171501" defer></script>
+<script src="app.js?v=202611171506" defer></script>
 </body>
 </html>
