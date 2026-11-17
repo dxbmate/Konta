@@ -1233,7 +1233,7 @@ function renderHome() {
   } else {
     const byc = {}; list.forEach(t => byc[t.c] = (byc[t.c] || 0) + t.a);
     const parts = Object.entries(byc).map(([c, v]) => ({ c: CAT[c] || CAT.other, v })).sort((a, b) => b.v - a.v);
-    h += `<button class="compw" ${isOut ? 'data-tab="an"' : ''}>${comp(parts, sum)}<span class="cap"><span>${parts.slice(0, 3).map(p => `<i class="dot" style="background:${p.c.c}"></i>${p.c.n.split(' ')[0]} ${Math.round(p.v / sum * 100)}%`).join('<em></em>')}</span>${isOut ? ic('ui_right', 'i chev') : ''}</span></button>`;
+    h += `<button class="compw" ${isOut ? 'data-tab="an"' : ''}>${comp(parts, sum)}<span class="cap"><span>${(() => { const L = parts.slice(0, 3).map(p => [p, `${p.c.n.split(' ')[0]} ${Math.round(p.v / sum * 100)}%`]); const n = L.reduce((a, x) => a + x[1].length, 0) > 32 ? 2 : 3; return L.slice(0, n).map(([p, t]) => `<i class="dot" style="background:${p.c.c}"></i>${t}`).join('<em></em>'); })()}</span>${isOut ? ic('ui_right', 'i chev') : ''}</span></button>`;
     h += feed(list);
   }
   $('#s-home').innerHTML = h;
@@ -2406,7 +2406,7 @@ function mMain() {
     <h2>Параметры</h2>
     ${mGrp('look', 'ui_spark', 'Оформление', THEMES[THEME] ? THEMES[THEME].n : '')}
     ${mGrp('home', 'ui_overview', 'Главный экран', CHART_N[CHART])}
-    ${mGrp('budget', 'ui_cap', 'Бюджет и валюта', baseCur() + (ids ? ` · ${ids} ${plural(ids, 'лимит', 'лимита', 'лимитов')}` : ''))}
+    ${mGrp('budget', 'ui_cap', 'Бюджет и валюта', baseCur())}
     ${mGrp('priv', 'ui_shield', 'Приватность', PIN ? 'Код' + (bioOn() ? ' · Face ID' : '') : PRIV ? 'Суммы скрыты' : '')}
     ${mGrp('data', 'ui_copy', 'Данные', fmtN(String(S.tx.length)) + ' ' + plural(S.tx.length, 'запись', 'записи', 'записей'))}
     ${mHomeRows()}
@@ -3361,7 +3361,7 @@ function seed() {
 
 // экран «Домой» на iPhone: растягиваем всё до нижнего края, под полоску жеста
 if (!inTG && STANDALONE) {
-  const fullH = () => { const r = document.documentElement; const h = Math.max(innerHeight, screen.height > screen.width === innerHeight > innerWidth ? screen.height : screen.width); r.style.setProperty('--fullh', h + 'px'); r.style.setProperty('--vh0', innerHeight + 'px'); r.classList.add('pwa'); };
+  const fullH = () => { const r = document.documentElement; const h = Math.max(innerHeight, screen.height > screen.width === innerHeight > innerWidth ? screen.height : screen.width); r.style.setProperty('--fullh', h + 'px'); r.style.setProperty('--vh0', innerHeight + 'px'); r.classList.add('pwa'); r.classList.toggle('pwacut', innerHeight < screen.height - 20 && screen.height > screen.width); };
   fullH(); addEventListener('resize', fullH); addEventListener('orientationchange', () => setTimeout(fullH, 300));
 }
 // веб-версия: офлайн-кэш и защита данных от автоочистки браузера
