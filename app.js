@@ -1054,7 +1054,7 @@ function pickPhoto(file) {
 }
 function swBg(k) {
   if (k === 'photo') { let img = null; try { img = localStorage.getItem('konta_photo'); } catch (e) {} return img ? `linear-gradient(rgba(0,0,0,.3),rgba(0,0,0,.6)),url(${img}) center/cover` : '#1c1c1e'; }
-  return themeBg(k);
+  return isLight() ? lightBg(k) : themeBg(k);
 }
 function settingsExtra() {
   return `<h2>Оформление</h2><div class="seg" style="margin:4px 0 14px">${[['dark', 'Тёмная'], ['light', 'Светлая'], ['auto', 'Как в системе']].map(([k, n]) => `<button class="${MODE === k ? 'on' : ''}" data-act="mode" data-m="${k}">${n}</button>`).join('')}</div><div class="themes">${Object.entries(THEMES).map(([k, t]) => `<button class="th ${THEME === k ? 'on' : ''}" data-act="${k === 'photo' ? 'photo' : 'theme'}" data-t="${k}"><span class="sw" style='background:${swBg(k)}'>${k === 'photo' ? ic('ui_plus') : ''}<i class="acc" style="background:${t.acc}"></i></span><span class="tn">${t.n}</span></button>`).join('')}</div><p class="thd">${(THEMES[THEME] || THEMES.aurora).d}</p>
