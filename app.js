@@ -612,6 +612,49 @@ const DICT = {
   'Через Telegram': 'Via Telegram',
   'Доступно внутри Telegram': 'Available inside Telegram',
   'Приватность': 'Privacy',
+  'Face ID выключен': 'Face ID off',
+  'Face ID не подключён': 'Face ID not set up',
+  'Без входа через Telegram код не восстановить. Можно только удалить все данные на этом устройстве и начать заново.': 'Without a Telegram sign-in the passcode can’t be recovered. You can only delete all data on this device and start over.',
+  'Данные удалены, код сброшен': 'Data deleted, passcode reset',
+  'Код недоступен в этом браузере': 'Passcode isn’t available in this browser',
+  'Назовите цель': 'Name your goal',
+  'Нет доступа к датчику движения': 'No access to the motion sensor',
+  'Нет связи. Всё сохранено на телефоне, отправлю, как появится сеть': 'Offline. Everything is saved on your phone and will sync once you’re back online',
+  'Сбросить код': 'Reset passcode',
+  'Сбросить код? Вы вошли через свой Telegram, поэтому данные останутся на месте. Новый код можно поставить в Настройках.': 'Reset the passcode? You’re signed in with Telegram, so your data stays. You can set a new passcode in Settings.',
+  'Скрыто. Вернуть — в Настройках': 'Hidden. You can bring it back in Settings',
+  'Сначала включите код-пароль': 'Turn on the passcode first',
+  'Убрать': 'Remove',
+  'Убрать из подписок? Сами платежи останутся в истории.': 'Remove from subscriptions? The payments stay in your history.',
+  'Удалить все операции из последнего импорта?': 'Delete all transactions from the last import?',
+  'Цель удалена': 'Goal deleted',
+  'Чтобы сбросить код, выйдите и войдите снова через Telegram. Данные на этом устройстве удалятся и вернутся из облака после входа.': 'To reset the passcode, sign out and sign in again with Telegram. Data on this device will be removed and restored from the cloud after sign-in.',
+  'Сверх дневного': 'Over daily',
+  'Риски': 'Ticks',
+  'Кривая': 'Curve',
+  'Столбцы': 'Bars',
+  'Записывать сообщением': 'Log by message',
+  'Траты сообщением': 'Log by message',
+  'Открыть @KontaCieBot': 'Open @KontaCieBot',
+  'Живой фон': 'Live background',
+  'Фон темы чуть смещается при наклоне телефона': 'The theme background shifts slightly as you tilt the phone',
+  'Можно тратить сегодня': 'Safe to spend today',
+  'Дневной ориентир на главном экране': 'Daily guide on the home screen',
+  'Не открывая приложение — просто напишите @KontaCieBot. Категорию бот подберёт сам, запись появится здесь при следующей синхронизации.': 'No need to open the app: just text @KontaCieBot. The bot picks the category itself, and the entry shows up here on the next sync.',
+  'Несколько трат — каждая с новой строки. Под ответом бота есть кнопки «Категория» и «Отменить». /today — итог за сегодня.': 'Several expenses: one per line. Under the bot’s reply there are “Category” and “Undo” buttons. /today shows today’s total.',
+  'Спокойный ориентир: сколько можно тратить каждый день, чтобы месяц сошёлся и цели шли по плану.': 'A calm guide: how much you can spend each day so the month adds up and your goals stay on track.',
+  'Доход за месяц': 'Income this month',
+  'Потрачено до сегодня': 'Spent before today',
+  'Скрыть с главного экрана': 'Hide from home screen',
+  'Вернуть можно в Настройках → Главный экран': 'You can turn it back on in Settings → Home screen',
+  'Сколько нужно': 'Target amount',
+  'Машина, отпуск, подушка…': 'Car, vacation, rainy-day fund…',
+  'Пополняйте цель через «+» на главном — вкладка «В цель».': 'Top up the goal with “+” on the home screen, “To goal” tab.',
+  'Пополняйте цель через «+» на главном — вкладка «В цель». Если копите на вкладе — добавьте его в «Капитал», и цель будет считаться по его балансу.': 'Top up the goal with “+” on the home screen, “To goal” tab. Saving in a deposit? Add it to “Capital” and the goal will track its balance.',
+  'Машина, отпуск, подушка на чёрный день. Копите в своём темпе — или попросите составить план: приложение посчитает, сколько откладывать, что дадут проценты и реально ли это с вашими доходами.': 'A car, a vacation, a rainy-day fund. Save at your own pace, or ask for a plan: the app works out how much to set aside, what interest adds and whether it’s realistic on your income.',
+  'Следующий ожидается': 'Next one is due',
+  'в год.': 'a year.',
+  'Хранятся в облаке и синхронизируются между устройствами.': 'Stored in the cloud and synced across devices.',
   'Регулярные платежи': 'Recurring payments',
   'Подписки': 'Subscriptions',
   'Каждый месяц': 'Every month',
@@ -697,6 +740,19 @@ for (let i = 0; i < 7; i++) DICT[WD[i]] = EN_WD[i];
 const enMonth = w => { const i = mIdx(w); return i >= 0 ? EN_M[i] : w; };
 const enMon3 = w => { const i = mIdx(w); return i >= 0 ? EN_M[i].slice(0, 3) : w; };
 const RULES = [
+  [/^Удалить «(.+)»\?$/, (m, n) => `Delete “${n}”?`],
+  [/^Завтра — (.+) в день$/, (m, a) => `Tomorrow: ${a} per day`],
+  [/^Пик (.+?) ·$/, (m, d) => `Peak ${TR(d)} ·`],
+  [/^(\d+) подпис(?:ка|ки|ок)$/, (m, n) => `${n} subscription${n === '1' ? '' : 's'}`],
+  [/^(.+) в год$/, (m, a) => `${a} per year`],
+  [/^(\d+) лимит(?:а|ов)?$/, (m, n) => `${n} limit${n === '1' ? '' : 's'}`],
+  [/^Следующий (?:≈ )?завтра$/, () => 'Next one tomorrow'],
+  [/^Следующий ≈ (.+)$/, (m, d) => `Next ≈ ${TR(d)}`],
+  [/^Самая дорогая, (.+):$/, (m, n) => `The priciest, ${n}:`],
+  [/^Три месяца ваших расходов — (.+)$/, (m, a) => `Three months of your spending: ${a}`],
+  [/^Осталось на (\d+) дн\S*$/, (m, n) => `Left for ${n} day${n === '1' ? '' : 's'}`],
+  [/^Сейчас хранятся в этом браузере\. ([\d\s]+) запис\S*\.$/, (m, n) => `Stored in this browser for now. ${n.trim()} entries.`],
+  [/^Хранятся в облаке и синхронизируются между устройствами\. ([\d\s]+) запис\S*\.$/, (m, n) => `Stored in the cloud and synced across devices. ${n.trim()} entries.`],
   [/^Нет связи(.*) — нажмите, чтобы повторить$/, (m, w) => `Offline${w} — tap to retry`],
   [/^≈ (.+) · курс (.+) ₽$/, (m, a, r) => `≈ ${a} · rate ${r} ₽`],
   [/^Синхронизировано · (.+)$/, (m, a) => `Synced · ${a}`], [/^Те же данные, что в боте (.+)$/, (m, b) => `Same data as in ${b}`], [/^Те же траты и капитал, что в боте (.+)\. Пароль не нужен — вход подтверждается в Telegram\.$/, (m, b) => `Same spending and capital as in ${b}. No password — you confirm the sign-in in Telegram.`],
@@ -1280,9 +1336,10 @@ function animSegs(root = document) {
   root.querySelectorAll('.seg,.ktoggle').forEach(seg => {
     const on = seg.querySelector('button.on'); if (!on) return;
     const key = (seg.querySelector('button') || {}).dataset ? seg.querySelector('button').dataset.act : 'x';
-    let ind = seg.querySelector('.sind'); if (!ind) { ind = document.createElement('i'); ind.className = 'sind'; seg.prepend(ind); }
+    let ind = seg.querySelector('.sind'), fresh = false; if (!ind) { ind = document.createElement('i'); ind.className = 'sind'; seg.prepend(ind); fresh = true; }
     const x = on.offsetLeft, w = on.offsetWidth, p = SEGPOS[key];
-    if (p && (p.x !== x || p.w !== w)) { ind.style.transition = 'none'; ind.style.width = p.w + 'px'; ind.style.transform = `translateX(${p.x}px)`; ind.offsetWidth; ind.style.transition = ''; }
+    // новая плашка встаёт на прежнее место без анимации, а не едет от левого края
+    if (fresh || (p && (p.x !== x || p.w !== w))) { const q = p || { x, w }; ind.style.transition = 'none'; ind.style.width = q.w + 'px'; ind.style.transform = `translateX(${q.x}px)`; ind.offsetWidth; ind.style.transition = ''; }
     ind.style.width = w + 'px'; ind.style.transform = `translateX(${x}px)`;
     SEGPOS[key] = { x, w };
   });
@@ -2065,7 +2122,7 @@ function dailyInfo() {
     <div class="dcalc">${ln(d.src === 'avg' ? 'Доход — в среднем за месяц' : 'Доход за месяц', rub(d.inc, { round: true }))}${ln('Потрачено до сегодня', '− ' + rub(d.before, { round: true }))}${d.gNet > 0 ? ln('Отложено в цели', '− ' + rub(d.gNet, { round: true })) : ''}${d.goalsLeft ? ln('Ещё отложить по планам целей', '− ' + rub(d.goalsLeft, { round: true })) : ''}${ln(`Осталось на ${d.daysLeft} ${plural(d.daysLeft, 'день', 'дня', 'дней')}`, rub(Math.max(0, d.avail), { round: true }), 'sum')}${ln('В день', rub(d.per, { round: true }), 'sum')}</div>
     ${d.src === 'avg' ? '<p class="note" style="margin:10px 2px 0">Доходов в этом месяце пока нет — беру средний за прошлые месяцы.</p>' : ''}
     <div style="height:16px"></div><div class="stack"><button class="btn ghost" data-act="dailytog">Скрыть с главного экрана</button></div>
-    <p class="note" style="text-align:center;margin-top:10px">Вернуть можно в Настройках → Оформление</p>`;
+    <p class="note" style="text-align:center;margin-top:10px">Вернуть можно в Настройках → Главный экран</p>`;
   open('#sheet2');
 }
 function dailyToggle() {
@@ -2601,7 +2658,7 @@ function openSubs() {
     <div class="dcalc"><div class="dline"><span>В месяц</span><b>${rub(m, { round: true })}</b></div><div class="dline"><span>В год</span><b>${rub(m * 12, { round: true })}</b></div></div>
     <div style="height:10px"></div>
     ${L.map(x => `<button class="row" data-act="subhide" data-k="${esc(x.k)}"><span class="ic">${ic((CAT[x.c] || CAT.other).id)}</span><span class="t"><span class="n">${esc(x.n)}</span><span class="s">${x.per === 'w' ? 'Каждую неделю · ' : ''}Следующий ${nx(x.next)}</span></span><span class="a">${rub(x.a, { round: true })}</span></button>`).join('')}
-    ${top ? `<p class="note" style="margin:14px 2px 0;line-height:1.5">Самая дорогая, ${esc(top.n)}, за год обходится в <span style="white-space:nowrap">${rub(top.month * 12, { round: true })}</span>.</p>` : ''}
+    ${top ? `<p class="note" style="margin:14px 2px 0;line-height:1.5">Самая дорогая, ${esc(top.n)}: <span style="white-space:nowrap">${rub(top.month * 12, { round: true })}</span> в год.</p>` : ''}
     <p class="note" style="margin:10px 2px 0;text-align:center">Коснитесь строки, если это не подписка</p>`;
   open('#sheet2');
 }
