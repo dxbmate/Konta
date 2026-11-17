@@ -3449,3 +3449,17 @@ setTimeout(() => { if (navigator.onLine === false || !('serviceWorker' in naviga
   };
   el.addEventListener('pointerup', end); el.addEventListener('pointercancel', end);
 })();
+
+// обезличенная статистика: раз в день сообщаем «приложение открыли», без сумм и личных данных
+(function statPing() {
+  if (!SYNC_API) return;
+  try {
+    const day = new Date().toISOString().slice(0, 10);
+    if (localStorage.getItem('konta_hit') === day) return;
+    let d = localStorage.getItem('konta_dev'), n = 0;
+    if (!d) { d = Array.from(crypto.getRandomValues(new Uint8Array(9)), b => b.toString(16).padStart(2, '0')).join(''); localStorage.setItem('konta_dev', d); n = 1; }
+    const send = () => fetch(SYNC_API + (SYNC_API.includes('?') ? '&' : '?') + 'a=hit', { method: 'POST', keepalive: true, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ d, n, p: inTG ? 'tg' : STANDALONE ? 'pwa' : 'web', l: LANG, th: THEME }) })
+      .then(r => { if (r.ok) localStorage.setItem('konta_hit', day); }).catch(() => {});
+    setTimeout(send, 4000);
+  } catch (e) {}
+})();
