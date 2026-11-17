@@ -3437,6 +3437,9 @@ if (!inTG && STANDALONE) {
     app.style.display = 'none'; void app.offsetHeight; app.style.display = '';
     if (sc) sc.scrollTop = y; fullH();
   };
+  // документ во весь экран может чуть прокручиваться: держим его на месте
+  addEventListener('scroll', () => { if (scrollY || scrollX) scrollTo(0, 0); }, { passive: true });
+  document.addEventListener('touchmove', e => { if (!e.target.closest('.screen,.sheet,.dlg,#lock,#onb,.themes,.chips,.slides,.seg')) e.preventDefault(); }, { passive: false });
   const later = () => setTimeout(remeasure, 160);
   later(); addEventListener('load', later); addEventListener('pageshow', later);
   document.addEventListener('visibilitychange', () => { if (!document.hidden) later(); });
