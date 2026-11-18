@@ -840,9 +840,64 @@ html.pwax .sheet{bottom:0!important;max-height:calc(var(--fullx) * .94)}
 html.pwax .sheet:not(.on){visibility:hidden;transition:transform .5s var(--ease),visibility 0s linear .5s}
 html.pwax .sheet.on{visibility:visible;transition:transform .5s var(--ease),visibility 0s}
 html.pwax .screen{overscroll-behavior-y:contain}
+
+/* ===== v4: стеклянные группы, скруглённые иконки, мягкие окна ===== */
+:root{--card:rgba(var(--sl,242,239,233),.055);--cardl:rgba(var(--sl,242,239,233),.085)}
+#s-more h2{font-family:Inter,system-ui,sans-serif;font-size:12.5px;font-weight:500;letter-spacing:.09em;text-transform:uppercase;color:var(--mut);margin:30px 8px 10px}
+#s-more h2:first-of-type{margin-top:22px}
+#s-more .row{position:relative;padding:9px 16px;min-height:60px;background:var(--card);-webkit-backdrop-filter:blur(24px) saturate(1.4);backdrop-filter:blur(24px) saturate(1.4);border-radius:0}
+#s-more .row+.row{border-top:0}
+#s-more .row+.row:before{content:"";position:absolute;left:62px;right:16px;top:0;height:1px;background:rgba(var(--sl,242,239,233),.08);pointer-events:none}
+#s-more :not(.row)+.row{border-top-left-radius:24px;border-top-right-radius:24px}
+#s-more .row:not(:has(+ .row)){border-bottom-left-radius:24px;border-bottom-right-radius:24px}
+#s-more .row:only-child{border-radius:24px}
+#s-more .row:after{inset:0!important;border-radius:inherit!important}
+#s-more .row .ic{width:32px!important;height:32px!important;border-radius:10px!important;background:rgba(var(--sl,242,239,233),.10)!important;box-shadow:inset 0 0 0 .5px rgba(var(--sl,242,239,233),.16),inset 0 1px 0 rgba(255,255,255,.08)!important}
+#s-more .row .ic svg,#s-more .row .ic .i{width:17px;height:17px}
+#s-more .mprof .ic{width:40px!important;height:40px!important;border-radius:13px!important}
+html.light #s-more .row{background:rgba(255,255,255,.66);box-shadow:0 1px 0 rgba(255,255,255,.7) inset}
+html.light #s-more .row+.row:before{background:rgba(28,25,20,.08)}
+html.light #s-more .row .ic{background:linear-gradient(180deg,#fff,#f1ece3)!important;box-shadow:inset 0 0 0 .5px rgba(28,25,20,.14),0 1px 2px rgba(60,45,25,.08)!important}
+.mlink{border-radius:24px!important;background:var(--card)!important;box-shadow:none!important;-webkit-backdrop-filter:blur(24px) saturate(1.4);backdrop-filter:blur(24px) saturate(1.4)}
+.mlink .ic{border-radius:11px!important;width:36px!important;height:36px!important;background:rgba(var(--sl,242,239,233),.10)!important;box-shadow:inset 0 0 0 .5px rgba(var(--sl,242,239,233),.16)!important}
+html.light .mlink{background:rgba(255,255,255,.66)!important}
+html.light .mlink .ic{background:linear-gradient(180deg,#fff,#f1ece3)!important}
+/* сегменты: капсула */
+.seg{border-radius:999px!important;padding:3px!important}
+.seg button,.seg .sind{border-radius:999px!important}
+/* шторки: стекло */
+.sheet{background:rgba(20,19,18,.84)!important;-webkit-backdrop-filter:blur(40px) saturate(1.6);backdrop-filter:blur(40px) saturate(1.6);border-radius:34px 34px 0 0!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 -20px 60px -20px rgba(0,0,0,.5)}
+html.light .sheet{background:rgba(250,247,241,.88)!important;box-shadow:inset 0 1px 0 #fff,0 -20px 60px -20px rgba(60,45,25,.18)}
+.grab{width:38px!important;height:5px!important;border-radius:3px!important}
+/* окна подтверждения: стекло */
+.dlg{background:rgba(0,0,0,.42)!important;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.dlg>div{background:rgba(30,29,28,.78)!important;-webkit-backdrop-filter:blur(40px) saturate(1.6);backdrop-filter:blur(40px) saturate(1.6);border-radius:32px!important;padding:24px!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.1),inset 0 0 0 .5px rgba(255,255,255,.08),0 30px 80px -20px rgba(0,0,0,.6)}
+html.light .dlg{background:rgba(40,32,22,.18)!important}
+html.light .dlg>div,html.light .dlg .box{background:rgba(252,250,246,.86)!important;box-shadow:inset 0 1px 0 #fff,0 30px 80px -20px rgba(60,45,25,.3)}
+/* уведомления: стеклянная капсула */
+.toast{background:rgba(30,29,28,.72)!important;-webkit-backdrop-filter:blur(30px) saturate(1.6);backdrop-filter:blur(30px) saturate(1.6);box-shadow:inset 0 1px 0 rgba(255,255,255,.1),inset 0 0 0 .5px rgba(255,255,255,.08),0 12px 30px -10px rgba(0,0,0,.5)!important}
+html.light .toast{background:rgba(255,255,255,.78)!important;color:#2a261f!important;box-shadow:inset 0 0 0 .5px rgba(28,25,20,.1),0 12px 30px -10px rgba(60,45,25,.25)!important}
+/* поля ввода */
+.frow input.inp{box-shadow:inset 0 0 0 .5px rgba(var(--sl,242,239,233),.12)}
+/* кнопки «Изменить/Удалить»: текст помещается */
+.swr .del button{font-size:12px!important;letter-spacing:0!important;white-space:nowrap;padding:0 4px;min-width:0;overflow:hidden;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+.swr .del button svg{flex:none}
+/* размытие над доком ниже */
+.veilb{height:calc(96px + var(--sb))!important}
+html.pwax .veilb{top:calc(var(--fullx) - 150px)!important;height:150px!important}
+
+.ktoggle,.ktoggle .sind,.ktoggle button{border-radius:999px!important}
+html #s-more .btn.ghost,html[data-th] #s-more .btn.ghost{background:var(--card)!important;box-shadow:none!important;color:var(--iv);-webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px);border-radius:24px!important}
+html #s-more .btn.danger,html[data-th] #s-more .btn.danger{background:rgba(201,110,96,.10)!important;box-shadow:none!important;border-radius:24px!important}
+html.light #s-more .btn.ghost,html.light[data-th] #s-more .btn.ghost{background:rgba(255,255,255,.66)!important}
+#s-more .note{margin-left:8px;margin-right:8px}
+
+html body #s-more .btn.ghost{background:rgba(var(--sl,242,239,233),.07)!important;box-shadow:inset 0 0 0 .5px rgba(var(--sl,242,239,233),.12)!important;border-radius:24px!important}
+html body #s-more .btn.danger{background:rgba(201,110,96,.12)!important;box-shadow:inset 0 0 0 .5px rgba(201,110,96,.2)!important;border-radius:24px!important}
+html.light body #s-more .btn.ghost{background:rgba(255,255,255,.7)!important}
 </style>
 </head>
-<body class="boot"><script>(function(){var B="202611180936";try{if(navigator.serviceWorker&&navigator.serviceWorker.controller)return;fetch("/version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.json():null}).then(function(j){if(j&&j.b&&j.b!==B&&sessionStorage.getItem("kupd")!==j.b){sessionStorage.setItem("kupd",j.b);var u=new URL(location.href);u.searchParams.set("v",j.b);location.replace(u.toString())}}).catch(function(){})}catch(e){}})()</script><script>try{var t=localStorage.getItem("konta_theme")||"aurora";var mg={platinum:"cash",franc:"alps",gold:"dial",dollar:"note",vault:"dial",zurich:"cash"};document.documentElement.dataset.th=mg[t]||t;var m=localStorage.getItem("konta_mode")||"dark",tw=window.Telegram&&Telegram.WebApp;var L=m==="light"||(m==="auto"&&(tw&&tw.colorScheme?tw.colorScheme==="light":matchMedia("(prefers-color-scheme: light)").matches));if(L)document.documentElement.classList.add("light")}catch(e){}</script>
+<body class="boot"><script>(function(){var B="202611181730";try{if(navigator.serviceWorker&&navigator.serviceWorker.controller)return;fetch("/version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.json():null}).then(function(j){if(j&&j.b&&j.b!==B&&sessionStorage.getItem("kupd")!==j.b){sessionStorage.setItem("kupd",j.b);var u=new URL(location.href);u.searchParams.set("v",j.b);location.replace(u.toString())}}).catch(function(){})}catch(e){}})()</script><script>try{var t=localStorage.getItem("konta_theme")||"aurora";var mg={platinum:"cash",franc:"alps",gold:"dial",dollar:"note",vault:"dial",zurich:"cash"};document.documentElement.dataset.th=mg[t]||t;var m=localStorage.getItem("konta_mode")||"dark",tw=window.Telegram&&Telegram.WebApp;var L=m==="light"||(m==="auto"&&(tw&&tw.colorScheme?tw.colorScheme==="light":matchMedia("(prefers-color-scheme: light)").matches));if(L)document.documentElement.classList.add("light")}catch(e){}</script>
 <div class="splash" id="splash"><div class="stage">
 <svg class="g1" viewBox="0 0 390 300"><defs><radialGradient id="spg" cx="195" cy="200" r="200" gradientUnits="userSpaceOnUse" gradientTransform="translate(0 200) scale(1 .62) translate(0 -200)"><stop offset="0" style="stop-color:rgb(var(--sl));stop-opacity:.42"/><stop offset=".35" style="stop-color:rgb(var(--sl));stop-opacity:.14"/><stop offset="1" style="stop-color:rgb(var(--sl));stop-opacity:0"/></radialGradient><clipPath id="spu"><path d="M-10 262 Q195 138 400 262 L400 0 L-10 0Z"/></clipPath></defs><rect class="glw" width="390" height="300" fill="url(#spg)" clip-path="url(#spu)"/></svg>
 <div class="kw"><div class="kk">k</div></div>
@@ -871,6 +926,6 @@ html.pwax .screen{overscroll-behavior-y:contain}
 <div class="sheet" id="sheet"></div>
 <div class="sheet" id="sheet2"></div>
 <div class="toast glass" id="toast"></div>
-<script src="app.js?v=202611180936" defer></script>
+<script src="app.js?v=202611181730" defer></script>
 </body>
 </html>

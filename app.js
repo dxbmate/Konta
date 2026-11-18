@@ -2456,7 +2456,7 @@ function mMain() {
     <h2>Параметры</h2>
     ${mGrp('look', 'ui_spark', 'Оформление', THEMES[THEME] ? THEMES[THEME].n : '')}
     ${mGrp('budget', 'ui_cap', 'Бюджет и валюта', baseCur())}
-    ${mGrp('safe', 'ui_shield', 'Приватность и данные', PIN ? 'Код' + (bioOn() ? ' · Face ID' : '') : PRIV ? 'Суммы скрыты' : fmtN(String(S.tx.length)) + ' ' + plural(S.tx.length, 'запись', 'записи', 'записей'))}
+    ${mGrp('safe', 'ui_shield', 'Приватность и данные', PIN ? 'Код' + (bioOn() ? ' · Face ID' : '') : PRIV ? 'Скрыто' : '')}
     <h2>Konta &amp; Cie</h2>
     <div class="mlinks"><a class="mlink" href="${TG_CHANNEL}" target="_blank" rel="noopener" data-lnk="channel"><span class="ic">${PLANE}</span><span class="n">Канал</span><span class="s">Новости и обновления</span></a><a class="mlink" href="${TG_SUPPORT}" target="_blank" rel="noopener" data-lnk="support"><span class="ic">${BUBBLE}</span><span class="n">Поддержка</span><span class="s">Ответим в Telegram</span></a></div>
     ${mHomeRows()}
@@ -3171,7 +3171,7 @@ $('#veil').onclick = close;
 
 // ================= Swipe to delete =================
 let sw = null, suppressClick = 0;
-function openSw(w) { w.classList.add('open'); w.querySelector('.row').style.transform = 'translateX(-184px)'; w.querySelector('.del').style.width = '184px'; }
+function openSw(w) { w.classList.add('open'); w.querySelector('.row').style.transform = 'translateX(-196px)'; w.querySelector('.del').style.width = '196px'; }
 function closeSw(w) { w.classList.remove('open'); w.querySelector('.row').style.transform = ''; w.querySelector('.del').style.width = ''; }
 function deleteTx(id) {
   const w = document.querySelector(`.swr[data-id="${id}"]`), i = S.tx.findIndex(x => x.id === id); if (i < 0) return;
@@ -3184,7 +3184,7 @@ document.addEventListener('touchstart', e => {
   const w = e.target.closest('.swr');
   document.querySelectorAll('.swr.open').forEach(o => { if (o !== w) closeSw(o); });
   if (!w || e.target.closest('.del button')) { sw = null; return; }
-  sw = { w, row: w.querySelector('.row'), del: w.querySelector('.del'), x0: e.touches[0].clientX, y0: e.touches[0].clientY, base: w.classList.contains('open') ? -184 : 0, dx: 0, lock: null };
+  sw = { w, row: w.querySelector('.row'), del: w.querySelector('.del'), x0: e.touches[0].clientX, y0: e.touches[0].clientY, base: w.classList.contains('open') ? -196 : 0, dx: 0, lock: null };
 }, { passive: true });
 document.addEventListener('touchmove', e => {
   if (!sw) return; const dx = e.touches[0].clientX - sw.x0, dy = e.touches[0].clientY - sw.y0;
