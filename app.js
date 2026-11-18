@@ -3541,6 +3541,124 @@ setTimeout(() => {
   document.addEventListener('touchend', end); document.addEventListener('touchcancel', end);
 })();
 
+// ================= Анимации v4: морфинг «+», линза дока, свежие строки, заголовок, тема =================
+const MOTION = !CALM;
+let fabFrom = null, lastTap = { x: innerWidth / 2, y: innerHeight / 2 };
+document.addEventListener('pointerdown', e => { lastTap = { x: e.clientX, y: e.clientY }; }, true);
+document.addEventListener('click', e => {
+  const f = e.target.closest && e.target.closest('.fab'); if (!f) return;
+  const r = f.getBoundingClientRect(); fabFrom = { x: r.left + r.width / 2, y: r.top + r.height / 2, r: r.width / 2, t: Date.now() };
+}, true);
+
+// 1. «+» раскрывается в шторку и сворачивается обратно
+const EASE = 'cubic-bezier(.32,.72,0,1)';
+function morphIn(sh) {
+  if (!MOTION || !fabFrom || Date.now() - fabFrom.t > 600) { fabFrom = null; return; }
+  const f = fabFrom; fabFrom = null;
+  sh.style.transition = 'none'; sh.offsetHeight;
+  const r = sh.getBoundingClientRect(), cx = f.x - r.left, cy = f.y - r.top, R = Math.hypot(Math.max(cx, r.width - cx), Math.max(cy, r.height - cy)) + 20;
+  sh._morph = { cx, cy, r0: f.r };
+  const fab = document.querySelector('.fab'); if (fab) fab.animate([{ transform: 'scale(1)', opacity: 1 }, { transform: 'scale(.6)', opacity: 0 }], { duration: 220, easing: EASE, fill: 'forwards' });
+  sh.animate([{ clipPath: `circle(${f.r}px at ${cx}px ${cy}px)`, borderRadius: '50%' }, { clipPath: `circle(${R}px at ${cx}px ${cy}px)`, borderRadius: '34px 34px 0 0' }], { duration: 620, easing: EASE });
+  sh.querySelectorAll(':scope > *').forEach((c, i) => c.animate([{ opacity: 0, transform: 'translateY(14px)' }, { opacity: 1, transform: 'none' }], { duration: 380, delay: 120 + i * 22, easing: EASE, fill: 'backwards' }));
+  requestAnimationFrame(() => { sh.style.transition = ''; });
+}
+function morphOut(sh, done) {
+  const m = sh._morph; sh._morph = null;
+  if (!MOTION || !m || sh.style.transform) { done(); return false; }
+  const r = sh.getBoundingClientRect(), R = Math.hypot(Math.max(m.cx, r.width - m.cx), Math.max(m.cy, r.height - m.cy)) + 20;
+  const a = sh.animate([{ clipPath: `circle(${R}px at ${m.cx}px ${m.cy}px)` }, { clipPath: `circle(${m.r0}px at ${m.cx}px ${m.cy}px)`, opacity: .9 }], { duration: 380, easing: 'cubic-bezier(.4,0,.2,1)' });
+  const fab = document.querySelector('.fab');
+  a.onfinish = () => { sh.style.transition = 'none'; done(); sh.offsetHeight; requestAnimationFrame(() => { sh.style.transition = ''; }); if (fab) { fab.getAnimations().forEach(x => x.cancel()); fab.animate([{ transform: 'scale(.6)', opacity: 0 }, { transform: 'scale(1)', opacity: 1 }], { duration: 420, easing: 'cubic-bezier(.3,1.4,.5,1)' }); } };
+  return true;
+}
+{
+  const _open = open, _close = close;
+  open = function (id) { const was = stack.includes(id); _open(id); if (!was && id === '#sheet') morphIn($(id)); };
+  close = function () {
+    const id = stack[stack.length - 1];
+    if (id === '#sheet' && stack.length === 1 && $(id)._morph) {
+      const sh = $(id);
+      if (morphOut(sh, () => {})) {
+        stack.pop(); $('#veil').classList.remove('on'); document.body.classList.remove('deep'); document.activeElement && document.activeElement.blur();
+        try { tg && tg.BackButton.hide(); } catch (e) {}
+        setTimeout(() => { sh.style.transition = 'none'; sh.classList.remove('on'); sh.offsetHeight; requestAnimationFrame(() => { sh.style.transition = ''; }); }, 370);
+        return;
+      }
+    }
+    if (id === '#sheet') { $(id)._morph = null; const fab = document.querySelector('.fab'); if (fab) fab.getAnimations().forEach(x => x.cancel()); }
+    _close();
+  };
+}
+
+// 3. линза дока: на ходу вытягивается каплей и встаёт на место
+{
+  let prev = null;
+  const _mi = moveInd;
+  moveInd = function () {
+    const on = $('.tabs button.on'), ind = $('.tabs .ind'); if (!on || !ind) return _mi();
+    const x1 = on.offsetLeft, w1 = on.offsetWidth;
+    if (MOTION && prev && prev.x !== x1) {
+      const a = Math.min(prev.x, x1), span = Math.max(prev.x + prev.w, x1 + w1) - a;
+      ind.style.transition = 'none';
+      ind.animate([
+        { transform: `translateX(${prev.x}px)`, width: prev.w + 'px' },
+        { transform: `translateX(${a}px) scaleY(.88)`, width: span + 'px', offset: .45 },
+        { transform: `translateX(${x1}px)`, width: w1 + 'px' }
+      ], { duration: 520, easing: 'cubic-bezier(.3,1.25,.4,1)' });
+      ind.style.width = w1 + 'px'; ind.style.transform = `translateX(${x1}px)`;
+      requestAnimationFrame(() => requestAnimationFrame(() => { ind.style.transition = ''; }));
+    } else _mi();
+    prev = { x: x1, w: w1 };
+  };
+}
+
+// 4. новая или изменённая строка проявляется с мягкой подсветкой
+let freshId = null;
+{
+  const _submit = submit;
+  submit = function () {
+    const before = new Set(S.tx.map(t => t.id)), eid = F && F.id;
+    const r = _submit.apply(this, arguments);
+    const nw = S.tx.find(t => !before.has(t.id)); freshId = nw ? nw.id : eid;
+    if (freshId && MOTION) setTimeout(() => {
+      const w = document.querySelector(`.swr[data-id="${freshId}"]`); freshId = null; if (!w) return;
+      const sc = w.closest('.screen'); if (sc) { const r2 = w.getBoundingClientRect(); if (r2.top < 80 || r2.bottom > innerHeight - 140) w.scrollIntoView({ block: 'center', behavior: 'smooth' }); }
+      w.classList.remove('fresh'); w.offsetHeight; w.classList.add('fresh'); setTimeout(() => w.classList.remove('fresh'), 1600);
+    }, 380);
+    return r;
+  };
+}
+
+// 6. сворачивающийся заголовок
+const ctitle = document.createElement('div'); ctitle.id = 'ctitle'; ctitle.innerHTML = '<span></span>'; document.body.appendChild(ctitle);
+function ctUpdate() {
+  const sc = document.querySelector('.screen:not(.hidden)'); if (!sc) return;
+  const h = sc.querySelector('.hdr h1'); const t = h ? h.textContent.trim() : '';
+  const span = ctitle.firstChild; if (span.textContent !== t) span.textContent = t;
+  const y = sc.scrollTop, p = Math.max(0, Math.min(1, (y - 36) / 36));
+  ctitle.style.opacity = p; ctitle.style.setProperty('--p', p);
+  if (h) { const q = Math.max(0, Math.min(1, y / 70)); h.style.opacity = 1 - q * .9; h.style.transform = `scale(${1 - q * .06})`; h.style.transformOrigin = 'left center'; }
+}
+document.addEventListener('scroll', e => { if (e.target.classList && e.target.classList.contains('screen')) ctUpdate(); }, true);
+{ const _gt = goTab; goTab = function (n) { _gt(n); ctUpdate(); }; }
+{ const _r = render; render = function () { const x = _r.apply(this, arguments); ctUpdate(); return x; }; }
+
+// 8. смена темы и режима разливается кругом от касания
+function revealSwap(fn) {
+  if (!MOTION || !document.startViewTransition) return fn();
+  const { x, y } = lastTap, R = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
+  const vt = document.startViewTransition(() => { fn(); });
+  vt.ready.then(() => document.documentElement.animate({ clipPath: [`circle(0 at ${x}px ${y}px)`, `circle(${R}px at ${x}px ${y}px)`] }, { duration: 650, easing: 'cubic-bezier(.4,0,.2,1)', pseudoElement: '::view-transition-new(root)' })).catch(() => {});
+}
+{ const _st = setTheme; setTheme = function (k) { if (k === THEME) return _st(k); revealSwap(() => _st(k)); }; }
+if (typeof setMode === 'function') { const _sm = setMode; setMode = function (m) { revealSwap(() => _sm(m)); }; }
+
+// 9. цель исполнена: один золотой блик
+if (typeof goalDone === 'function') { const _gd = goalDone; goalDone = function () { const r = _gd.apply(this, arguments); setTimeout(() => { const g = document.querySelector('#sheet2 .gdone'); if (g) g.classList.add('shine'); }, 450); return r; }; }
+$('#veil').onclick = () => close();
+try { if (tg && tg.BackButton) { tg.BackButton.offClick && tg.BackButton.offClick(close); tg.BackButton.onClick(() => close()); } } catch (e) {}
+
 // ================= диагностика экрана (5 тапов по версии в «Ещё») =================
 const DIAG = (() => { try { return localStorage.getItem('konta_diag') === '1'; } catch (e) { return false; } })();
 const PWAX = (() => { try { const v = localStorage.getItem('konta_pwax'); return v === 'off' ? '' : (v || 'lvh'); } catch (e) { return 'lvh'; } })();
