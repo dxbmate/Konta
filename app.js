@@ -3562,7 +3562,7 @@ function zoomFix() {
   const m = document.querySelector('meta[name=viewport]'); if (!m) return; const c = m.content;
   m.content = c.replace('initial-scale=1', 'initial-scale=1.01'); setTimeout(() => { m.content = c; }, 60);
 }
-pwaxApply(); zoomFix(); setTimeout(zoomFix, 800); addEventListener('resize', pwaxApply); addEventListener('pageshow', pwaxApply);
+pwaxApply(); addEventListener('resize', pwaxApply); addEventListener('pageshow', pwaxApply);
 document.addEventListener('visibilitychange', () => { if (!document.hidden) pwaxApply(); });
 if (PWAX) addEventListener('scroll', () => { if (scrollY) scrollTo(0, 0); }, { passive: true });
 
