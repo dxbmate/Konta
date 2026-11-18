@@ -3540,3 +3540,61 @@ setTimeout(() => {
   };
   document.addEventListener('touchend', end); document.addEventListener('touchcancel', end);
 })();
+
+// ================= диагностика экрана (5 тапов по версии в «Ещё») =================
+const DIAG = (() => { try { return localStorage.getItem('konta_diag') === '1'; } catch (e) { return false; } })();
+const PWAX = (() => { try { return localStorage.getItem('konta_pwax') || ''; } catch (e) { return ''; } })();
+const BUILD = (() => { const s = document.querySelector('script[src*="app.js"]'); const m = s && /v=(\d+)/.exec(s.src); return m ? m[1] : '?'; })();
+const PHYS = { 375: 812, 390: 844, 393: 852, 402: 874, 414: 896, 420: 912, 428: 926, 430: 932, 440: 956 };
+function probeH(css) { const d = document.createElement('div'); d.style.cssText = 'position:absolute;left:-9px;top:0;width:1px;visibility:hidden;' + css; document.body.appendChild(d); const v = d.getBoundingClientRect(); d.remove(); return v; }
+function pwaxHeight(mode) {
+  const sw = Math.min(screen.width, screen.height), sh = Math.max(screen.width, screen.height);
+  if (mode === 'table') return PHYS[sw] || sh;
+  if (mode === 'lvh') return Math.round(probeH('height:100lvh').height);
+  return sh;
+}
+function pwaxApply() {
+  if (!PWAX || !document.documentElement.classList.contains('pwa')) return;
+  const r = document.documentElement; r.classList.add('pwax'); r.style.setProperty('--fullx', pwaxHeight(PWAX) + 'px');
+}
+pwaxApply(); addEventListener('resize', pwaxApply); addEventListener('pageshow', pwaxApply);
+document.addEventListener('visibilitychange', () => { if (!document.hidden) pwaxApply(); });
+if (PWAX) addEventListener('scroll', () => { if (scrollY) scrollTo(0, 0); }, { passive: true });
+
+function diagSet(k, v) { try { v ? localStorage.setItem(k, v) : localStorage.removeItem(k); } catch (e) {} location.reload(); }
+let diagTaps = 0, diagT = 0;
+document.addEventListener('click', e => {
+  if (!e.target.closest || !e.target.closest('.ver')) return;
+  const n = Date.now(); diagTaps = n - diagT < 600 ? diagTaps + 1 : 1; diagT = n;
+  if (diagTaps >= 5) { diagTaps = 0; diagSet('konta_diag', DIAG ? '' : '1'); }
+});
+
+function diagDraw() {
+  if (!DIAG) return;
+  document.querySelectorAll('.kdg').forEach(x => x.remove());
+  const add = (css, html) => { const d = document.createElement('div'); d.className = 'kdg'; d.style.cssText = 'pointer-events:none;z-index:99999;' + css; if (html) d.innerHTML = html; document.body.appendChild(d); return d; };
+  // линейка: метки каждые 50px документа
+  let t = ''; for (let y = 0; y <= 1200; y += 50) t += `<div style="position:absolute;top:${y}px;left:0;width:${y % 100 ? 10 : 22}px;border-top:1px solid #f0f"></div>` + (y % 100 ? '' : `<div style="position:absolute;top:${y + 1}px;left:24px;font:9px monospace;color:#f0f">${y}</div>`);
+  add('position:absolute;left:0;top:0;width:60px;height:1250px', t);
+  // маркеры нижних границ
+  let mi = 0; const mk = (pos, css, c, label) => add(`position:${pos};left:0;right:0;height:4px;background:${c};${css}`, `<span style="position:absolute;right:${8 + 64 * mi++}px;bottom:5px;font:10px monospace;color:${c}">${label}</span>`);
+  mk('fixed', 'bottom:0', '#0f0', 'fixed bottom:0');
+  mk('absolute', `top:${innerHeight - 4}px`, '#ff0', 'innerHeight');
+  mk('absolute', 'top:calc(100lvh - 4px)', '#0ff', '100lvh');
+  mk('absolute', 'top:calc(100svh - 4px)', '#f80', '100svh');
+  mk('absolute', `top:${Math.max(screen.width, screen.height) - 4}px`, '#f33', 'screen');
+  const cs = getComputedStyle(document.documentElement), vv = window.visualViewport || {}, sa = probeH('height:env(safe-area-inset-bottom);'), st = probeH('height:env(safe-area-inset-top);');
+  const sw = navigator.serviceWorker && navigator.serviceWorker.controller ? 'да' : 'нет';
+  const btn = (k, v, l) => `<button data-dg="${k}|${v}" style="pointer-events:auto;font:11px monospace;margin:3px 4px 0 0;padding:5px 8px;border-radius:8px;border:0;background:${(k === 'konta_pwax' && PWAX === v) ? '#0f0' : '#333'};color:${(k === 'konta_pwax' && PWAX === v) ? '#000' : '#fff'}">${l}</button>`;
+  const p = add('position:absolute;left:64px;right:8px;top:calc(var(--st,44px) + 4px);background:rgba(0,0,0,.82);color:#9f9;font:10.5px/1.45 monospace;padding:8px 10px;border-radius:10px;pointer-events:auto',
+    `сборка ${BUILD} · SW ${sw} · режим ${PWAX || 'стабильный'}<br>` +
+    `inner ${innerWidth}×${innerHeight} · outer ${outerWidth}×${outerHeight}<br>` +
+    `screen ${screen.width}×${screen.height} · dpr ${devicePixelRatio}<br>` +
+    `client ${document.documentElement.clientHeight} · vv ${Math.round(vv.height || 0)} / top ${Math.round(vv.offsetTop || 0)}<br>` +
+    `100vh ${Math.round(probeH('height:100vh').height)} · dvh ${Math.round(probeH('height:100dvh').height)} · lvh ${Math.round(probeH('height:100lvh').height)} · svh ${Math.round(probeH('height:100svh').height)}<br>` +
+    `safe top ${Math.round(st.height)} · bottom ${Math.round(sa.height)} · fullh ${cs.getPropertyValue('--fullh')} · fullx ${cs.getPropertyValue('--fullx') || '-'}<br>` +
+    `standalone ${navigator.standalone} · mm ${matchMedia('(display-mode: standalone)').matches}<br>` +
+    btn('konta_pwax', '', 'стабильный') + btn('konta_pwax', 'screen', 'экран') + btn('konta_pwax', 'table', 'таблица') + btn('konta_pwax', 'lvh', 'lvh') + btn('konta_diag', '', 'выкл'));
+  p.onclick = e => { const b = e.target.closest('[data-dg]'); if (!b) return; const [k, v] = b.dataset.dg.split('|'); diagSet(k, v); };
+}
+if (DIAG) { setTimeout(diagDraw, 900); addEventListener('resize', () => setTimeout(diagDraw, 200)); document.addEventListener('visibilitychange', () => { if (!document.hidden) setTimeout(diagDraw, 400); }); }
