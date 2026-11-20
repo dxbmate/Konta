@@ -959,6 +959,7 @@ const sapphireBg = () => [
 const nionBg = () => '#030101';
 const THEMES = {
   nion: { n: 'Нион', d: 'Фарфор и теплый свет', bg: nionBg, acc: '#f0cf96' },
+  herg: { n: 'Хергисвиль', d: 'Хрусталь и холодный свет', bg: () => '#010105', acc: '#cdd9ea' },
   aurora: { n: 'Женева', d: 'Ночное небо и свечение над озером', bg: genevaBg, acc: '#c9b8ff' },
   photo: { n: 'Своё фото', d: 'Любая картинка с телефона', acc: '#f2efe9' },
 };
@@ -996,7 +997,7 @@ function lightCss(str) {
 }
 const lightCache = {};
 function lightBg(k) {
-  if (k === 'nion') return LIGHT_SKY;
+  if (k === 'nion' || k === 'herg') return LIGHT_SKY;
   if (lightCache[k]) return lightCache[k];
   const src = themeBg(k).replace(/url\("data:image\/svg\+xml;utf8,([^"]+)"\)/g, (m, enc) => svgUrl(lightCss(decodeURIComponent(enc))));
   return (lightCache[k] = lightCss(src.replace(/url\("data:image\/svg\+xml;utf8,[^"]+"\)/g, u => '\u0000' + btoa(unescape(encodeURIComponent(u))) + '\u0000')).replace(/\u0000([^\u0000]+)\u0000/g, (m, b) => decodeURIComponent(escape(atob(b)))));
@@ -1048,6 +1049,7 @@ function pickPhoto(file) {
 function swBg(k) {
   if (k === 'photo') { let img = null; try { img = localStorage.getItem('konta_photo'); } catch (e) {} return img ? `linear-gradient(rgba(0,0,0,.3),rgba(0,0,0,.6)),url(${img}) center/cover` : '#1c1c1e'; }
   if (k === 'nion' && !isLight()) return 'url(nion.jpg?v=2) right top/190% auto no-repeat,#060505';
+  if (k === 'herg' && !isLight()) return 'url(herg.jpg?v=1) right top/170% auto no-repeat,#010105';
   return isLight() ? lightBg(k) : themeBg(k);
 }
 function settingsExtra() {
@@ -1253,7 +1255,7 @@ function renderHome() {
     const b = buckets(r), vals = b.map(x => total(outs.filter(t => t.d === x.from)));
     h += ticks(r, vals) + xax(r) + `</section>`;
     h += `<div class="meta">${r.current ? `<span>Сегодня <b>${rub(vals[r.elapsed - 1] || 0, { round: true })}</b></span><span>Прогноз <b>${rub(perDay * r.days, { round: true, short: true })}</b>${(() => { const pr = range('m', mOff - 1), pt = total(sel('out', pr.from, pr.to)); if (!pt) return ''; const p = Math.round((perDay * r.days / pt - 1) * 100); return Math.abs(p) < 1 ? '' : `<em class="fc">${p > 0 ? '+' : '−'}${Math.abs(p)}%</em>`; })()}</span>` : `<span>В день <b>${rub(perDay, { round: true })}</b></span><span>Операций <b>${outs.length}</b></span>`}</div>`;
-    if (r.current && S.tx.length) h += dailyRow() + closeDayRow(vals[r.elapsed - 1] || 0);
+    if (r.current && S.tx.length) h += dailyRow();
     // лимиты — только когда горит
     const hot = Object.entries(S.limits).filter(([c]) => CAT[c]).map(([c, lim]) => ({ c, lim, s: total(sel('out', r.from, r.to, c)) })).filter(x => x.s / x.lim >= .8);
     if (hot.length) h += hot.map(x => `<button class="alert" data-act="cat" data-c="${x.c}"><span class="ic sm">${ic(x.c)}</span><span>${CAT[x.c].n}: ${x.s >= x.lim ? 'лимит превышен' : `${Math.round(x.s / x.lim * 100)}% лимита`}</span><b>${rub(x.lim - x.s, { round: true, sign: x.s > x.lim ? false : false })}</b></button>`).join('');
