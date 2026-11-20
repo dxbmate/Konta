@@ -960,19 +960,14 @@ const sapphireBg = () => [
   'linear-gradient(180deg,#081030 0%,#040818 42%,#000 78%)'
 ].join(',');
 
+const nionBg = () => '#060505';
 const THEMES = {
+  nion: { n: 'Нион', d: 'Фарфор и теплый свет', bg: nionBg, acc: '#f0cf96' },
   aurora: { n: 'Женева', d: 'Ночное небо и свечение над озером', bg: genevaBg, acc: '#c9b8ff' },
-  alps: { n: 'Альпы', d: 'Хребты в тумане и звёзды', bg: alpsBg, acc: '#9cc3ff' },
-  dial: { n: 'Циферблат', d: 'Солнечная гильошировка цвета шампань', bg: dialBg, acc: '#dcc49a' },
-  cash: { n: 'Кашемир', d: 'Тёплый беж и мягкая саржа', bg: cashBg, acc: '#d0ac90' },
-  bordeaux: { n: 'Бордо', d: 'Винный бархат и муар шёлковой подкладки', bg: bordeauxBg, acc: '#e0909e' },
-  marble: { n: 'Мрамор', d: 'Чёрный мрамор с золотой прожилкой', bg: marbleBg, acc: '#e3cf9f' },
-  sapphire: { n: 'Сапфир', d: 'Грани сапфирового стекла часов', bg: sapphireBg, acc: '#9db8ff' },
-  note: { n: 'Банкнота', d: 'Гравировка и зелень доллара', bg: noteBg, acc: '#7fcf9a' },
   photo: { n: 'Своё фото', d: 'Любая картинка с телефона', acc: '#f2efe9' },
 };
-const THEME_MIGRATE = { platinum: 'cash', franc: 'alps', gold: 'dial', dollar: 'note', vault: 'dial', zurich: 'cash' };
-let THEME = (() => { try { const t = localStorage.getItem('konta_theme') || 'aurora'; return THEME_MIGRATE[t] || t; } catch (e) { return 'aurora'; } })();
+const THEME_MIGRATE = { platinum: 'nion', franc: 'nion', gold: 'nion', dollar: 'nion', vault: 'nion', zurich: 'nion', alps: 'nion', dial: 'nion', cash: 'nion', bordeaux: 'nion', marble: 'nion', sapphire: 'nion', note: 'nion' };
+let THEME = (() => { try { const t = localStorage.getItem('konta_theme') || 'nion'; return THEME_MIGRATE[t] || t; } catch (e) { return 'aurora'; } })();
 const themeCache = {};
 const themeBg = k => themeCache[k] || (themeCache[k] = THEMES[k].bg());
 // режим: тёмный, светлый или как в системе (в Telegram: как в Telegram)
@@ -1005,13 +1000,14 @@ function lightCss(str) {
 }
 const lightCache = {};
 function lightBg(k) {
+  if (k === 'nion') return LIGHT_SKY;
   if (lightCache[k]) return lightCache[k];
   const src = themeBg(k).replace(/url\("data:image\/svg\+xml;utf8,([^"]+)"\)/g, (m, enc) => svgUrl(lightCss(decodeURIComponent(enc))));
   return (lightCache[k] = lightCss(src.replace(/url\("data:image\/svg\+xml;utf8,[^"]+"\)/g, u => '\u0000' + btoa(unescape(encodeURIComponent(u))) + '\u0000')).replace(/\u0000([^\u0000]+)\u0000/g, (m, b) => decodeURIComponent(escape(atob(b)))));
 }
 function applyTheme() {
   const sky = $('.sky'); let t = THEMES[THEME];
-  if (!t) { THEME = 'aurora'; t = THEMES.aurora; }
+  if (!t) { THEME = 'nion'; t = THEMES.nion; }
   sky.className = 'sky flat';
   if (THEME === 'photo') {
     let img = null; try { img = localStorage.getItem('konta_photo'); } catch (e) {}
@@ -1055,6 +1051,7 @@ function pickPhoto(file) {
 }
 function swBg(k) {
   if (k === 'photo') { let img = null; try { img = localStorage.getItem('konta_photo'); } catch (e) {} return img ? `linear-gradient(rgba(0,0,0,.3),rgba(0,0,0,.6)),url(${img}) center/cover` : '#1c1c1e'; }
+  if (k === 'nion' && !isLight()) return 'url(nion.jpg?v=1) right top/190% auto no-repeat,#060505';
   return isLight() ? lightBg(k) : themeBg(k);
 }
 function settingsExtra() {
@@ -2420,7 +2417,7 @@ function botWrite() {
 
 // ================= «Ещё»: короткий главный экран + группы =================
 let MSUB = null;
-const MSUB_T = { look: 'Оформление', home: 'Главный экран', budget: 'Бюджет и валюта', safe: 'Приватность и данные', priv: 'Приватность', data: 'Данные' };
+const MSUB_T = { look: 'Оформление', home: 'Главный экран', budget: 'Бюджет и валюта', safe: 'Приватность и данные', priv: 'Приватность', data: 'Данные', news: 'Что нового' };
 const TG_CHANNEL = 'https://t.me/kontacie', TG_SUPPORT = 'https://t.me/KontaCieSupport';
 const PLANE = '<svg class="i" viewBox="0 0 24 24"><path d="M20.5 4.5 3.8 11c-.9.4-.9 1.6 0 1.9l4.1 1.4 1.6 5c.3.8 1.3 1 1.9.4l2.3-2.2 4.2 3.1c.7.5 1.7.1 1.9-.7l2.7-13.6c.2-1-.8-1.8-1.7-1.4z"/><path d="m8 14.3 9-7"/></svg>';
 const BUBBLE = '<svg class="i" viewBox="0 0 24 24"><path d="M4.5 12a7.5 7.5 0 1 1 3.4 6.3L4 19.5l1.2-3.6A7.4 7.4 0 0 1 4.5 12z"/><path d="M9 10.5h6M9 13.5h4"/></svg>';
@@ -2440,6 +2437,31 @@ function mHomeRows() {
   if (HS === 'missed' || HS === 'unknown') h += mRow('homescreen', ic('ui_plus'), 'Добавить на экран «Домой»', 'Konta & Cie откроется одним касанием');
   return h;
 }
+
+// ================= Что нового =================
+const NEWS = [
+  { id: 1, date: '20 ноября 2026', title: 'Новый облик Konta',
+    text: ['У Konta & Cie новый знак: фарфоровая галка с теплым светом. Обновили иконку на экране «Домой» и заставку.',
+           'Между вкладками теперь можно листать свайпом. Док стал крупнее, а анимации спокойнее и плавнее.',
+           'Окна, кнопки и меню переехали в единый стеклянный стиль, а настройки собраны в короткие группы.',
+           'В настройках появились наш канал с новостями и поддержка в Telegram.'],
+    act: ['Открыть канал', () => tgLink(TG_CHANNEL)] }
+];
+const newsSeen = () => { try { return +localStorage.getItem('konta_news') || 0; } catch (e) { return 0; } };
+const newsUnread = () => NEWS.length && NEWS[0].id > newsSeen();
+function newsDot() {
+  const b = document.querySelector('.tabs [data-tab="more"]'); if (!b) return;
+  let d = b.querySelector('.ndot');
+  if (newsUnread() && !d) { d = document.createElement('i'); d.className = 'ndot'; b.appendChild(d); } else if (!newsUnread() && d) d.remove();
+}
+function newsPage() {
+  const seen = newsSeen();
+  const h = NEWS.map((n, i) => `<article class="knews"><div class="dt">${n.date}${n.id > seen ? '<span class="new">новое</span>' : ''}</div><h3>${esc(n.title)}</h3>${n.text.map(p => `<p>${esc(p)}</p>`).join('')}${n.act ? `<button class="btn ghost" data-act="newsact" data-i="${i}">${esc(n.act[0])}</button>` : ''}</article>`).join('');
+  try { localStorage.setItem('konta_news', NEWS[0].id); } catch (e) {}
+  setTimeout(newsDot, 0);
+  return h;
+}
+document.addEventListener('click', e => { const b = e.target.closest && e.target.closest('[data-act="newsact"]'); if (!b) return; e.stopPropagation(); const n = NEWS[+b.dataset.i]; if (n && n.act) n.act[1](); }, true);
 function mMain() {
   const ids = Object.keys(S.limits).filter(id => CAT[id]).length;
   const homeOn = [DAILY].filter(Boolean).length;
@@ -2454,13 +2476,15 @@ function mMain() {
     ${mGrp('budget', 'ui_cap', 'Бюджет и валюта', baseCur())}
     ${mGrp('safe', 'ui_shield', 'Приватность и данные', PIN ? 'Код' + (bioOn() ? ' · Face ID' : '') : PRIV ? 'Скрыто' : '')}
     <h2>Konta &amp; Cie</h2>
+    ${mRow('msub', '<svg class="i" viewBox="0 0 24 24"><path d="M5 4H16A2 2 0 0 1 18 6V18A2 2 0 0 0 20 20H6A2 2 0 0 1 4 18V5A1 1 0 0 1 5 4Z"/><path d="M18 9H20V18A2 2 0 0 1 18 20M8 8H14M8 12H14M8 16H11"/></svg>', 'Что нового', esc(NEWS[0].title), newsUnread() ? '<span class="newp">новое</span>' : '', ' data-s="news"')}
     <div class="mlinks"><a class="mlink" href="${TG_CHANNEL}" target="_blank" rel="noopener" data-lnk="channel"><span class="ic">${PLANE}</span><span class="n">Канал</span><span class="s">Новости и обновления</span></a><a class="mlink" href="${TG_SUPPORT}" target="_blank" rel="noopener" data-lnk="support"><span class="ic">${BUBBLE}</span><span class="n">Поддержка</span><span class="s">Ответим в Telegram</span></a></div>
     ${mHomeRows()}
-    <div class="wm sm"><b>Konta</b><i>&amp; Cie</i></div><div class="ver">Private finance · версия 3.2</div>`;
+    <div class="wm sm"><b>Konta</b><i>&amp; Cie</i></div><div class="ver">Private finance · версия 3.3</div>`;
 }
 function mSub(s) {
   const head = `<header class="hdr msubh"><button class="rb" data-act="mback" aria-label="Назад">${ic('ui_left')}</button><h1>${MSUB_T[s]}</h1><i></i></header>`;
   if (s === 'look') return head + settingsExtra().replace(/<h2>Оформление<\/h2>/, '').replace(dailySetRow(), '') + mSub('home').replace(/^[\s\S]*?<\/header>/, '<h2>Главный экран</h2>');
+  if (s === 'news') return head + newsPage();
   if (s === 'safe') return head + mSub('priv').replace(/^[\s\S]*?<\/header>/, '') + '<h2>Данные</h2>' + mSub('data').replace(/^[\s\S]*?<\/header>/, '');
   if (s === 'home') return head + dailySetRow() + `<h2>Вид графика</h2><div class="seg" style="margin-top:2px">${CHARTS.map(c => `<button class="${CHART === c ? 'on' : ''}" data-act="chartset" data-c="${c}">${CHART_N[c]}</button>`).join('')}</div><p class="note" style="margin-top:10px">Ещё можно переключать касанием по графику.</p>`;
   if (s === 'budget') return head + limitsRow() + `<h2>Валюта капитала</h2><div class="seg" style="margin-top:2px">${BASES.map(c => `<button class="${baseCur() === c ? 'on' : ''}" data-act="base" data-c="${c}">${c}</button>`).join('')}</div>`;
@@ -2479,6 +2503,7 @@ function mSub(s) {
 function renderMore() {
   const el = $('#s-more'); if (!el) return;
   el.innerHTML = MSUB ? mSub(MSUB) : mMain();
+  newsDot();
 }
 function moreGo(s) {
   haptic(); const el = $('#s-more');
@@ -2495,6 +2520,8 @@ document.addEventListener('click', e => {
   if (typeof ymGoal === 'function') ymGoal(l.dataset.lnk);
   if (inTG && tg && tg.openTelegramLink) { e.preventDefault(); e.stopPropagation(); tg.openTelegramLink(l.href); }
 }, true);
+
+setTimeout(newsDot, 300);
 
 // ================= Код-пароль =================
 // Код хранится только как хэш PBKDF2 с солью, на этом устройстве. Закрывает интерфейс, данные не шифрует.
@@ -3590,6 +3617,7 @@ function morphOut(sh, done) {
 // 3. линза дока: ровный скольжащий ход, только transform
 {
   moveInd = function () {
+    document.documentElement.dataset.tab = tab;
     const on = $('.tabs button.on'), ind = $('.tabs .ind'); if (!on || !ind) return;
     const w = on.offsetWidth + 'px'; if (ind.style.width !== w) { ind.style.transition = 'none'; ind.style.width = w; ind.offsetWidth; ind.style.transition = ''; }
     ind.style.transform = `translate3d(${on.offsetLeft}px,0,0)`;
