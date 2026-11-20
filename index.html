@@ -1006,8 +1006,6 @@ html[data-th] .hero .num small{color:var(--acc,#f0cf96)}
 /* Нион: фарфор и теплый свет */
 html[data-th="nion"]:not(.light){--iv:#f3ede3;--mut:#8f887d;--line:rgba(243,237,227,.08)}
 html[data-th="nion"]:not(.light) .tabs{background:rgba(30,26,22,.72)!important;box-shadow:inset 0 0 0 .5px rgba(243,226,196,.12),0 14px 34px rgba(0,0,0,.55)!important}
-html[data-th="nion"]:not(.light) .tabs .ind{background:radial-gradient(120% 140% at 35% 15%,#fffdf8 0%,#efe6d8 55%,#d6cbb9 100%)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.9),inset 0 -3px 6px rgba(240,207,150,.25),0 4px 16px rgba(240,207,150,.16)}
-html[data-th="nion"]:not(.light) .tabs button.on{color:#1d1915!important}
 html[data-th="nion"]:not(.light) .fab{background:radial-gradient(circle at 38% 28%,#fffdf9 0%,#efe7da 50%,#d4c9b7 100%)!important;color:#1d1915!important;box-shadow:inset 0 -4px 8px rgba(240,207,150,.28),inset 0 1px 0 rgba(255,255,255,.95),0 12px 28px rgba(0,0,0,.55),0 6px 26px rgba(240,207,150,.14)!important}
 html[data-th="nion"]:not(.light) .fab:active{transform:scale(.95);box-shadow:inset 0 2px 8px rgba(120,90,50,.25),0 6px 18px rgba(0,0,0,.5)!important}
 html[data-th="nion"]:not(.light) .sheet,html[data-th="nion"]:not(.light) .dlg{background:rgba(26,22,19,.88)!important;box-shadow:inset 0 1px 0 rgba(243,226,196,.10),0 -20px 60px -20px rgba(0,0,0,.6)!important}
@@ -1017,7 +1015,6 @@ html[data-th="nion"]:not(.light) #s-more .grp,html[data-th="nion"]:not(.light) .
 html[data-th="herg"]:not(.light){--iv:#eef2f8;--mut:#828a97;--line:rgba(220,230,245,.08)}
 html[data-th="herg"]:not(.light) .tabs{background:rgba(12,16,24,.55)!important;-webkit-backdrop-filter:blur(26px) saturate(1.6);backdrop-filter:blur(26px) saturate(1.6);box-shadow:inset 0 0 0 .5px rgba(210,225,250,.16),inset 0 1px 0 rgba(255,255,255,.07),0 14px 34px rgba(0,0,0,.6)!important}
 html[data-th="herg"]:not(.light) .tabs .ind{background:linear-gradient(165deg,rgba(255,255,255,.26) 0%,rgba(255,255,255,.07) 48%,rgba(190,210,240,.14) 100%)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.55),inset 0 0 0 .5px rgba(225,235,255,.32),inset 0 -6px 10px rgba(150,180,230,.10),0 6px 18px rgba(0,0,0,.35)}
-html[data-th="herg"]:not(.light) .tabs button.on{color:#ffffff!important}
 html[data-th="herg"]:not(.light) .fab{position:relative;overflow:hidden;background:linear-gradient(160deg,rgba(255,255,255,.32) 0%,rgba(255,255,255,.08) 46%,rgba(170,195,235,.18) 100%)!important;-webkit-backdrop-filter:blur(16px) saturate(1.5);backdrop-filter:blur(16px) saturate(1.5);color:#f4f7fc!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.7),inset 0 0 0 .75px rgba(225,235,255,.45),inset 0 -8px 14px rgba(140,170,220,.16),0 12px 30px rgba(0,0,0,.6)!important}
 html[data-th="herg"]:not(.light) .fab:after{content:"";position:absolute;inset:-40%;background:linear-gradient(115deg,transparent 40%,rgba(255,255,255,.55) 50%,transparent 60%);transform:translateX(-70%);transition:transform .7s cubic-bezier(.32,.72,0,1);pointer-events:none}
 html[data-th="herg"]:not(.light) .fab:active:after{transform:translateX(70%)}
@@ -1029,9 +1026,26 @@ html[data-th="herg"]:not(.light) .hero .num{background:linear-gradient(180deg,#f
 html[data-th="herg"]:not(.light) .hero .num small{-webkit-text-fill-color:#cdd9ea}
 html[data-th="nion"]:not(.light) .btn:not(.ghost){background:radial-gradient(120% 160% at 40% 10%,#fffdf9 0%,#efe7da 55%,#d9cfbe 100%);color:#1d1915;box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 10px 28px rgba(240,207,150,.16)}
 html[data-th="herg"]:not(.light) .btn:not(.ghost){background:linear-gradient(170deg,rgba(255,255,255,.30),rgba(255,255,255,.10) 50%,rgba(170,195,235,.20));-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);color:#f6f9fd;box-shadow:inset 0 1px 0 rgba(255,255,255,.7),inset 0 0 0 .75px rgba(225,235,255,.4),0 10px 28px rgba(0,0,0,.45)}
+/* ===== док: равные слоты, свечение активной иконки ===== */
+.tabs{display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr));padding:4px!important}
+.tabs button{flex:none!important;min-width:0!important;padding:0!important;font-size:10px!important;letter-spacing:-.03em;overflow:visible;white-space:nowrap}
+.tabs button svg,.tabs button .i{transition:filter .35s ease,color .3s ease,transform .35s cubic-bezier(.32,.72,0,1)}
+.tabs button.on{color:var(--acc,var(--iv))!important}
+.tabs button.on svg,.tabs button.on .i{filter:drop-shadow(0 0 6px color-mix(in srgb,var(--acc,#fff) 70%,transparent));transform:translateY(-.5px)}
+html:not(.light) .tabs .ind{background:color-mix(in srgb,var(--acc,#fff) 13%,rgba(255,255,255,.05))!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.14),inset 0 0 0 .5px color-mix(in srgb,var(--acc,#fff) 28%,transparent),0 0 18px color-mix(in srgb,var(--acc,#fff) 12%,transparent)!important}
+html[data-th="herg"]:not(.light) .tabs .ind{background:linear-gradient(165deg,rgba(255,255,255,.16),rgba(255,255,255,.05) 50%,rgba(190,210,240,.10))!important}
+html.light .tabs button.on{color:var(--iv)!important}
+html.light .tabs button.on svg{filter:none}
+/* ===== док: подпись только у активной ===== */
+.tabs button{position:relative}
+.tabs button svg,.tabs button .i{width:23px!important;height:23px!important;transition:transform .42s cubic-bezier(.32,.72,0,1),filter .35s ease,color .3s ease!important}
+.tabs .tl{position:absolute;left:50%;bottom:6px;transform:translate(-50%,4px);opacity:0;font-size:10px;line-height:1;white-space:nowrap;pointer-events:none;transition:opacity .25s ease,transform .42s cubic-bezier(.32,.72,0,1)}
+.tabs button.on .tl{opacity:1;transform:translate(-50%,0)}
+.tabs button.on svg,.tabs button.on .i{transform:translateY(-7px)!important}
+.tabs button:not(.on) svg{transform:none}
 </style>
 </head>
-<body class="boot"><script>(function(){var B="202611202345";try{if(navigator.serviceWorker&&navigator.serviceWorker.controller)return;fetch("/version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.json():null}).then(function(j){if(j&&j.b&&j.b!==B&&sessionStorage.getItem("kupd")!==j.b){sessionStorage.setItem("kupd",j.b);var u=new URL(location.href);u.searchParams.set("v",j.b);location.replace(u.toString())}}).catch(function(){})}catch(e){}})()</script><script>try{var t=localStorage.getItem("konta_theme")||"aurora";var mg={platinum:"cash",franc:"alps",gold:"dial",dollar:"note",vault:"dial",zurich:"cash"};document.documentElement.dataset.th=mg[t]||t;var m=localStorage.getItem("konta_mode")||"dark",tw=window.Telegram&&Telegram.WebApp;var L=m==="light"||(m==="auto"&&(tw&&tw.colorScheme?tw.colorScheme==="light":matchMedia("(prefers-color-scheme: light)").matches));if(L)document.documentElement.classList.add("light")}catch(e){}</script>
+<body class="boot"><script>(function(){var B="202611210000";try{if(navigator.serviceWorker&&navigator.serviceWorker.controller)return;fetch("/version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.json():null}).then(function(j){if(j&&j.b&&j.b!==B&&sessionStorage.getItem("kupd")!==j.b){sessionStorage.setItem("kupd",j.b);var u=new URL(location.href);u.searchParams.set("v",j.b);location.replace(u.toString())}}).catch(function(){})}catch(e){}})()</script><script>try{var t=localStorage.getItem("konta_theme")||"aurora";var mg={platinum:"cash",franc:"alps",gold:"dial",dollar:"note",vault:"dial",zurich:"cash"};document.documentElement.dataset.th=mg[t]||t;var m=localStorage.getItem("konta_mode")||"dark",tw=window.Telegram&&Telegram.WebApp;var L=m==="light"||(m==="auto"&&(tw&&tw.colorScheme?tw.colorScheme==="light":matchMedia("(prefers-color-scheme: light)").matches));if(L)document.documentElement.classList.add("light")}catch(e){}</script>
 <div class="splash spR" id="splash">
   <div class="rs"><img class="rmk" src="konta-mark.jpg?v=2" alt=""></div>
   <div class="rnm">Konta <i>&amp; Cie</i></div><div class="rhr"></div><div class="rest">EST. 2026</div>
@@ -1049,11 +1063,11 @@ html[data-th="herg"]:not(.light) .btn:not(.ghost){background:linear-gradient(170
 <div class="veilb" aria-hidden="true"><i></i><i></i><i></i></div>
 <div class="dock">
   <nav class="tabs glass"><i class="ind"></i>
-    <button class="on" data-tab="home"><svg class="i" viewBox="0 0 24 24" data-ic="ui_overview"></svg>Обзор</button>
-    <button data-tab="an"><svg class="i" viewBox="0 0 24 24" data-ic="ui_chart"></svg>Аналитика</button>
-    <button data-tab="goals"><svg class="i" viewBox="0 0 24 24" data-ic="ui_goal"></svg>Цели</button>
-    <button data-tab="cap"><svg class="i" viewBox="0 0 24 24" data-ic="ui_cap"></svg>Капитал</button>
-    <button data-tab="more"><svg class="i" viewBox="0 0 24 24" data-ic="ui_more"></svg>Ещё</button>
+    <button class="on" data-tab="home"><svg class="i" viewBox="0 0 24 24" data-ic="ui_overview"></svg><span class="tl">Обзор</span></button>
+    <button data-tab="an"><svg class="i" viewBox="0 0 24 24" data-ic="ui_chart"></svg><span class="tl">Аналитика</span></button>
+    <button data-tab="goals"><svg class="i" viewBox="0 0 24 24" data-ic="ui_goal"></svg><span class="tl">Цели</span></button>
+    <button data-tab="cap"><svg class="i" viewBox="0 0 24 24" data-ic="ui_cap"></svg><span class="tl">Капитал</span></button>
+    <button data-tab="more"><svg class="i" viewBox="0 0 24 24" data-ic="ui_more"></svg><span class="tl">Ещё</span></button>
   </nav>
   <button class="fab plus" data-act="add" aria-label="Добавить"><svg class="i" viewBox="0 0 24 24" data-ic="ui_plus"></svg></button>
 </div>
@@ -1061,6 +1075,6 @@ html[data-th="herg"]:not(.light) .btn:not(.ghost){background:linear-gradient(170
 <div class="sheet" id="sheet"></div>
 <div class="sheet" id="sheet2"></div>
 <div class="toast glass" id="toast"></div>
-<script src="app.js?v=202611202345" defer></script>
+<script src="app.js?v=202611210000" defer></script>
 </body>
 </html>
