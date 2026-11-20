@@ -12,9 +12,9 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Konta">
-<link rel="preload" as="image" href="konta-mark.jpg">
 <link rel="manifest" href="manifest.webmanifest?v=7">
 <link rel="icon" type="image/png" sizes="192x192" href="k6-icon-192.png?v=6">
+<link rel="preload" as="image" href="konta-mark.jpg?v=2">
 <link rel="apple-touch-icon" sizes="180x180" href="k6-touch-180.png?v=6">
 <link rel="apple-touch-startup-image" media="(device-width: 440px) and (device-height: 956px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="launch-1320x2868.png">
 <link rel="apple-touch-startup-image" media="(device-width: 402px) and (device-height: 874px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="launch-1206x2622.png">
@@ -929,34 +929,29 @@ html.pwax #ctitle{position:absolute}
 .gdone.shine .gmark{animation:sealIn 1s cubic-bezier(.2,.8,.2,1) both}
 @media (prefers-reduced-motion:reduce){body.deep .screen:not(.hidden){transform:none!important;opacity:.85!important}.swr.fresh,.swr.fresh .row,.gdone.shine .hl,.gdone.shine h2{animation:none}.row:active,.btn:active,.chip:active{scale:1}}
 
-/* ===== заставка B: свет загорается, знак проявляется ===== */
-#splash.spB{background:#000!important;color-scheme:dark}
-#splash.spB:after{display:none!important}
-.spB-in{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center}
-.spB-mk{position:absolute;left:50%;top:50%;width:min(100vw,440px);aspect-ratio:1;transform:translate(-50%,-54%)}
-.spB-mk img{position:absolute;inset:0;width:100%;height:100%;display:block;-webkit-user-drag:none;user-select:none}
-.spB-glow{opacity:0;-webkit-mask:linear-gradient(transparent 66%,#000 76%);mask:linear-gradient(transparent 66%,#000 76%);animation:spbGlow 1s cubic-bezier(.3,.6,.3,1) .1s forwards}
-.spB-img{opacity:0;filter:brightness(.35);transform:translateY(10px);animation:spbMark 1.1s cubic-bezier(.2,.8,.25,1) .45s forwards}
-.spB-bar{position:absolute;left:50%;bottom:calc(112px + var(--sb,0px));width:96px;margin-left:-48px;height:2px;border-radius:1px;background:rgba(239,231,218,.1);overflow:hidden;opacity:0;animation:spbFade .5s ease .3s forwards}
-.spB-bar i{display:block;height:100%;width:0;background:rgba(243,217,168,.85);border-radius:1px;animation:spbBar 1.9s cubic-bezier(.4,.1,.3,1) .35s forwards}
-.spB-nm{position:absolute;left:0;right:0;bottom:calc(52px + var(--sb,0px));text-align:center;font-family:"Cormorant Garamond",Didot,Georgia,serif;font-size:22px;font-weight:500;letter-spacing:.01em;color:rgba(243,237,226,.62);opacity:0;transform:translateY(6px);animation:spbIn .9s cubic-bezier(.2,.9,.25,1) 1.05s forwards}
-.spB-nm i{font-style:italic;font-weight:400;font-size:16px;color:rgba(243,237,226,.42)}
-@keyframes spbGlow{0%{opacity:0;transform:scale(.92)}100%{opacity:1;transform:none}}
-@keyframes spbMark{to{opacity:1;filter:brightness(1);transform:none}}
-@keyframes spbFade{to{opacity:1}}
-@keyframes spbIn{to{opacity:1;transform:none}}
-@keyframes spbBar{to{width:100%}}
-html.light #splash.spB{background:#000!important}
-#splash.spB.lkwait,#splash.spB.lkwait *{animation-play-state:paused!important}
-@media (prefers-reduced-motion:reduce){.spB-glow,.spB-img,.spB-nm,.spB-bar{animation-duration:.01s!important;animation-delay:0s!important}}
+/* ===== заставка R (как у Ratio) ===== */
+.splash.spR{background:#000!important;color-scheme:dark;justify-content:center;transform:none}
+.splash.spR:after{display:none!important}
+.splash.spR.out{opacity:0;visibility:hidden;transform:none;transition:opacity .7s ease,visibility .7s}
+.spR .rs{position:relative;width:min(80vw,320px);aspect-ratio:1;margin-top:-40px}
+.spR .rmk{position:absolute;inset:0;-webkit-mask:radial-gradient(closest-side,#000 72%,transparent 100%);mask:radial-gradient(closest-side,#000 72%,transparent 100%);width:100%;height:100%;display:block;mix-blend-mode:lighten;-webkit-user-drag:none;user-select:none;opacity:0;transform:translateY(12px) scale(.97);animation:spRr 1.2s cubic-bezier(.2,.9,.25,1) .15s forwards}
+.spR .rnm{margin-top:4px;font-family:"Cormorant Garamond",Didot,Georgia,serif;font-size:28px;font-weight:500;color:#f3ede2;text-align:center;opacity:0;animation:spRf 1s ease .6s forwards}
+.spR .rnm i{font-style:italic;font-weight:400;font-size:19px;color:rgba(243,237,226,.55)}
+.spR .rhr{width:34px;height:1px;background:rgba(243,237,226,.25);margin:14px auto 10px;opacity:0;animation:spRf 1s ease .8s forwards}
+.spR .rest{font-size:10.5px;letter-spacing:.32em;padding-left:.32em;color:rgba(243,237,226,.45);text-align:center;opacity:0;animation:spRf 1s ease .9s forwards}
+.spR .rver{position:absolute;left:0;right:0;text-align:center;bottom:calc(46px + var(--sb,0px));font-size:11px;letter-spacing:.06em;color:rgba(243,237,226,.32);opacity:0;animation:spRf 1s ease 1s forwards}
+@keyframes spRr{to{opacity:1;transform:none}}@keyframes spRf{to{opacity:1}}@keyframes spRd{to{stroke-dashoffset:0}}
+html.light .splash.spR{background:#000!important}
+.splash.spR.lkwait,.splash.spR.lkwait *{animation-play-state:paused!important}
+@media (prefers-reduced-motion:reduce){.spR *{animation-duration:.01s!important;animation-delay:0s!important}}
 </style>
 </head>
-<body class="boot"><script>(function(){var B="202611201629";try{if(navigator.serviceWorker&&navigator.serviceWorker.controller)return;fetch("/version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.json():null}).then(function(j){if(j&&j.b&&j.b!==B&&sessionStorage.getItem("kupd")!==j.b){sessionStorage.setItem("kupd",j.b);var u=new URL(location.href);u.searchParams.set("v",j.b);location.replace(u.toString())}}).catch(function(){})}catch(e){}})()</script><script>try{var t=localStorage.getItem("konta_theme")||"aurora";var mg={platinum:"cash",franc:"alps",gold:"dial",dollar:"note",vault:"dial",zurich:"cash"};document.documentElement.dataset.th=mg[t]||t;var m=localStorage.getItem("konta_mode")||"dark",tw=window.Telegram&&Telegram.WebApp;var L=m==="light"||(m==="auto"&&(tw&&tw.colorScheme?tw.colorScheme==="light":matchMedia("(prefers-color-scheme: light)").matches));if(L)document.documentElement.classList.add("light")}catch(e){}</script>
-<div class="splash spB" id="splash"><div class="spB-in">
-<div class="spB-mk"><img class="spB-glow" src="konta-mark.jpg" alt=""><img class="spB-img" src="konta-mark.jpg" alt=""></div>
-<div class="spB-bar"><i></i></div>
-<div class="spB-nm">Konta <i>&amp; Cie</i></div>
-</div></div>
+<body class="boot"><script>(function(){var B="202611201651";try{if(navigator.serviceWorker&&navigator.serviceWorker.controller)return;fetch("/version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.json():null}).then(function(j){if(j&&j.b&&j.b!==B&&sessionStorage.getItem("kupd")!==j.b){sessionStorage.setItem("kupd",j.b);var u=new URL(location.href);u.searchParams.set("v",j.b);location.replace(u.toString())}}).catch(function(){})}catch(e){}})()</script><script>try{var t=localStorage.getItem("konta_theme")||"aurora";var mg={platinum:"cash",franc:"alps",gold:"dial",dollar:"note",vault:"dial",zurich:"cash"};document.documentElement.dataset.th=mg[t]||t;var m=localStorage.getItem("konta_mode")||"dark",tw=window.Telegram&&Telegram.WebApp;var L=m==="light"||(m==="auto"&&(tw&&tw.colorScheme?tw.colorScheme==="light":matchMedia("(prefers-color-scheme: light)").matches));if(L)document.documentElement.classList.add("light")}catch(e){}</script>
+<div class="splash spR" id="splash">
+  <div class="rs"><img class="rmk" src="konta-mark.jpg?v=2" alt=""></div>
+  <div class="rnm">Konta <i>&amp; Cie</i></div><div class="rhr"></div><div class="rest">EST. 2026</div>
+  <div class="rver">Порядок в деньгах — тихая форма свободы</div>
+</div>
 <div class="sky"></div><div class="grain"></div><div class="grain"></div>
 <div id="app">
   <section class="screen" id="s-home"></section>
@@ -980,6 +975,6 @@ html.light #splash.spB{background:#000!important}
 <div class="sheet" id="sheet"></div>
 <div class="sheet" id="sheet2"></div>
 <div class="toast glass" id="toast"></div>
-<script src="app.js?v=202611201629" defer></script>
+<script src="app.js?v=202611201651" defer></script>
 </body>
 </html>
