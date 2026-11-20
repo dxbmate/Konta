@@ -1,69 +1,65 @@
-// Тонкие линейные иконки Konta — 24×24, stroke 1.5, round
+// Иконки Konta v2 (24x24, stroke 1.5, round)
 const ICONS = {
-  // расходы
-  taxi: '<path d="M5 16.5V12l1.7-4.3A1.5 1.5 0 0 1 8.1 6.8h7.8a1.5 1.5 0 0 1 1.4.9L19 12v4.5"/><path d="M4 12h16v4.5H4z"/><path d="M6.5 16.5v1.8M17.5 16.5v1.8"/><path d="M10 4.5h4"/><circle cx="7.5" cy="14.2" r=".6"/><circle cx="16.5" cy="14.2" r=".6"/>',
-  delivery: '<circle cx="6.5" cy="17" r="2"/><circle cx="17.5" cy="17" r="2"/><path d="M8.5 17h5.5l3-6h-4"/><path d="M14 11l-1.5-4H10"/><path d="M3.5 9.5h6v4.5h-6z"/>',
-  food: '<path d="M5 9H19L18 20H6L5 9Z"/><path d="M9 9C9 4 15 4 15 9"/>',
-  cafe: '<path d="M5 9H16V16C16 18 14.5 19 12.5 19H8.5C6.5 19 5 18 5 16V9Z"/><path d="M16 11H18C21 11 21 16 17 16H16"/><path d="M8 6C6 4 9 3 8 2M12 6C10 4 13 3 12 2"/>',
-  trans: '<path d="M5 20V8C5 5 7 4 12 4S19 5 19 8V20"/><path d="M5 15H19M8 8H16"/><circle cx="8" cy="18" r="1"/><circle cx="16" cy="18" r="1"/>',
-  market: '<path d="M4 8L12 4L20 8V17L12 21L4 17V8Z"/><path d="M4 8L12 12L20 8M12 12V21"/>',
-  health: '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M12 7V17M7 12H17"/>',
-  tobacco: '<path d="M4 15H17V18H4Z"/><path d="M17 15V18"/><path d="M19 15V18"/><path d="M15 12C18 10 15 8 18 6C20 4 18 3 19 2"/>',
-  subs: '<rect x="6" y="2.5" width="12" height="19" rx="2"/><path d="M10 5H14M11 18.5H13"/>',
-  gifts: '<rect x="3" y="10" width="18" height="11" rx="2"/><path d="M2 7H22V10H2Z"/><path d="M12 7V21"/><path d="M12 7C7 7 5 5 7 3C9 1 12 5 12 7C12 5 15 1 17 3C19 5 17 7 12 7Z"/>',
-  home: '<path d="M3 11L12 3L21 11"/><path d="M5 10V21H19V10"/><path d="M9 21V14H15V21"/>',
-  clothes: '<path d="M8 4L4 6L2.5 11L6 13L8 10V21H16V10L18 13L21.5 11L20 6L16 4C14 7 10 7 8 4Z"/>',
-  fun: '<path d="M4 5H20V19H4Z"/><path d="M8 5V7M8 17V19M16 5V7M16 17V19"/><path d="M10 9L15 12L10 15V9Z"/>',
-  pet: '<ellipse cx="12" cy="15.5" rx="5" ry="4"/><circle cx="6" cy="9" r="2"/><circle cx="10" cy="6" r="2"/><circle cx="14" cy="6" r="2"/><circle cx="18" cy="9" r="2"/>',
-  transfer: '<path d="M3 8H20L16 4M20 8L16 12"/><path d="M21 16H4L8 12M4 16L8 20"/>',
-  fees: '<path d="M6 4a1 1 0 011-1h10a1 1 0 011 1v17l-2-1.5-2 1.5-2-1.5-2 1.5-2-1.5-2 1.5z"/><path d="M9 8h6M9 11.5h6M9 15h4"/>',
-  other: '<circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/>',
-  // доходы
-  salary: '<rect x="2.5" y="5" width="19" height="14" rx="2"/><circle cx="12" cy="12" r="3"/><path d="M5 9H6M18 15H19"/>',
-  in_transfer: '<path d="M19 5L5 19M5 19V12M5 19H12"/>',
-  side: '<rect x="3" y="4" width="18" height="13" rx="2"/><path d="M2 20H22M8 17L7 20M16 17L17 20"/>',
-  cashback: '<circle cx="12" cy="12" r="8"/><path d="M9 9H14C16 9 16 12 14 12H10C8 12 8 15 10 15H15"/><path d="M12 5L15 8L12 11"/>',
-  cash: '<rect x="4" y="7" width="16" height="12" rx="2"/><path d="M7 7V4H20V16H17"/><circle cx="12" cy="13" r="2"/>',
-  in_other: '<path d="M12 5V19M5 12H19"/>',
-  // активы
-  a_bank: '<path d="M3 9L12 3L21 9H3Z"/><path d="M5 10V18M10 10V18M14 10V18M19 10V18"/><path d="M3 19H21M2 21H22"/>',
-  a_dep: '<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/><path d="M12 7V9M17 12H15M12 17V15"/>',
-  a_cash: '<rect x="3" y="6" width="18" height="12" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 9H7M17 15H18"/>',
-  a_crypto: '<circle cx="12" cy="12" r="8.5"/><path d="M10 8h3a2 2 0 010 4h-3zM10 12h3.5a2 2 0 010 4H10zM10 8v8M11.5 6.5V8M11.5 16v1.5"/>',
-  a_stocks: '<path d="M3 19V5M3 19H21"/><path d="M5 15L10 11L13 13L20 5"/><path d="M15 5H20V10"/>',
-  a_realty: '<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7H10V9H8ZM14 7H16V9H14ZM8 13H10V15H8ZM14 13H16V15H14ZM10 21V17H14V21"/>',
-  a_debt: '<rect x="2.5" y="5" width="19" height="14" rx="2"/><path d="M3 9H21M6 14H11M6 16H9"/>',
-  a_other: '<path d="M12 3L21 12L12 21L3 12L12 3Z"/><path d="M3 12H21M12 3L8 12L12 21L16 12L12 3Z"/>',
-  // интерфейс
-  ui_overview: '<rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/>',
-  ui_chart: '<path d="M3 19V5M3 19H21"/><path d="M5 15L10 10L14 13L20 6"/>',
-  ui_cap: '<path d="M12 3V12H21"/><path d="M20.5 13A9 9 0 1 1 11 3"/>',
-  ui_more: '<circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/>',
-  ui_goal: '<path d="M3 20L9 9L13 15L16 11L21 20H3Z"/><path d="M16 11V3H21V7H16"/>',
-  ui_shield: '<path d="M12 3L20 6V12C20 17 16.5 20 12 21C7.5 20 4 17 4 12V6L12 3Z"/><path d="M8 12L11 15L16 9"/>',
-  ui_compass: '<circle cx="12" cy="12" r="8"/><path d="M15.5 8.5L13 13L8.5 15.5L11 11L15.5 8.5Z"/>',
-  ui_minus: '<path d="M5 12H19"/>',
-  ui_plus: '<path d="M12 5V19M5 12H19"/>',
-  ui_back: '<path d="M11 4H21V20H11L3 12L11 4Z"/><path d="M13 9L18 15M18 9L13 15"/>',
-  ui_cal: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3V7M17 3V7M3 10H21M8 14H10M14 14H16M8 17H10"/>',
-  ui_left: '<path d="M15 5L8 12L15 19"/>',
-  ui_right: '<path d="M9 5L16 12L9 19"/>',
-  ui_down: '<path d="M5 9L12 16L19 9"/>',
-  ui_close: '<path d="M6 6L18 18M18 6L6 18"/>',
-  ui_copy: '<rect x="8" y="3" width="13" height="14" rx="2"/><path d="M16 17V21H3V7H8"/>',
-  ui_edit:'<path d="M14 5L19 10L9 20H4V15L14 5Z"/><path d="M12 7L17 12"/>',
-  ui_check:'<path d="M4 12L10 18L20 6"/>',
-  ui_seal:'<circle cx="12" cy="10" r="8"/><path d="M8 17L7 22L12 19L17 22L16 17"/><path d="M8.5 10L11 12.5L15.5 8"/>',
-  ui_search:'<circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/>',
-  ui_trash: '<path d="M4 7H20M9 7V4H15V7"/><path d="M6 7L7 20H17L18 7"/><path d="M10 11V16M14 11V16"/>',
-  ui_spark: '<path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z"/>',
-  ui_eye: '<path d="M2 12C4.5 7.5 8 5 12 5S19.5 7.5 22 12C19.5 16.5 16 19 12 19S4.5 16.5 2 12Z"/><circle cx="12" cy="12" r="3"/>',
-  ui_eyeoff: '<path d="M3 3L21 21"/><path d="M10 5.3C10.7 5.1 11.3 5 12 5C16 5 19.5 7.5 22 12C21 13.8 19.8 15.2 18.3 16.2"/><path d="M6.1 6.1C4.5 7.3 3.1 9.2 2 12C4.5 16.5 8 19 12 19C13.4 19 14.7 18.7 15.8 18.1"/>',
-  ui_face: '<path d="M3 9V5C3 3.9 3.9 3 5 3H9M15 3H19C20.1 3 21 3.9 21 5V9M21 15V19C21 20.1 20.1 21 19 21H15M9 21H5C3.9 21 3 20.1 3 19V15"/><circle cx="9" cy="10" r="1"/><circle cx="15" cy="10" r="1"/><path d="M9 15C10.5 17 13.5 17 15 15"/>',
-  ui_import: '<path d="M3 14V19H21V14"/><path d="M12 3V15M7 10L12 15L17 10"/>',
-  ui_letter: '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7L12 14L21 7"/>',
-  ui_bolt: '<path d="M13 2L5 13H11L10 22L19 10H13L13 2Z"/>',
-  ui_income: '<path d="M12 4v11M7.5 10.5 12 15l4.5-4.5"/><path d="M4 18.5h16"/>',
+  taxi: "<path d=\"M4 15.5 5.5 9.5Q6 8 7.5 8h9q1.5 0 2 1.5l1.5 6v2H4z\"/><path d=\"M7 8 8.5 5.5h7L17 8\"/><path d=\"M4 13.5h16M7 17.5v1M17 17.5v1\"/>",
+  delivery: "<path d=\"M4 8.5h8v7H4zM12 11h3l3 3v1.5h-6\"/><path d=\"M6.5 18a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3ZM16.5 18a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z\"/>",
+  food: "<path d=\"M6 8h12l-1 12H7L6 8Z\"/><path d=\"M9 8V6.5a3 3 0 0 1 6 0V8\"/>",
+  cafe: "<path d=\"M5 9h11v5a5 5 0 0 1-5 5h-1a5 5 0 0 1-5-5V9Z\"/><path d=\"M16 10h1.5a2.5 2.5 0 0 1 0 5H16M4 21h14\"/>",
+  trans: "<rect x=\"5\" y=\"3.5\" width=\"14\" height=\"14\" rx=\"2.5\"/><path d=\"M5 10.5h14M7.5 17.5V20M16.5 17.5V20\"/><circle cx=\"8.5\" cy=\"14\" r=\".6\"/><circle cx=\"15.5\" cy=\"14\" r=\".6\"/>",
+  market: "<path d=\"M4 8 12 4l8 4v11.5H4V8Z\"/><path d=\"m4 8 8 4 8-4M12 12v7.5\"/>",
+  health: "<path d=\"M12 20s-7.5-4.4-7.5-10A4.2 4.2 0 0 1 12 7.5 4.2 4.2 0 0 1 19.5 10c0 5.6-7.5 10-7.5 10Z\"/><path d=\"M12 9v6M9 12h6\"/>",
+  tobacco: "<path d=\"M4 14h13.5v3H4z\"/><path d=\"M17.5 14H20v3h-2.5M8 10c-1-1 1-1.5 0-2.5M12 10c-1-1 1-1.5 0-2.5\"/>",
+  subs: "<rect x=\"7\" y=\"3.5\" width=\"10\" height=\"17\" rx=\"2\"/><path d=\"M10 6h4M11 17.5h2M19 6.5q2 2 0 4M21 4.5q4 4 0 8\"/>",
+  gifts: "<path d=\"M3.5 10h17v10h-17zM2.5 7h19v3h-19z\"/><path d=\"M12 7v13M12 7C8 7 6 6 6 4.5S9 2 12 7ZM12 7c4 0 6-1 6-2.5S15 2 12 7Z\"/>",
+  home: "<path d=\"m3.5 11 8.5-7 8.5 7v9.5h-17V11Z\"/><path d=\"M9.5 20.5v-6h5v6\"/>",
+  clothes: "<path d=\"m8 4.5 4 2 4-2 4 4-3 3-2-1v10H9V10.5l-2 1-3-3 4-4Z\"/><path d=\"M10 5.5q2 2 4 0\"/>",
+  fun: "<path d=\"M4 8h16v8H4z\"/><path d=\"M8 8v8M16 8v8M10 12h4\"/>",
+  pet: "<ellipse cx=\"12\" cy=\"16\" rx=\"4\" ry=\"3.5\"/><circle cx=\"6.5\" cy=\"11\" r=\"1.6\"/><circle cx=\"9.5\" cy=\"7\" r=\"1.6\"/><circle cx=\"14.5\" cy=\"7\" r=\"1.6\"/><circle cx=\"17.5\" cy=\"11\" r=\"1.6\"/>",
+  transfer: "<path d=\"M4 8h15M15.5 4.5 19 8l-3.5 3.5M20 16H5M8.5 12.5 5 16l3.5 3.5\"/>",
+  fees: "<path d=\"M6 3.5h12v17l-3-2-3 2-3-2-3 2v-17Z\"/><path d=\"M9 8h6M9 12h6\"/>",
+  other: "<circle cx=\"6\" cy=\"12\" r=\".9\"/><circle cx=\"12\" cy=\"12\" r=\".9\"/><circle cx=\"18\" cy=\"12\" r=\".9\"/>",
+  salary: "<rect x=\"3.5\" y=\"6\" width=\"17\" height=\"12\" rx=\"1.5\"/><path d=\"M7 6v2M17 6v2M7 18v-2M17 18v-2M12 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4Z\"/>",
+  in_transfer: "<path d=\"M12 3.5v12M7.5 8 12 3.5 16.5 8\"/><path d=\"M4 14.5v5h16v-5\"/>",
+  side: "<path d=\"M4 8h16v11H4zM8 8V6h8v2\"/><path d=\"M8 12h8\"/>",
+  cashback: "<path d=\"M19 9a8 8 0 1 0 1 5\"/><path d=\"M19 4v5h-5\"/>",
+  cash: "<path d=\"M4 8h13a2 2 0 0 1 2 2v9H6a2 2 0 0 1-2-2V8Z\"/><path d=\"M4 8V6h12M15 13h4\"/>",
+  in_other: "<circle cx=\"6\" cy=\"12\" r=\".9\"/><circle cx=\"12\" cy=\"12\" r=\".9\"/><circle cx=\"18\" cy=\"12\" r=\".9\"/>",
+  a_bank: "<path d=\"m3 8 9-5 9 5H3ZM5 9v9M9.5 9v9M14.5 9v9M19 9v9M3 20h18\"/>",
+  a_dep: "<path d=\"M4 7h16v13H4zM7 4h13v3\"/><path d=\"M12 10v7M9.5 13.5 12 11l2.5 2.5\"/>",
+  a_cash: "<rect x=\"3.5\" y=\"6\" width=\"17\" height=\"12\" rx=\"1.5\"/><path d=\"M7 9h10M7 15h10M12 10.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3Z\"/>",
+  a_crypto: "<path d=\"m12 3 8 5-8 5-8-5 8-5ZM4 12l8 5 8-5M4 16l8 5 8-5\"/>",
+  a_stocks: "<path d=\"M4 19.5V5M4 19.5h16\"/><path d=\"m7 15 4-4 3 2 5-6M16 7h3v3\"/>",
+  a_realty: "<rect x=\"4\" y=\"3\" width=\"16\" height=\"18\" rx=\"2\"/><path d=\"M8 7H10V9H8ZM14 7H16V9H14ZM8 13H10V15H8ZM14 13H16V15H14ZM10 21V17H14V21\"/>",
+  a_debt: "<rect x=\"3.5\" y=\"5\" width=\"17\" height=\"14\" rx=\"2\"/><path d=\"M3.5 9h17M7 14h4\"/>",
+  a_other: "<path d=\"m12 3 9 9-9 9-9-9 9-9Z\"/><path d=\"M9 12h6M12 9v6\"/>",
+  ui_overview: "<rect x=\"3\" y=\"3\" width=\"7\" height=\"7\" rx=\"2\"/><rect x=\"14\" y=\"3\" width=\"7\" height=\"7\" rx=\"2\"/><rect x=\"3\" y=\"14\" width=\"7\" height=\"7\" rx=\"2\"/><rect x=\"14\" y=\"14\" width=\"7\" height=\"7\" rx=\"2\"/>",
+  ui_chart: "<path d=\"M4 20V13M9.5 20V9M15 20V5M20 20V3\"/>",
+  ui_cap: "<path d=\"M12 3V12H21\"/><path d=\"M20.5 13A9 9 0 1 1 11 3\"/>",
+  ui_more: "<circle cx=\"6\" cy=\"12\" r=\".9\"/><circle cx=\"12\" cy=\"12\" r=\".9\"/><circle cx=\"18\" cy=\"12\" r=\".9\"/>",
+  ui_goal: "<path d=\"M5 20V4h13l-2.5 4L18 12H5\"/>",
+  ui_shield: "<path d=\"M12 3 20 6v5.5c0 4.5-3.2 7.5-8 9.5-4.8-2-8-5-8-9.5V6l8-3Z\"/><path d=\"m8.5 12 2.3 2.3 4.7-4.8\"/>",
+  ui_compass: "<circle cx=\"12\" cy=\"12\" r=\"8.5\"/><path d=\"m15.5 8.5-2 5-5 2 2-5 5-2Z\"/>",
+  ui_minus: "<path d=\"M5 12h14\"/>",
+  ui_plus: "<path d=\"M12 4v16M4 12h16\"/>",
+  ui_back: "<path d=\"M20 5H9l-5 7 5 7h11V5Z\"/><path d=\"m11 9 5 6M16 9l-5 6\"/>",
+  ui_cal: "<rect x=\"3.5\" y=\"5\" width=\"17\" height=\"16\" rx=\"2\"/><path d=\"M7.5 3v4M16.5 3v4M3.5 9h17M8 13h.01M12 13h.01M16 13h.01M8 17h.01M12 17h.01\"/>",
+  ui_left: "<path d=\"m15 5-7 7 7 7\"/>",
+  ui_right: "<path d=\"m9 5 7 7-7 7\"/>",
+  ui_down: "<path d=\"m5 9 7 7 7-7\"/>",
+  ui_close: "<path d=\"m5 5 14 14M19 5 5 19\"/>",
+  ui_copy: "<rect x=\"8\" y=\"4\" width=\"12\" height=\"13\" rx=\"1.5\"/><path d=\"M16 20H5a1.5 1.5 0 0 1-1.5-1.5V7\"/>",
+  ui_edit: "<path d=\"m4 16.5-.8 4.3 4.3-.8L19 8.5 15.5 5 4 16.5Z\"/><path d=\"m13.5 7 3.5 3.5\"/>",
+  ui_check: "<path d=\"m4.5 12.5 5 5 10-11\"/>",
+  ui_seal: "<circle cx=\"12\" cy=\"10\" r=\"6.5\"/><path d=\"m8.5 15.5-1 5 4.5-2 4.5 2-1-5M9.5 10l1.7 1.7 3.3-3.4\"/>",
+  ui_search: "<circle cx=\"10.5\" cy=\"10.5\" r=\"6.5\"/><path d=\"m15.5 15.5 5 5\"/>",
+  ui_trash: "<path d=\"M4.5 7h15M9 7V4h6v3M7 7l1 13h8l1-13\"/><path d=\"M10 10.5v6M14 10.5v6\"/>",
+  ui_spark: "<path d=\"m12 3 2.2 6.8L21 12l-6.8 2.2L12 21l-2.2-6.8L3 12l6.8-2.2L12 3Z\"/>",
+  ui_eye: "<path d=\"M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z\"/><circle cx=\"12\" cy=\"12\" r=\"2.5\"/>",
+  ui_eyeoff: "<path d=\"M3 3 21 21M10 6.3A10 10 0 0 1 12 6c6 0 9.5 6 9.5 6a15 15 0 0 1-3 3.5M6.2 7.2C3.8 8.8 2.5 12 2.5 12s3.5 6 9.5 6c1 0 1.9-.2 2.8-.5\"/><path d=\"M9.5 9.5a3.5 3.5 0 0 0 5 5\"/>",
+  ui_face: "<path d=\"M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3\"/><path d=\"M9 10h.01M15 10h.01M9 15q3 2.5 6 0\"/>",
+  ui_import: "<path d=\"M12 3v12M7.5 10.5 12 15l4.5-4.5\"/><path d=\"M4 15.5v4h16v-4\"/>",
+  ui_letter: "<rect x=\"3\" y=\"5\" width=\"18\" height=\"14\" rx=\"2\"/><path d=\"m4 7 8 6 8-6\"/>",
+  ui_bolt: "<path d=\"m13.5 2.5-9 11h6l-1 8 10-12h-6l.5-7Z\"/>",
+  ui_income: "<path d=\"M12 20V4M6 10l6-6 6 6\"/>",
 };
 // ================= Telegram =================
 const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
@@ -125,7 +121,7 @@ const fmtN = r => r.replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
 function rub(k, o = {}) {
   const neg = k < 0; k = Math.abs(k);
   let r = Math.round(k) / 100;
-  if (o.short && r >= 10000) {
+  if (o.short && r >= 1e6) {
     const [div, suf] = r >= 1e9 ? [1e9, ' млрд'] : r >= 1e6 ? [1e6, ' млн'] : [1e3, 'к'];
     const v = r / div, s = v.toFixed(v >= 100 ? 0 : 1).replace('.', ',').replace(/,0$/, '');
     return (neg ? '−' : o.sign ? '+' : '') + s + suf + (o.bare ? '' : ' ' + (o.sym || '₽'));
@@ -1159,7 +1155,7 @@ function txRow(t) {
   const c = catOf(t);
   return `<div class="swr" data-id="${t.id}"><div class="del"><button class="edt" data-act="swedit" data-id="${t.id}">${ic('ui_edit')}<span>Изменить</span></button><button class="rm" data-act="swdel" data-id="${t.id}">${ic('ui_trash')}<span>Удалить</span></button></div><button class="row" data-act="edit" data-id="${t.id}"><span class="ic">${ic(c.id)}</span>
     <span class="t"><span class="n">${esc(t.n || c.n)}</span>${t.n && t.n.trim().toLowerCase() !== c.n.toLowerCase() ? `<span class="s">${c.n}</span>` : ''}</span>
-    <span class="a ${t.k === 'in' ? 'in' : ''}">${t.cur ? `${t.k === 'in' ? '+' : ''}${fmtCur(t.oa / 100, t.cur)}<small>${rub(t.a, { round: true })}</small>` : `${t.k === 'in' ? '+' : ''}${rub(t.a)}`}</span></button></div>`;
+    <span class="a ${t.k === 'in' ? 'in' : ''}">${t.cur ? `${t.k === 'in' ? '+' : ''}${fmtCur(t.oa / 100, t.cur)}<small>${rub(t.a, { round: true })}</small>` : `${t.k === 'in' ? '+' : t.k === 'out' ? '−' : ''}${rub(t.a)}`}</span></button></div>`;
 }
 function feed(list, limit = 0) {
   const by = {};
@@ -1172,6 +1168,7 @@ function feed(list, limit = 0) {
 }
 let CHART = (() => { try { return localStorage.getItem('konta_chart') || 'ticks'; } catch (e) { return 'ticks'; } })();
 const CHARTS = ['ticks', 'curve', 'bars'], CHART_N = { ticks: 'Риски', curve: 'Кривая', bars: 'Столбцы' };
+function xax(r) { const n = r.days || 30, mg = MG[r.s.getMonth()].slice(0, 3); return `<div class="xax"><span>1 ${mg}</span><span>8</span><span>15</span><span>22</span><span>${n} ${mg}</span></div>`; }
 function ticks(r, vals) {
   const ti = r.current ? r.elapsed - 1 : -1, mx = Math.max(...vals, 1), cl = S.closed || {};
   const dk = i => key(new Date(r.s.getFullYear(), r.s.getMonth(), i + 1, 12));
@@ -1254,7 +1251,7 @@ function renderHome() {
     h += `</section>`;
   } else if (isOut) {
     const b = buckets(r), vals = b.map(x => total(outs.filter(t => t.d === x.from)));
-    h += ticks(r, vals) + `</section>`;
+    h += ticks(r, vals) + xax(r) + `</section>`;
     h += `<div class="meta">${r.current ? `<span>Сегодня <b>${rub(vals[r.elapsed - 1] || 0, { round: true })}</b></span><span>Прогноз <b>${rub(perDay * r.days, { round: true, short: true })}</b>${(() => { const pr = range('m', mOff - 1), pt = total(sel('out', pr.from, pr.to)); if (!pt) return ''; const p = Math.round((perDay * r.days / pt - 1) * 100); return Math.abs(p) < 1 ? '' : `<em class="fc">${p > 0 ? '+' : '−'}${Math.abs(p)}%</em>`; })()}</span>` : `<span>В день <b>${rub(perDay, { round: true })}</b></span><span>Операций <b>${outs.length}</b></span>`}</div>`;
     if (r.current && S.tx.length) h += dailyRow() + closeDayRow(vals[r.elapsed - 1] || 0);
     // лимиты — только когда горит
@@ -1273,7 +1270,7 @@ function renderHome() {
     h += `<button class="compw" ${isOut ? 'data-tab="an"' : ''}>${comp(parts, sum)}<span class="cap"><span>${(() => { const L = parts.slice(0, 3).map(p => [p, `${p.c.n.split(' ')[0]} ${Math.round(p.v / sum * 100)}%`]); const n = L.reduce((a, x) => a + x[1].length, 0) > 32 ? 2 : 3; return L.slice(0, n).map(([p, t]) => `<i class="dot" style="background:${p.c.c}"></i>${t}`).join('<em></em>'); })()}</span>${isOut ? ic('ui_right', 'i chev') : ''}</span></button>`;
     h += feed(list);
   }
-  $('#s-home').innerHTML = h;
+  $('#s-home').innerHTML = '<div class="nform" aria-hidden="true"></div>' + h;
 }
 
 function renderAn() {

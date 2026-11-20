@@ -2,34 +2,7 @@
 <html lang="ru" style="background:#050507;color-scheme:dark">
 <head>
 <meta charset="utf-8">
-<style>html,body{background:#050507;margin:0}/* ===== спокойное движение ===== */
-:root{--spring:cubic-bezier(.32,.72,0,1);--ease:cubic-bezier(.32,.72,0,1)}
-.tabs .ind{transition:transform .42s cubic-bezier(.32,.72,0,1)!important;will-change:transform;backface-visibility:hidden}
-.tabs button,.tabs button:active{scale:1}
-.tabs button{transition:color .3s ease,opacity .2s}
-.tabs button:active{transform:none;opacity:.7}
-.screen.enter{animation:scrIn .34s cubic-bezier(.32,.72,0,1)}
-@keyframes scrIn{from{opacity:0;transform:translate3d(0,6px,0)}to{opacity:1;transform:none}}
-.enter .row,.enter .gcard,.enter .line,.enter .crow{animation:rowIn .42s cubic-bezier(.32,.72,0,1) both}
-@keyframes rowIn{from{opacity:0;transform:translate3d(0,6px,0)}}
-.num [data-count],[data-count]{font-variant-numeric:tabular-nums}
-/* ===== что нового ===== */
-.tabs [data-tab="more"]{position:relative}
-.tabs .ndot{position:absolute;top:9px;left:calc(50% + 9px);width:7px;height:7px;border-radius:50%;background:#e9c98f;box-shadow:0 0 0 2px rgba(10,10,12,.85),0 0 8px rgba(233,201,143,.6)}
-.newp{font-size:10.5px;letter-spacing:.06em;padding:3px 8px;border-radius:10px;background:rgba(233,201,143,.14);color:#e9c98f}
-.knews{padding:18px 18px 20px;margin:4px 0 14px;border-radius:22px;background:rgba(255,255,255,.045);box-shadow:inset 0 0 0 .5px rgba(255,255,255,.08)}
-.knews .dt{font-size:12px;color:var(--mut);display:flex;align-items:center;gap:8px}
-.knews .new{font-size:10.5px;letter-spacing:.06em;padding:2px 8px;border-radius:10px;background:rgba(233,201,143,.14);color:#e9c98f}
-.knews h3{font-family:"Cormorant Garamond",Didot,Georgia,serif;font-weight:500;font-size:25px;line-height:1.15;margin:8px 0 10px;color:var(--iv)}
-.knews p{font-size:14.5px;line-height:1.55;color:var(--mut);margin-top:8px}
-.knews .btn{margin-top:16px;width:100%}
-html.light .knews{background:rgba(28,25,20,.04);box-shadow:inset 0 0 0 .5px rgba(28,25,20,.1)}
-html.light .tabs .ndot{background:#b8894a;box-shadow:0 0 0 2px rgba(255,255,255,.9)}
-html.light .newp,html.light .knews .new{background:rgba(184,137,74,.14);color:#9a6e35}
-/* ===== тема Нион ===== */
-.nionf{position:fixed;top:-95px;right:-95px;width:430px;height:931px;z-index:0;pointer-events:none;display:none;background:url(nion.jpg?v=2) right top/100% auto no-repeat;-webkit-mask:linear-gradient(90deg,transparent 0,#000 28%),linear-gradient(0deg,transparent 0,#000 30%);-webkit-mask-composite:source-in;mask:linear-gradient(90deg,transparent 0,#000 28%),linear-gradient(0deg,transparent 0,#000 30%);mask-composite:intersect}
-html[data-th="nion"]:not(.light) .nionf{display:block}
-</style>
+<style>html,body{background:#050507;margin:0}</style>
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>Konta & Cie</title>
 <meta name="description" content="A quiet ledger for your money. Spending, savings and statements — in order.">
@@ -43,6 +16,7 @@ html[data-th="nion"]:not(.light) .nionf{display:block}
 <link rel="icon" type="image/png" sizes="192x192" href="k6-icon-192.png?v=6">
 <link rel="preload" as="image" href="konta-mark.jpg?v=2">
 <link rel="preload" as="image" href="nion.jpg?v=2">
+<link rel="preload" as="font" type="font/woff" href="onest.woff?v=2" crossorigin>
 <link rel="apple-touch-icon" sizes="180x180" href="k6-touch-180.png?v=6">
 <link rel="apple-touch-startup-image" media="(device-width: 440px) and (device-height: 956px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="launch-1320x2868.png">
 <link rel="apple-touch-startup-image" media="(device-width: 402px) and (device-height: 874px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="launch-1206x2622.png">
@@ -59,17 +33,17 @@ html[data-th="nion"]:not(.light) .nionf{display:block}
 <script>(function(){try{var d=document.documentElement,tg=/tgWebApp/.test(location.hash+location.search)||!!window.TelegramWebviewProxy;if(tg)return;d.classList.add("wb");if(!(matchMedia("(display-mode: standalone)").matches||navigator.standalone===true))return;if(innerHeight<screen.height-20&&screen.height>screen.width)d.classList.add("pwacut");var h=Math.max(innerHeight,(screen.height>screen.width)===(innerHeight>innerWidth)?screen.height:screen.width);d.style.setProperty("--fullh",h+"px");d.style.setProperty("--gap",Math.max(0,h-innerHeight)+"px");d.style.setProperty("--vh0",innerHeight+"px");d.classList.add("pwa")}catch(e){}})()</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700&family=Cormorant+Garamond:ital,wght@0,500;1,400&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;1,400&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
 <script>(function(){var h=location.hash||"",q=location.search||"",tg=/tgWebApp/.test(h+q)||!!window.TelegramWebviewProxy;try{tg=tg||!!sessionStorage.getItem("__telegram__initParams")}catch(e){}try{tg=tg||(window.parent!==window&&/telegram/i.test(document.referrer))}catch(e){}if(tg)document.write('<script src="https://telegram.org/js/telegram-web-app.js"><\/script>')})()</script>
 <style>
 :root{
-  --serif:"SF Pro Display",-apple-system,BlinkMacSystemFont,Manrope,system-ui,sans-serif;--disp:"SF Pro Display",-apple-system,BlinkMacSystemFont,Manrope,system-ui,sans-serif;
+  --serif:Onest,-apple-system,system-ui,sans-serif;--disp:Onest,-apple-system,system-ui,sans-serif;
   --bg:#000; --iv:#f2efe9; --mut:#8a8781; --mut2:#4d4b48; --line:rgba(242,239,233,.08);
   --amb:#e9a15f; --sage:#9fbf98; --clay:#df7b62;
   --st:env(safe-area-inset-top); --sb:env(safe-area-inset-bottom);
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-html,body{height:100%;background:var(--bg);color:var(--iv);font:15px/1.45 Manrope,-apple-system,"SF Pro Text",system-ui,sans-serif;font-feature-settings:"tnum" 1;letter-spacing:-.005em;overflow:hidden;-webkit-font-smoothing:antialiased}
+html,body{height:100%;background:var(--bg);color:var(--iv);font:15px/1.45 Onest,-apple-system,system-ui,sans-serif;font-feature-settings:"tnum" 1;letter-spacing:-.005em;overflow:hidden;-webkit-font-smoothing:antialiased}
 button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;text-align:inherit}
 input{font:inherit;color:var(--iv)}
 svg .g{stroke-width:.75;stroke-opacity:.45}
@@ -309,8 +283,8 @@ body.boot #app,body.boot .dock{opacity:0}
 .hero .num{font-size:62px;font-weight:200;letter-spacing:-.005em;line-height:1.02}
 .hero .num small{font-size:28px;font-weight:300;letter-spacing:0;color:var(--mut)}
 .amt .v{font-size:60px;font-weight:200;letter-spacing:-.005em}
-.hdr h1{font-family:Manrope,system-ui,sans-serif;font-size:28px;font-weight:600;letter-spacing:-.025em}
-h2{font-family:Manrope,system-ui,sans-serif;font-size:19px;font-weight:600;letter-spacing:-.02em;margin-top:36px}
+.hdr h1{font-family:Onest,system-ui,sans-serif;font-size:28px;font-weight:600;letter-spacing:-.025em}
+h2{font-family:Onest,system-ui,sans-serif;font-size:19px;font-weight:600;letter-spacing:-.02em;margin-top:36px}
 .stats b,.meta b,.row .a,.crow .l1 b{font-family:var(--disp);font-feature-settings:"tnum" 1;font-weight:400}
 .wm b{font-family:"Cormorant Garamond",Didot,Georgia,serif;font-weight:500;font-size:52px;letter-spacing:.01em;font-feature-settings:"lnum" 1}
 .wm i{font-family:"Cormorant Garamond",Didot,Georgia,serif;font-style:italic;font-weight:400;font-size:30px;color:var(--mut);letter-spacing:0}
@@ -437,7 +411,7 @@ body.priv .hero .num::before{content:"••••••";display:inline-block;f
 .slides::-webkit-scrollbar{display:none}
 .slides section{flex:0 0 100%;scroll-snap-align:center;display:flex;flex-direction:column;justify-content:center;padding:0 32px}
 .slides .wm{justify-content:flex-start}
-.slides h3{font-family:Manrope,system-ui,sans-serif;font-size:36px;font-weight:600;letter-spacing:-.035em;line-height:1.08;margin:34px 0 14px}
+.slides h3{font-family:Onest,system-ui,sans-serif;font-size:36px;font-weight:600;letter-spacing:-.035em;line-height:1.08;margin:34px 0 14px}
 .slides p{color:var(--mut);font-size:16px;line-height:1.5;max-width:320px}
 .demo{height:150px;display:flex;flex-direction:column;justify-content:center;gap:16px}
 .dnum{font-family:var(--disp);font-size:76px;font-weight:200;letter-spacing:-.02em;line-height:1}
@@ -938,7 +912,7 @@ body.deep .dock{transform:scale(.97);opacity:.6;transition:transform .5s var(--e
 .swr.fresh .row{animation:freshRow .6s cubic-bezier(.3,1.3,.5,1)}
 /* 6. компактный заголовок */
 #ctitle{position:fixed;left:0;right:0;top:0;height:calc(var(--st,44px) + 40px);z-index:6;pointer-events:none;opacity:0;display:flex;align-items:flex-end;justify-content:center;padding-bottom:10px;-webkit-backdrop-filter:blur(22px) saturate(1.5);backdrop-filter:blur(22px) saturate(1.5);background:linear-gradient(rgba(0,0,0,.45),rgba(0,0,0,.2));-webkit-mask:linear-gradient(#000 70%,transparent);mask:linear-gradient(#000 70%,transparent)}
-#ctitle span{font:600 16px/1 Manrope,Inter,system-ui,sans-serif;letter-spacing:-.01em;color:var(--iv);transform:translateY(calc((1 - var(--p,0)) * 8px))}
+#ctitle span{font:600 16px/1 Onest,system-ui,sans-serif;letter-spacing:-.01em;color:var(--iv);transform:translateY(calc((1 - var(--p,0)) * 8px))}
 html.light #ctitle{background:linear-gradient(rgba(250,247,241,.7),rgba(250,247,241,.3))}
 html.pwax #ctitle{position:absolute}
 .hdr h1{transition:opacity .15s linear}
@@ -973,9 +947,60 @@ html.pwax #ctitle{position:absolute}
 html.light .splash.spR{background:#000!important}
 .splash.spR.lkwait,.splash.spR.lkwait *{animation-play-state:paused!important}
 @media (prefers-reduced-motion:reduce){.spR *{animation-duration:.01s!important;animation-delay:0s!important}}
+
+/* ===== спокойное движение ===== */
+:root{--spring:cubic-bezier(.32,.72,0,1);--ease:cubic-bezier(.32,.72,0,1)}
+.tabs .ind{transition:transform .42s cubic-bezier(.32,.72,0,1)!important;will-change:transform;backface-visibility:hidden}
+.tabs button,.tabs button:active{scale:1}
+.tabs button{transition:color .3s ease,opacity .2s}
+.tabs button:active{transform:none;opacity:.7}
+.screen.enter{animation:scrIn .34s cubic-bezier(.32,.72,0,1)}
+@keyframes scrIn{from{opacity:0;transform:translate3d(0,6px,0)}to{opacity:1;transform:none}}
+.enter .row,.enter .gcard,.enter .line,.enter .crow{animation:rowIn .42s cubic-bezier(.32,.72,0,1) both}
+@keyframes rowIn{from{opacity:0;transform:translate3d(0,6px,0)}}
+.num [data-count],[data-count]{font-variant-numeric:tabular-nums}
+/* ===== что нового ===== */
+.tabs [data-tab="more"]{position:relative}
+.tabs .ndot{position:absolute;top:9px;left:calc(50% + 9px);width:7px;height:7px;border-radius:50%;background:#e9c98f;box-shadow:0 0 0 2px rgba(10,10,12,.85),0 0 8px rgba(233,201,143,.6)}
+.newp{font-size:10.5px;letter-spacing:.06em;padding:3px 8px;border-radius:10px;background:rgba(233,201,143,.14);color:#e9c98f}
+.knews{padding:18px 18px 20px;margin:4px 0 14px;border-radius:22px;background:rgba(255,255,255,.045);box-shadow:inset 0 0 0 .5px rgba(255,255,255,.08)}
+.knews .dt{font-size:12px;color:var(--mut);display:flex;align-items:center;gap:8px}
+.knews .new{font-size:10.5px;letter-spacing:.06em;padding:2px 8px;border-radius:10px;background:rgba(233,201,143,.14);color:#e9c98f}
+.knews h3{font-family:"Cormorant Garamond",Didot,Georgia,serif;font-weight:500;font-size:25px;line-height:1.15;margin:8px 0 10px;color:var(--iv)}
+.knews p{font-size:14.5px;line-height:1.55;color:var(--mut);margin-top:8px}
+.knews .btn{margin-top:16px;width:100%}
+html.light .knews{background:rgba(28,25,20,.04);box-shadow:inset 0 0 0 .5px rgba(28,25,20,.1)}
+html.light .tabs .ndot{background:#b8894a;box-shadow:0 0 0 2px rgba(255,255,255,.9)}
+html.light .newp,html.light .knews .new{background:rgba(184,137,74,.14);color:#9a6e35}
+/* ===== тема Нион ===== */
+.nionf{display:none}
+.nform{display:none}
+html[data-th="nion"]:not(.light) .nform{display:block;position:absolute;top:calc(var(--st) - 110px);right:-110px;width:430px;height:931px;margin-bottom:-931px;pointer-events:none;z-index:0;background:url(nion.jpg?v=2) right top/100% auto no-repeat;-webkit-mask:linear-gradient(90deg,transparent 0,#000 28%),linear-gradient(0deg,transparent 0,#000 30%);-webkit-mask-composite:source-in;mask:linear-gradient(90deg,transparent 0,#000 28%),linear-gradient(0deg,transparent 0,#000 30%);mask-composite:intersect}
+#s-home>*:not(.nform){position:relative;z-index:1}
+/* ===== редизайн: Onest, без линеек ===== */
+@font-face{font-family:Onest;src:url(onest.woff?v=2) format("woff");font-weight:100 900;font-display:swap}
+html,body{font-family:Onest,-apple-system,system-ui,sans-serif;letter-spacing:-.01em}
+.hdr h1{font-weight:600;letter-spacing:-.025em}
+.hero .num{font-size:60px;font-weight:500;letter-spacing:-.04em;line-height:1}
+.hero .num small{font-size:26px;font-weight:500;letter-spacing:0;color:var(--acc,#f0cf96);margin-left:8px}
+html[data-th] .hero .num small{color:var(--acc,#f0cf96)}
+.hero .cmp{font-size:13.5px;margin-top:8px}
+.stats b,.meta b,.row .a,.crow .l1 b{font-weight:500}
+.dnum,.qnum,.gdial .gn{font-weight:500;letter-spacing:-.03em}
+.stats,.stats div,.stats div+div,.line,.dayc,.meta,.alert,.morebtn.big,.kvl,.daily,.row+.row,.swr+.swr .row{border:0!important}
+.swr+.swr:before{display:none}
+.stats{margin-top:22px;gap:0}.stats div{padding:6px 0}.stats div+div{padding-left:14px}
+.meta{padding:10px 0;margin-top:22px}
+.daily,.dayc{padding:12px 0}
+.dh{padding:24px 0 6px}
+.row{padding-top:11px;padding-bottom:11px}
+.xax{display:flex;justify-content:space-between;margin:6px 0 0;font-size:11px;color:var(--mut);opacity:.75;pointer-events:none}
+#s-more .row+.row{box-shadow:inset 0 .5px 0 var(--line)}
+
+#s-more h2,.mh2,.grp h2{text-transform:none!important;letter-spacing:-.01em!important;font-size:14px!important;font-weight:500!important;color:var(--mut)!important}
 </style>
 </head>
-<body class="boot"><script>(function(){var B="202611202042";try{if(navigator.serviceWorker&&navigator.serviceWorker.controller)return;fetch("/version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.json():null}).then(function(j){if(j&&j.b&&j.b!==B&&sessionStorage.getItem("kupd")!==j.b){sessionStorage.setItem("kupd",j.b);var u=new URL(location.href);u.searchParams.set("v",j.b);location.replace(u.toString())}}).catch(function(){})}catch(e){}})()</script><script>try{var t=localStorage.getItem("konta_theme")||"aurora";var mg={platinum:"cash",franc:"alps",gold:"dial",dollar:"note",vault:"dial",zurich:"cash"};document.documentElement.dataset.th=mg[t]||t;var m=localStorage.getItem("konta_mode")||"dark",tw=window.Telegram&&Telegram.WebApp;var L=m==="light"||(m==="auto"&&(tw&&tw.colorScheme?tw.colorScheme==="light":matchMedia("(prefers-color-scheme: light)").matches));if(L)document.documentElement.classList.add("light")}catch(e){}</script>
+<body class="boot"><script>(function(){var B="202611202109";try{if(navigator.serviceWorker&&navigator.serviceWorker.controller)return;fetch("/version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.json():null}).then(function(j){if(j&&j.b&&j.b!==B&&sessionStorage.getItem("kupd")!==j.b){sessionStorage.setItem("kupd",j.b);var u=new URL(location.href);u.searchParams.set("v",j.b);location.replace(u.toString())}}).catch(function(){})}catch(e){}})()</script><script>try{var t=localStorage.getItem("konta_theme")||"aurora";var mg={platinum:"cash",franc:"alps",gold:"dial",dollar:"note",vault:"dial",zurich:"cash"};document.documentElement.dataset.th=mg[t]||t;var m=localStorage.getItem("konta_mode")||"dark",tw=window.Telegram&&Telegram.WebApp;var L=m==="light"||(m==="auto"&&(tw&&tw.colorScheme?tw.colorScheme==="light":matchMedia("(prefers-color-scheme: light)").matches));if(L)document.documentElement.classList.add("light")}catch(e){}</script>
 <div class="splash spR" id="splash">
   <div class="rs"><img class="rmk" src="konta-mark.jpg?v=2" alt=""></div>
   <div class="rnm">Konta <i>&amp; Cie</i></div><div class="rhr"></div><div class="rest">EST. 2026</div>
@@ -1005,6 +1030,6 @@ html.light .splash.spR{background:#000!important}
 <div class="sheet" id="sheet"></div>
 <div class="sheet" id="sheet2"></div>
 <div class="toast glass" id="toast"></div>
-<script src="app.js?v=202611202042" defer></script>
+<script src="app.js?v=202611202109" defer></script>
 </body>
 </html>
