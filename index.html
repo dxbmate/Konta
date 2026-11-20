@@ -2,7 +2,18 @@
 <html lang="ru" style="background:#050507;color-scheme:dark">
 <head>
 <meta charset="utf-8">
-<style>html,body{background:#050507;margin:0}</style>
+<style>html,body{background:#050507;margin:0}/* ===== спокойное движение ===== */
+:root{--spring:cubic-bezier(.32,.72,0,1);--ease:cubic-bezier(.32,.72,0,1)}
+.tabs .ind{transition:transform .42s cubic-bezier(.32,.72,0,1)!important;will-change:transform;backface-visibility:hidden}
+.tabs button,.tabs button:active{scale:1}
+.tabs button{transition:color .3s ease,opacity .2s}
+.tabs button:active{transform:none;opacity:.7}
+.screen.enter{animation:scrIn .34s cubic-bezier(.32,.72,0,1)}
+@keyframes scrIn{from{opacity:0;transform:translate3d(0,6px,0)}to{opacity:1;transform:none}}
+.enter .row,.enter .gcard,.enter .line,.enter .crow{animation:rowIn .42s cubic-bezier(.32,.72,0,1) both}
+@keyframes rowIn{from{opacity:0;transform:translate3d(0,6px,0)}}
+.num [data-count],[data-count]{font-variant-numeric:tabular-nums}
+</style>
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>Konta & Cie</title>
 <meta name="description" content="A quiet ledger for your money. Spending, savings and statements — in order.">
@@ -932,7 +943,8 @@ html.pwax #ctitle{position:absolute}
 /* ===== заставка R (как у Ratio) ===== */
 .splash.spR{background:#000!important;color-scheme:dark;justify-content:center;transform:none}
 .splash.spR:after{display:none!important}
-.splash.spR.out{opacity:0;visibility:hidden;transform:none;transition:opacity .7s ease,visibility .7s}
+.splash.spR.out{opacity:0;visibility:hidden;transform:none;transition:opacity .55s cubic-bezier(.4,0,.2,1) .32s,visibility 0s linear .9s}
+.splash.spR.out>*{opacity:0!important;transform:scale(.985);transition:opacity .34s cubic-bezier(.4,0,.2,1),transform .5s cubic-bezier(.4,0,.2,1);animation:none!important}
 .spR .rs{position:relative;width:min(80vw,320px);aspect-ratio:1;margin-top:-40px}
 .spR .rmk{position:absolute;inset:0;-webkit-mask:radial-gradient(closest-side,#000 72%,transparent 100%);mask:radial-gradient(closest-side,#000 72%,transparent 100%);width:100%;height:100%;display:block;mix-blend-mode:lighten;-webkit-user-drag:none;user-select:none;opacity:0;transform:translateY(12px) scale(.97);animation:spRr 1.2s cubic-bezier(.2,.9,.25,1) .15s forwards}
 .spR .rnm{margin-top:4px;font-family:"Cormorant Garamond",Didot,Georgia,serif;font-size:28px;font-weight:500;color:#f3ede2;text-align:center;opacity:0;animation:spRf 1s ease .6s forwards}
@@ -946,11 +958,10 @@ html.light .splash.spR{background:#000!important}
 @media (prefers-reduced-motion:reduce){.spR *{animation-duration:.01s!important;animation-delay:0s!important}}
 </style>
 </head>
-<body class="boot"><script>(function(){var B="202611201651";try{if(navigator.serviceWorker&&navigator.serviceWorker.controller)return;fetch("/version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.json():null}).then(function(j){if(j&&j.b&&j.b!==B&&sessionStorage.getItem("kupd")!==j.b){sessionStorage.setItem("kupd",j.b);var u=new URL(location.href);u.searchParams.set("v",j.b);location.replace(u.toString())}}).catch(function(){})}catch(e){}})()</script><script>try{var t=localStorage.getItem("konta_theme")||"aurora";var mg={platinum:"cash",franc:"alps",gold:"dial",dollar:"note",vault:"dial",zurich:"cash"};document.documentElement.dataset.th=mg[t]||t;var m=localStorage.getItem("konta_mode")||"dark",tw=window.Telegram&&Telegram.WebApp;var L=m==="light"||(m==="auto"&&(tw&&tw.colorScheme?tw.colorScheme==="light":matchMedia("(prefers-color-scheme: light)").matches));if(L)document.documentElement.classList.add("light")}catch(e){}</script>
+<body class="boot"><script>(function(){var B="202611201705";try{if(navigator.serviceWorker&&navigator.serviceWorker.controller)return;fetch("/version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.json():null}).then(function(j){if(j&&j.b&&j.b!==B&&sessionStorage.getItem("kupd")!==j.b){sessionStorage.setItem("kupd",j.b);var u=new URL(location.href);u.searchParams.set("v",j.b);location.replace(u.toString())}}).catch(function(){})}catch(e){}})()</script><script>try{var t=localStorage.getItem("konta_theme")||"aurora";var mg={platinum:"cash",franc:"alps",gold:"dial",dollar:"note",vault:"dial",zurich:"cash"};document.documentElement.dataset.th=mg[t]||t;var m=localStorage.getItem("konta_mode")||"dark",tw=window.Telegram&&Telegram.WebApp;var L=m==="light"||(m==="auto"&&(tw&&tw.colorScheme?tw.colorScheme==="light":matchMedia("(prefers-color-scheme: light)").matches));if(L)document.documentElement.classList.add("light")}catch(e){}</script>
 <div class="splash spR" id="splash">
   <div class="rs"><img class="rmk" src="konta-mark.jpg?v=2" alt=""></div>
   <div class="rnm">Konta <i>&amp; Cie</i></div><div class="rhr"></div><div class="rest">EST. 2026</div>
-  <div class="rver">Порядок в деньгах — тихая форма свободы</div>
 </div>
 <div class="sky"></div><div class="grain"></div><div class="grain"></div>
 <div id="app">
@@ -975,6 +986,6 @@ html.light .splash.spR{background:#000!important}
 <div class="sheet" id="sheet"></div>
 <div class="sheet" id="sheet2"></div>
 <div class="toast glass" id="toast"></div>
-<script src="app.js?v=202611201651" defer></script>
+<script src="app.js?v=202611201705" defer></script>
 </body>
 </html>

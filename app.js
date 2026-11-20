@@ -1075,18 +1075,14 @@ function toggleBig() {
 applyTheme();
 // ================= Движение: барабаны цифр, наклон, глубина =================
 const CALM = (() => { try { return matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { return false; } })();
-// --- барабаны: каждая цифра прокручивается своим колесом ---
-const drumCol = d => `<span class="dg"><span class="dr" style="transform:translateY(${-d * 10}%)">${'0123456789'.split('').map(x => `<i>${x}</i>`).join('')}</span></span>`;
+// --- суммы: плавный счет без барабанов ---
 function drumRoll(el, fromS, toS) {
-  if (CALM) { el.textContent = toS; return; }
-  const fd = fromS.replace(/\D/g, '').split('').reverse();
-  let pos = toS.replace(/\D/g, '').length;
-  el.innerHTML = toS.split('').map(c => { if (!/\d/.test(c)) return `<span class="sp">${c}</span>`; pos--; return drumCol(+(fd[pos] || 0)); }).join('');
-  el.classList.add('drum');
-  const cols = [...el.querySelectorAll('.dr')], digs = toS.replace(/\D/g, '').split('');
-  el.offsetWidth;
-  cols.forEach((c, i) => { c.style.transitionDelay = `${i * 35}ms`; c.style.transform = `translateY(${-digs[i] * 10}%)`; });
-  clearTimeout(el._dt); el._dt = setTimeout(() => { el.classList.remove('drum'); el.textContent = toS; }, 900 + cols.length * 35);
+  const f = +fromS.replace(/\D/g, '') || 0, t = +toS.replace(/\D/g, '') || 0;
+  if (CALM || document.getElementById('splash') || f === t) { el.textContent = toS; return; }
+  const fmt = v => toS.replace(/[\d\u2005\u2009 ]+/, String(Math.round(v)).replace(/\B(?=(\d{3})+(?!\d))/g, '\u2005'));
+  const d = 620, t0 = performance.now(); cancelAnimationFrame(el._raf);
+  const step = now => { const p = Math.min(1, (now - t0) / d), e = 1 - Math.pow(1 - p, 4); el.textContent = p < 1 ? fmt(f + (t - f) * e) : toS; if (p < 1) el._raf = requestAnimationFrame(step); };
+  el._raf = requestAnimationFrame(step);
 }
 // --- наклон телефона: фон смещается на несколько пикселей ---
 const TILT = { on: false, x: 0, y: 0, tx: 0, ty: 0, b0: null, g0: null, raf: 0 };
@@ -2222,7 +2218,7 @@ function enterFx() {
   ENTER_KEY = k;
   const sc = $('#s-' + tab); if (!sc) return;
   sc.classList.remove('enter'); sc.offsetWidth; sc.classList.add('enter');
-  [...sc.querySelectorAll('.row,.gcard,.line,.crow')].slice(0, 14).forEach((r, i) => r.style.animationDelay = `${60 + i * 28}ms`);
+  [...sc.querySelectorAll('.row,.gcard,.line,.crow')].slice(0, 10).forEach((r, i) => r.style.animationDelay = `${30 + i * 18}ms`);
   sc.querySelectorAll('.bars').forEach(b => [...b.querySelectorAll('i')].forEach((x, i, a) => x.style.animationDelay = `${100 + i / a.length * 380}ms`));
   sc.querySelectorAll('.wd i').forEach((x, i) => x.style.animationDelay = `${120 + i * 40}ms`);
   clearTimeout(enterFx._t); enterFx._t = setTimeout(() => sc.classList.remove('enter'), 1400);
@@ -3236,7 +3232,7 @@ document.addEventListener('click', async e => {
     tab = t.dataset.tab;
     document.querySelectorAll('.tabs [data-tab]').forEach(b => b.classList.toggle('on', b.dataset.tab === tab));
     SCREENS.forEach(s => $('#s-' + s).classList.toggle('hidden', s !== tab));
-    const scr = $('#s-' + tab); scr.scrollTop = 0; scr.classList.remove('enter'); scr.offsetWidth; scr.classList.add('enter'); moveInd(); haptic(); render(); if (tab === 'cap') fetchRates(); return;
+    const scr = $('#s-' + tab); scr.scrollTop = 0; moveInd(); haptic(); scr.classList.remove('enter'); requestAnimationFrame(() => { render(); scr.classList.add('enter'); if (tab === 'cap') fetchRates(); }); return;
   }
   const a = t.dataset.act;
   if (a && a[0] === 'g' && goalAct(a, t)) return;
@@ -3456,7 +3452,7 @@ function splashEnd(now) {
   clearTimeout(splashEnd._t);
   splashEnd._t = setTimeout(() => {
     if (splashDone) return; splashDone = true;
-    const s = $('#splash'); s.classList.add('out'); setTimeout(() => s.remove(), 1000);
+    const s = $('#splash'); s.classList.add('out'); setTimeout(() => s.remove(), 1100);
     setTimeout(() => { document.body.classList.remove('boot'); setTimeout(animateCounts, 180); if (!S.onb) showOnboarding(); else maybeReport(); }, 260);
   }, wait);
 }
@@ -3591,25 +3587,12 @@ function morphOut(sh, done) {
   };
 }
 
-// 3. линза дока: на ходу вытягивается каплей и встаёт на место
+// 3. линза дока: ровный скольжащий ход, только transform
 {
-  let prev = null;
-  const _mi = moveInd;
   moveInd = function () {
-    const on = $('.tabs button.on'), ind = $('.tabs .ind'); if (!on || !ind) return _mi();
-    const x1 = on.offsetLeft, w1 = on.offsetWidth;
-    if (MOTION && prev && prev.x !== x1) {
-      const a = Math.min(prev.x, x1), span = Math.max(prev.x + prev.w, x1 + w1) - a;
-      ind.style.transition = 'none';
-      ind.animate([
-        { transform: `translateX(${prev.x}px)`, width: prev.w + 'px' },
-        { transform: `translateX(${a}px) scaleY(.88)`, width: span + 'px', offset: .45 },
-        { transform: `translateX(${x1}px)`, width: w1 + 'px' }
-      ], { duration: 520, easing: 'cubic-bezier(.3,1.25,.4,1)' });
-      ind.style.width = w1 + 'px'; ind.style.transform = `translateX(${x1}px)`;
-      requestAnimationFrame(() => requestAnimationFrame(() => { ind.style.transition = ''; }));
-    } else _mi();
-    prev = { x: x1, w: w1 };
+    const on = $('.tabs button.on'), ind = $('.tabs .ind'); if (!on || !ind) return;
+    const w = on.offsetWidth + 'px'; if (ind.style.width !== w) { ind.style.transition = 'none'; ind.style.width = w; ind.offsetWidth; ind.style.transition = ''; }
+    ind.style.transform = `translate3d(${on.offsetLeft}px,0,0)`;
   };
 }
 
