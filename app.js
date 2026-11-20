@@ -960,7 +960,7 @@ const sapphireBg = () => [
   'linear-gradient(180deg,#081030 0%,#040818 42%,#000 78%)'
 ].join(',');
 
-const nionBg = () => '#060505';
+const nionBg = () => '#030101';
 const THEMES = {
   nion: { n: 'Нион', d: 'Фарфор и теплый свет', bg: nionBg, acc: '#f0cf96' },
   aurora: { n: 'Женева', d: 'Ночное небо и свечение над озером', bg: genevaBg, acc: '#c9b8ff' },
@@ -1051,7 +1051,7 @@ function pickPhoto(file) {
 }
 function swBg(k) {
   if (k === 'photo') { let img = null; try { img = localStorage.getItem('konta_photo'); } catch (e) {} return img ? `linear-gradient(rgba(0,0,0,.3),rgba(0,0,0,.6)),url(${img}) center/cover` : '#1c1c1e'; }
-  if (k === 'nion' && !isLight()) return 'url(nion.jpg?v=1) right top/190% auto no-repeat,#060505';
+  if (k === 'nion' && !isLight()) return 'url(nion.jpg?v=2) right top/190% auto no-repeat,#060505';
   return isLight() ? lightBg(k) : themeBg(k);
 }
 function settingsExtra() {
