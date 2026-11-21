@@ -3177,7 +3177,7 @@ try { tg && tg.BackButton.onClick(close); } catch (e) {}
 $('#veil').onclick = close;
 ['#sheet', '#sheet2'].forEach(id => {
   const sh = $(id); let y0 = null, ly = 0, lt = 0, v = 0, dy = 0;
-  sh.addEventListener('touchstart', e => { if (sh.scrollTop <= 0 && !e.target.closest('.chips,.pad,.bars,input')) { y0 = ly = e.touches[0].clientY; lt = performance.now(); v = 0; dy = 0; } }, { passive: true });
+  sh.addEventListener('touchstart', e => { if (sh.scrollTop <= 0 && !document.documentElement.classList.contains('kbopen') && !e.target.closest('.chips,.bars,input,textarea')) { y0 = ly = e.touches[0].clientY; lt = performance.now(); v = 0; dy = 0; } }, { passive: true });
   sh.addEventListener('touchmove', e => {
     if (y0 === null) return; const y = e.touches[0].clientY, now = performance.now();
     v = (y - ly) / Math.max(now - lt, 1); ly = y; lt = now; dy = y - y0;
@@ -3258,7 +3258,10 @@ document.addEventListener('click', async e => {
     tab = t.dataset.tab;
     document.querySelectorAll('.tabs [data-tab]').forEach(b => b.classList.toggle('on', b.dataset.tab === tab));
     SCREENS.forEach(s => $('#s-' + s).classList.toggle('hidden', s !== tab));
-    const scr = $('#s-' + tab); scr.scrollTop = 0; moveInd(); haptic(); scr.classList.remove('enter'); requestAnimationFrame(() => { render(); scr.classList.add('enter'); if (tab === 'cap') fetchRates(); }); return;
+    const scr = $('#s-' + tab), swiped = window.SWIPED; window.SWIPED = false; moveInd(); haptic();
+    if (swiped) { if (DIRTY.has(tab) || !scr.firstElementChild) render(); else if (typeof ctUpdate === 'function') ctUpdate(); if (tab === 'cap') fetchRates(); return; }
+    scr.scrollTop = 0; scr.classList.remove('enter');
+    requestAnimationFrame(() => { if (DIRTY.has(tab) || !scr.firstElementChild) render(); else { animSegs(scr); if (typeof ctUpdate === 'function') ctUpdate(); } scr.classList.add('enter'); if (tab === 'cap') fetchRates(); }); return;
   }
   const a = t.dataset.act;
   if (a && a[0] === 'g' && goalAct(a, t)) return;
@@ -3532,33 +3535,61 @@ setTimeout(() => {
   } catch (e) {}
 }, 3500);
 
-// ================= свайп между вкладками =================
+// ================= свайп между вкладками: экран идет за пальцем =================
 (() => {
   let g = null;
   const SKIP = '.swr,.chips,.themes,.slides,.seg,.qchips,input,textarea,select,[data-noswipe]';
+  const EASE = 'transform .34s cubic-bezier(.32,.72,0,1)';
+  const indX = n => { const b = document.querySelector(`.tabs [data-tab="${n}"]`); return b ? b.offsetLeft : 0; };
+  const setNb = (s, dir) => {
+    if (s.nb) { s.nb.style.transform = ''; s.nb.style.transition = ''; s.nb.classList.add('hidden'); s.nb = null; }
+    s.dir = dir; s.n = null;
+    if (tab === 'more' && MSUB && dir > 0) return;
+    const n = SCREENS[SCREENS.indexOf(tab) + (dir < 0 ? 1 : -1)]; if (!n) return;
+    const el = $('#s-' + n); if (DIRTY.has(n) || !el.firstElementChild) renderOnly(n);
+    el.scrollTop = 0; el.classList.remove('hidden', 'enter'); el.style.transition = 'none'; el.style.willChange = 'transform';
+    s.nb = el; s.n = n;
+  };
   document.addEventListener('touchstart', e => {
-    g = null; if (e.touches.length !== 1) return;
+    g = null; if (e.touches.length !== 1 || document.body.classList.contains('deep')) return;
     const scr = e.target.closest && e.target.closest('.screen'); if (!scr || scr.classList.contains('hidden') || e.target.closest(SKIP)) return;
     const x = e.touches[0].clientX; if (!inTG && !STANDALONE && (x < 20 || x > innerWidth - 20)) return; // не мешаем жесту «назад» в Safari
-    g = { scr, x0: x, y0: e.touches[0].clientY, t0: performance.now(), dx: 0, lock: null };
+    g = { scr, x0: x, y0: e.touches[0].clientY, lx: x, lt: performance.now(), v: 0, dx: 0, lock: null, dir: 0, nb: null, W: scr.offsetWidth || innerWidth };
   }, { passive: true });
   document.addEventListener('touchmove', e => {
-    if (!g) return; const dx = e.touches[0].clientX - g.x0, dy = e.touches[0].clientY - g.y0;
-    if (!g.lock) { if (Math.abs(dx) < 10 && Math.abs(dy) < 10) return; g.lock = Math.abs(dx) > Math.abs(dy) * 1.4 ? 'x' : 'y'; if (g.lock === 'y') { g = null; return; } g.scr.style.transition = 'none'; }
-    e.preventDefault(); g.dx = dx;
-    const i = SCREENS.indexOf(tab), edge = (dx > 0 && i === 0 && !MSUB) || (dx < 0 && i === SCREENS.length - 1);
-    const k = edge ? .12 : .28; g.scr.style.transform = `translateX(${dx * k}px)`; g.scr.style.opacity = String(1 - Math.min(Math.abs(dx) / 900, .25));
+    if (!g) return; const x = e.touches[0].clientX, dx = x - g.x0, dy = e.touches[0].clientY - g.y0, now = performance.now();
+    if (!g.lock) { if (Math.abs(dx) < 10 && Math.abs(dy) < 10) return; g.lock = Math.abs(dx) > Math.abs(dy) * 1.4 ? 'x' : 'y'; if (g.lock === 'y') { g = null; return; } g.scr.style.transition = 'none'; g.scr.style.willChange = 'transform'; }
+    e.preventDefault();
+    g.v = (x - g.lx) / Math.max(1, now - g.lt); g.lx = x; g.lt = now; g.dx = dx;
+    const dir = dx < 0 ? -1 : 1; if (dir !== g.dir) setNb(g, dir);
+    const W = g.W, cur = g.nb ? dx : dx * .22;
+    g.scr.style.transform = `translate3d(${cur}px,0,0)`;
+    if (g.nb) g.nb.style.transform = `translate3d(${(dir < 0 ? W : -W) + dx}px,0,0)`;
+    const ind = $('.tabs .ind');
+    if (ind && g.n) { const a = indX(tab), b = indX(g.n), p = Math.min(1, Math.abs(dx) / W); ind.style.transition = 'none'; ind.style.transform = `translate3d(${a + (b - a) * p}px,0,0)`; }
   }, { passive: false });
   const end = () => {
     if (!g || g.lock !== 'x') { g = null; return; }
-    const s = g, v = Math.abs(s.dx) / Math.max(1, performance.now() - s.t0); g = null;
-    s.scr.style.transition = 'transform .35s var(--spring), opacity .3s'; s.scr.style.transform = ''; s.scr.style.opacity = '';
-    setTimeout(() => { s.scr.style.transition = ''; }, 380);
-    if (Math.abs(s.dx) < 60 && v < .45) return;
-    suppressClick = Date.now();
-    if (tab === 'more' && MSUB && s.dx > 0) return moreGo(null);
-    const n = SCREENS[SCREENS.indexOf(tab) + (s.dx < 0 ? 1 : -1)]; if (!n) return;
-    const b = document.querySelector(`.tabs [data-tab="${n}"]`); if (b) { suppressClick = 0; b.click(); }
+    const s = g; g = null; const W = s.W, fling = Math.abs(s.v) > .45 && Math.sign(s.v) === s.dir;
+    const commit = s.nb && (Math.abs(s.dx) > W * .3 || fling);
+    const ind = $('.tabs .ind'); if (ind) ind.style.transition = '';
+    s.scr.style.transition = EASE; if (s.nb) s.nb.style.transition = EASE;
+    if (commit) {
+      s.scr.style.transform = `translate3d(${s.dir < 0 ? -W : W}px,0,0)`; s.nb.style.transform = 'translate3d(0,0,0)';
+      if (ind) ind.style.transform = `translate3d(${indX(s.n)}px,0,0)`;
+      setTimeout(() => {
+        [s.scr, s.nb].forEach(el => { el.style.transition = 'none'; el.style.transform = ''; el.style.willChange = ''; });
+        window.SWIPED = true; suppressClick = 0;
+        const b = document.querySelector(`.tabs [data-tab="${s.n}"]`); if (b) b.click();
+        requestAnimationFrame(() => { [s.scr, s.nb].forEach(el => { el.style.transition = ''; }); });
+      }, 340);
+      suppressClick = Date.now();
+      return;
+    }
+    s.scr.style.transform = ''; if (ind) moveInd();
+    if (s.nb) s.nb.style.transform = `translate3d(${s.dir < 0 ? W : -W}px,0,0)`;
+    setTimeout(() => { s.scr.style.transition = ''; s.scr.style.willChange = ''; if (s.nb) { s.nb.style.transition = ''; s.nb.style.transform = ''; s.nb.style.willChange = ''; s.nb.classList.add('hidden'); } }, 360);
+    if (!s.nb && tab === 'more' && MSUB && s.dx > 60) { suppressClick = Date.now(); moreGo(null); }
   };
   document.addEventListener('touchend', end); document.addEventListener('touchcancel', end);
 })();
@@ -3669,24 +3700,55 @@ if (typeof goalDone === 'function') { const _gd = goalDone; goalDone = function 
 $('#veil').onclick = () => close();
 try { if (tg && tg.BackButton) { tg.BackButton.offClick && tg.BackButton.offClick(close); tg.BackButton.onClick(() => close()); } } catch (e) {}
 
-// клавиатура: шторка и окна поднимаются над клавиатурой
+// клавиатура: шторка поднимается вместе с клавиатурой, без двойного рывка
 (() => {
   const vv = window.visualViewport; if (!vv) return;
   const de = document.documentElement;
-  let base = vv.height;
-  const typing = () => { const a = document.activeElement; return !!a && (a.tagName === 'TEXTAREA' || (a.tagName === 'INPUT' && !/^(button|checkbox|radio|range|file|color)$/.test(a.type))); };
-  const upd = () => {
-    const t = typing();
-    if (!t) base = Math.max(vv.height + vv.offsetTop, vv.height);
-    const kb = t ? Math.max(0, Math.round(base - vv.height - vv.offsetTop)) : 0;
+  let base = vv.height, guess = 0;
+  try { guess = +localStorage.getItem('konta_kb') || 0; } catch (e) {}
+  if (!guess) guess = Math.round(Math.min(360, Math.max(260, base * .4)));
+  const isField = el => !!el && (el.tagName === 'TEXTAREA' || (el.tagName === 'INPUT' && !/^(button|checkbox|radio|range|file|color)$/.test(el.type)));
+  const typing = () => isField(document.activeElement);
+  const set = kb => {
     de.style.setProperty('--kb', kb + 'px');
     de.style.setProperty('--vvh', Math.round(vv.height) + 'px');
-    de.classList.toggle('kbopen', kb > 80);
+    if (kb > 80) { de.classList.add('kbopen'); de.classList.remove('kbclose'); }
+    else if (de.classList.contains('kbopen')) { de.classList.remove('kbopen'); de.classList.add('kbclose'); clearTimeout(set.t); set.t = setTimeout(() => de.classList.remove('kbclose'), 450); }
   };
-  vv.addEventListener('resize', upd); vv.addEventListener('scroll', upd);
-  document.addEventListener('focusin', e => { upd(); setTimeout(() => { upd(); const a = document.activeElement; if (typing() && a.closest('.sheet,.dlg')) try { a.scrollIntoView({ block: 'nearest' }); } catch (x) {} }, 320); });
-  document.addEventListener('focusout', () => setTimeout(upd, 60));
-  window.addEventListener('orientationchange', () => { base = 0; setTimeout(() => { base = vv.height; upd(); }, 400); });
+  const measure = () => {
+    if (!typing()) { base = Math.max(base, vv.height + vv.offsetTop); return; }
+    const kb = Math.max(0, Math.round(base - vv.height - vv.offsetTop));
+    if (kb > 120) { set(kb); if (Math.abs(kb - guess) > 10) { guess = kb; try { localStorage.setItem('konta_kb', kb); } catch (e) {} } }
+  };
+  // заранее поднимаем шторку в момент касания поля, чтобы айфон не сдвигал страницу сам
+  document.addEventListener('pointerdown', e => { const f = e.target.closest && e.target.closest('input,textarea'); if (f && isField(f) && f.closest('.sheet,.dlg')) set(guess); }, true);
+  document.addEventListener('focusin', e => { if (isField(e.target) && e.target.closest('.sheet,.dlg')) { set(guess); window.scrollTo(0, 0); } });
+  document.addEventListener('focusout', () => setTimeout(() => { if (!typing()) set(0); }, 30));
+  vv.addEventListener('resize', measure); vv.addEventListener('scroll', () => { if (typing() && vv.offsetTop) window.scrollTo(0, 0); measure(); });
+  window.addEventListener('orientationchange', () => setTimeout(() => { base = vv.height; guess = 0; }, 500));
+})();
+
+
+// кэш экранов: при переключении вкладок экран не собирается заново, если данные не менялись
+const DIRTY = new Set(SCREENS);
+{ const _r3 = render; render = function () { const x = _r3.apply(this, arguments); SCREENS.forEach(s => { if (s !== tab) DIRTY.add(s); }); DIRTY.delete(tab); return x; }; }
+function settleCounts(root) {
+  root.querySelectorAll('[data-count]').forEach(el => {
+    const to = +el.dataset.count, k = el.dataset.ck || 'x'; counters[k] = to;
+    const s = rub(to, { round: true, bare: true }).replace(/\u2009/g, '\u2005'); el.textContent = s;
+    const host = el.closest('.num'); if (host) { const n = s.replace(/\D/g, '').length; host.style.fontSize = n <= 7 ? '' : n === 8 ? '54px' : n === 9 ? '48px' : n === 10 ? '43px' : '38px'; }
+  });
+}
+function renderOnly(n) { const fn = ({ home: renderHome, an: renderAn, goals: renderGoals, cap: renderCap, more: renderMore })[n]; if (!fn) return; const t0 = tab; tab = n; try { fn(); animSegs($('#s-' + n)); settleCounts($('#s-' + n)); } finally { tab = t0; } DIRTY.delete(n); }
+
+// мгновенный отклик на касание
+(() => {
+  const SEL = '.btn,.chip,.mlink,.pad button,.seg button,.ktoggle button,#s-more .row,.feed .row,.crow,.rb,.hdr button,.alert,.morebtn';
+  let cur = null, t = 0;
+  const off = () => { if (!cur) return; const c = cur; cur = null; clearTimeout(t); setTimeout(() => c.classList.remove('press'), 90); };
+  document.addEventListener('pointerdown', e => { const el = e.target.closest && e.target.closest(SEL); if (!el || el.closest('.swr.open')) return; off(); cur = el; el.classList.add('press'); }, true);
+  document.addEventListener('pointerup', off, true); document.addEventListener('pointercancel', off, true);
+  document.addEventListener('touchmove', () => { if (cur) { cur.classList.remove('press'); cur = null; } }, { passive: true, capture: true });
 })();
 
 // ================= диагностика экрана (5 тапов по версии в «Ещё») =================

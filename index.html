@@ -1046,12 +1046,23 @@ html.light .tabs button.on svg{filter:none}
 .tabs button.on svg,.tabs button.on .i{transform:translateY(-7px)!important}
 .tabs button:not(.on) svg{transform:none}
 /* ===== клавиатура ===== */
-html.kbopen .sheet.on{transform:translateY(calc(-1 * var(--kb,0px)))!important;max-height:calc(var(--vvh,100dvh) - 10px)!important}
+html.kbopen .sheet.on{transform:translate3d(0,calc(-1 * var(--kb,0px)),0)!important;max-height:calc(100dvh - var(--kb,0px) - 12px)!important;transition:transform .32s cubic-bezier(.25,.1,.25,1),max-height .32s cubic-bezier(.25,.1,.25,1)!important}
+html.kbclose .sheet.on{transition:transform .3s cubic-bezier(.25,.1,.25,1)!important}
 html.kbopen .sheet .pad{display:none!important}
-html.kbopen .dlg{transform:translateY(calc(-.5 * var(--kb,0px)))}
+html.kbopen .dlg{transform:translateY(calc(-.5 * var(--kb,0px)));transition:transform .32s cubic-bezier(.25,.1,.25,1)}
+/* ===== производительность и отклик ===== */
+#s-more .row,.mlink,.swr .del button,html #s-more .btn.ghost,html[data-th] #s-more .btn.ghost{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+.dlg{-webkit-backdrop-filter:none!important;backdrop-filter:none!important;background:rgba(0,0,0,.6)!important}
+html[data-th="herg"]:not(.light) .fab,html[data-th="herg"]:not(.light) .btn:not(.ghost){-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+html[data-th="herg"]:not(.light) .fab{background:linear-gradient(160deg,rgba(255,255,255,.30) 0%,rgba(40,50,70,.55) 46%,rgba(120,145,190,.45) 100%)!important}
+html[data-th="herg"]:not(.light) .btn:not(.ghost){background:linear-gradient(170deg,rgba(255,255,255,.28),rgba(40,50,70,.6) 50%,rgba(120,145,190,.45))!important}
+.feed .swr{content-visibility:auto;contain-intrinsic-size:auto 64px}
+.press{transform:scale(.97)!important;opacity:.85;transition:transform .08s ease-out,opacity .08s ease-out!important}
+.btn,.chip,.mlink,.pad button,.crow,.rb,.alert,.morebtn,#s-more .row,.feed .row:not(.drag){transition:transform .28s cubic-bezier(.32,.72,0,1),opacity .2s ease,background .2s ease,color .2s ease}
+.sheet{will-change:transform}
 </style>
 </head>
-<body class="boot"><script>(function(){var B="202611211447";try{if(navigator.serviceWorker&&navigator.serviceWorker.controller)return;fetch("/version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.json():null}).then(function(j){if(j&&j.b&&j.b!==B&&sessionStorage.getItem("kupd")!==j.b){sessionStorage.setItem("kupd",j.b);var u=new URL(location.href);u.searchParams.set("v",j.b);location.replace(u.toString())}}).catch(function(){})}catch(e){}})()</script><script>try{var t=localStorage.getItem("konta_theme")||"aurora";var mg={platinum:"cash",franc:"alps",gold:"dial",dollar:"note",vault:"dial",zurich:"cash"};document.documentElement.dataset.th=mg[t]||t;var m=localStorage.getItem("konta_mode")||"dark",tw=window.Telegram&&Telegram.WebApp;var L=m==="light"||(m==="auto"&&(tw&&tw.colorScheme?tw.colorScheme==="light":matchMedia("(prefers-color-scheme: light)").matches));if(L)document.documentElement.classList.add("light")}catch(e){}</script>
+<body class="boot"><script>(function(){var B="202611211549";try{if(navigator.serviceWorker&&navigator.serviceWorker.controller)return;fetch("/version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.json():null}).then(function(j){if(j&&j.b&&j.b!==B&&sessionStorage.getItem("kupd")!==j.b){sessionStorage.setItem("kupd",j.b);var u=new URL(location.href);u.searchParams.set("v",j.b);location.replace(u.toString())}}).catch(function(){})}catch(e){}})()</script><script>try{var t=localStorage.getItem("konta_theme")||"aurora";var mg={platinum:"cash",franc:"alps",gold:"dial",dollar:"note",vault:"dial",zurich:"cash"};document.documentElement.dataset.th=mg[t]||t;var m=localStorage.getItem("konta_mode")||"dark",tw=window.Telegram&&Telegram.WebApp;var L=m==="light"||(m==="auto"&&(tw&&tw.colorScheme?tw.colorScheme==="light":matchMedia("(prefers-color-scheme: light)").matches));if(L)document.documentElement.classList.add("light")}catch(e){}</script>
 <div class="splash spR" id="splash">
   <div class="rs"><img class="rmk" src="konta-mark.jpg?v=2" alt=""></div>
   <div class="rnm">Konta <i>&amp; Cie</i></div><div class="rhr"></div><div class="rest">EST. 2026</div>
@@ -1081,6 +1092,6 @@ html.kbopen .dlg{transform:translateY(calc(-.5 * var(--kb,0px)))}
 <div class="sheet" id="sheet"></div>
 <div class="sheet" id="sheet2"></div>
 <div class="toast glass" id="toast"></div>
-<script src="app.js?v=202611211447" defer></script>
+<script src="app.js?v=202611211549" defer></script>
 </body>
 </html>
