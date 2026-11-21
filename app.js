@@ -3702,6 +3702,7 @@ try { if (tg && tg.BackButton) { tg.BackButton.offClick && tg.BackButton.offClic
 
 // клавиатура: при касании поля шторка сразу встает к верху экрана, клавиатура выезжает под ней
 (() => {
+  if (inTG) return; // в Telegram окно само ужимается под клавиатуру, ничего не двигаем
   const de = document.documentElement;
   const isField = el => !!el && (el.tagName === 'TEXTAREA' || (el.tagName === 'INPUT' && !/^(button|checkbox|radio|range|file|color)$/.test(el.type)));
   let lifted = null;
