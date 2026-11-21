@@ -3700,32 +3700,50 @@ if (typeof goalDone === 'function') { const _gd = goalDone; goalDone = function 
 $('#veil').onclick = () => close();
 try { if (tg && tg.BackButton) { tg.BackButton.offClick && tg.BackButton.offClick(close); tg.BackButton.onClick(() => close()); } } catch (e) {}
 
-// клавиатура: шторка поднимается вместе с клавиатурой, без двойного рывка
+// клавиатура: при касании поля шторка сразу встает к верху экрана, клавиатура выезжает под ней
 (() => {
-  const vv = window.visualViewport; if (!vv) return;
   const de = document.documentElement;
-  let base = vv.height, guess = 0;
-  try { guess = +localStorage.getItem('konta_kb') || 0; } catch (e) {}
-  if (!guess) guess = Math.round(Math.min(360, Math.max(260, base * .4)));
   const isField = el => !!el && (el.tagName === 'TEXTAREA' || (el.tagName === 'INPUT' && !/^(button|checkbox|radio|range|file|color)$/.test(el.type)));
-  const typing = () => isField(document.activeElement);
-  const set = kb => {
-    de.style.setProperty('--kb', kb + 'px');
-    de.style.setProperty('--vvh', Math.round(vv.height) + 'px');
-    if (kb > 80) { de.classList.add('kbopen'); de.classList.remove('kbclose'); }
-    else if (de.classList.contains('kbopen')) { de.classList.remove('kbopen'); de.classList.add('kbclose'); clearTimeout(set.t); set.t = setTimeout(() => de.classList.remove('kbclose'), 450); }
+  let lifted = null;
+  const lift = sh => {
+    if (lifted === sh) return; lifted = sh;
+    de.classList.add('kbopen');
+    sh.style.transition = 'none'; sh.style.transform = 'none';
+    const top = sh.getBoundingClientRect().top;
+    const st = parseFloat(getComputedStyle(de).getPropertyValue('--st')) || 44;
+    const d = Math.min(0, Math.round(st + 10 - top));
+    sh.offsetHeight;
+    sh.style.transition = 'transform .2s cubic-bezier(.25,.1,.25,1)';
+    sh.style.transform = `translate3d(0,${d}px,0)`;
   };
-  const measure = () => {
-    if (!typing()) { base = Math.max(base, vv.height + vv.offsetTop); return; }
-    const kb = Math.max(0, Math.round(base - vv.height - vv.offsetTop));
-    if (kb > 120) { set(kb); if (Math.abs(kb - guess) > 10) { guess = kb; try { localStorage.setItem('konta_kb', kb); } catch (e) {} } }
+  const drop = () => {
+    if (!lifted) return; const sh = lifted; lifted = null;
+    de.classList.remove('kbopen');
+    sh.style.transition = 'transform .32s cubic-bezier(.25,.1,.25,1)'; sh.style.transform = '';
+    setTimeout(() => { if (!lifted) sh.style.transition = ''; }, 360);
   };
-  // заранее поднимаем шторку в момент касания поля, чтобы айфон не сдвигал страницу сам
-  document.addEventListener('pointerdown', e => { const f = e.target.closest && e.target.closest('input,textarea'); if (f && isField(f) && f.closest('.sheet,.dlg')) set(guess); }, true);
-  document.addEventListener('focusin', e => { if (isField(e.target) && e.target.closest('.sheet,.dlg')) { set(guess); window.scrollTo(0, 0); } });
-  document.addEventListener('focusout', () => setTimeout(() => { if (!typing()) set(0); }, 30));
-  vv.addEventListener('resize', measure); vv.addEventListener('scroll', () => { if (typing() && vv.offsetTop) window.scrollTo(0, 0); measure(); });
-  window.addEventListener('orientationchange', () => setTimeout(() => { base = vv.height; guess = 0; }, 500));
+  // касание поля: сразу поднимаем шторку, а фокус ставим сами по отпусканию пальца,
+  // чтобы клик не попал на то, что оказалось под пальцем после подъема
+  let tf = null;
+  document.addEventListener('touchstart', e => {
+    tf = null; const f = e.target.closest && e.target.closest('input,textarea'); if (!f || !isField(f)) return;
+    const sh = f.closest('.sheet.on'); if (!sh) return;
+    tf = { f, sh, x: e.touches[0].clientX, y: e.touches[0].clientY, moved: false, was: lifted === sh };
+    if (!tf.was) lift(sh);
+  }, { capture: true, passive: true });
+  document.addEventListener('touchmove', e => { if (tf && (Math.abs(e.touches[0].clientX - tf.x) > 10 || Math.abs(e.touches[0].clientY - tf.y) > 10)) tf.moved = true; }, { capture: true, passive: true });
+  document.addEventListener('touchend', e => {
+    if (!tf) return; const t = tf; tf = null;
+    if (t.moved) { if (!t.was && document.activeElement !== t.f) drop(); return; }
+    if (!t.was) { e.preventDefault(); t.f.focus({ preventScroll: true }); }
+  }, { capture: true, passive: false });
+  document.addEventListener('mousedown', e => { const f = e.target.closest && e.target.closest('input,textarea'); if (f && isField(f)) { const sh = f.closest('.sheet.on'); if (sh) lift(sh); } }, true);
+  document.addEventListener('focusin', e => { if (isField(e.target)) { const sh = e.target.closest('.sheet.on'); if (sh) lift(sh); } });
+  document.addEventListener('focusout', () => setTimeout(() => { if (!isField(document.activeElement)) drop(); }, 60));
+  const vv = window.visualViewport;
+  if (vv) vv.addEventListener('scroll', () => { if (lifted && vv.offsetTop > 0) window.scrollTo(0, 0); });
+  // если шторку закрыли, пока поле в фокусе
+  const mo = new MutationObserver(() => { if (lifted && !lifted.classList.contains('on')) { const sh = lifted; lifted = null; de.classList.remove('kbopen'); sh.style.transform = ''; sh.style.transition = ''; } }); ['#sheet', '#sheet2'].forEach(s => { const el = document.querySelector(s); if (el) mo.observe(el, { attributes: true, attributeFilter: ['class'] }); });
 })();
 
 
