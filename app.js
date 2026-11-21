@@ -1,19 +1,19 @@
-// Иконки Konta v2 (24x24, stroke 1.5, round)
+// Иконки Konta v3 (по референсу, 24x24, stroke 1.5, round)
 const ICONS = {
-  taxi: "<path d=\"M4 15.5 5.5 9.5Q6 8 7.5 8h9q1.5 0 2 1.5l1.5 6v2H4z\"/><path d=\"M7 8 8.5 5.5h7L17 8\"/><path d=\"M4 13.5h16M7 17.5v1M17 17.5v1\"/>",
+  taxi: "<path d=\"M5.5 11 7 7.2A1.8 1.8 0 0 1 8.7 6h6.6a1.8 1.8 0 0 1 1.7 1.2L18.5 11\"/><rect x=\"4\" y=\"11\" width=\"16\" height=\"5.5\" rx=\"1.5\"/><path d=\"M6.5 16.5v2M17.5 16.5v2M10.5 6V4.5h3V6\"/><path d=\"M7.5 13.75h.5M16 13.75h.5\"/>",
   delivery: "<path d=\"M4 8.5h8v7H4zM12 11h3l3 3v1.5h-6\"/><path d=\"M6.5 18a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3ZM16.5 18a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z\"/>",
-  food: "<path d=\"M6 8h12l-1 12H7L6 8Z\"/><path d=\"M9 8V6.5a3 3 0 0 1 6 0V8\"/>",
+  food: "<path d=\"M3.5 4.5h2l2 11h10.5l1.8-7.5H6.6\"/><circle cx=\"9\" cy=\"19.5\" r=\"1.2\"/><circle cx=\"17\" cy=\"19.5\" r=\"1.2\"/>",
   cafe: "<path d=\"M5 9h11v5a5 5 0 0 1-5 5h-1a5 5 0 0 1-5-5V9Z\"/><path d=\"M16 10h1.5a2.5 2.5 0 0 1 0 5H16M4 21h14\"/>",
-  trans: "<rect x=\"5\" y=\"3.5\" width=\"14\" height=\"14\" rx=\"2.5\"/><path d=\"M5 10.5h14M7.5 17.5V20M16.5 17.5V20\"/><circle cx=\"8.5\" cy=\"14\" r=\".6\"/><circle cx=\"15.5\" cy=\"14\" r=\".6\"/>",
-  market: "<path d=\"M4 8 12 4l8 4v11.5H4V8Z\"/><path d=\"m4 8 8 4 8-4M12 12v7.5\"/>",
-  health: "<path d=\"M12 20s-7.5-4.4-7.5-10A4.2 4.2 0 0 1 12 7.5 4.2 4.2 0 0 1 19.5 10c0 5.6-7.5 10-7.5 10Z\"/><path d=\"M12 9v6M9 12h6\"/>",
+  trans: "<rect x=\"5\" y=\"3.5\" width=\"14\" height=\"14\" rx=\"2.5\"/><path d=\"M5 10.5h14M7.5 17.5v2M16.5 17.5v2\"/><path d=\"M8 14h.5M15.5 14h.5M9.5 6.5h5\"/>",
+  market: "<path d=\"M6 8h12l1 12.5H5L6 8Z\"/><path d=\"M9 10.5V7a3 3 0 0 1 6 0v3.5\"/>",
+  health: "<path d=\"M12 20s-7.5-4.6-7.5-10.2A4.3 4.3 0 0 1 12 7a4.3 4.3 0 0 1 7.5 2.8C19.5 15.4 12 20 12 20Z\"/>",
   tobacco: "<path d=\"M4 14h13.5v3H4z\"/><path d=\"M17.5 14H20v3h-2.5M8 10c-1-1 1-1.5 0-2.5M12 10c-1-1 1-1.5 0-2.5\"/>",
   subs: "<rect x=\"7\" y=\"3.5\" width=\"10\" height=\"17\" rx=\"2\"/><path d=\"M10 6h4M11 17.5h2M19 6.5q2 2 0 4M21 4.5q4 4 0 8\"/>",
   gifts: "<path d=\"M3.5 10h17v10h-17zM2.5 7h19v3h-19z\"/><path d=\"M12 7v13M12 7C8 7 6 6 6 4.5S9 2 12 7ZM12 7c4 0 6-1 6-2.5S15 2 12 7Z\"/>",
   home: "<path d=\"m3.5 11 8.5-7 8.5 7v9.5h-17V11Z\"/><path d=\"M9.5 20.5v-6h5v6\"/>",
   clothes: "<path d=\"m8 4.5 4 2 4-2 4 4-3 3-2-1v10H9V10.5l-2 1-3-3 4-4Z\"/><path d=\"M10 5.5q2 2 4 0\"/>",
-  fun: "<path d=\"M4 8h16v8H4z\"/><path d=\"M8 8v8M16 8v8M10 12h4\"/>",
-  pet: "<ellipse cx=\"12\" cy=\"16\" rx=\"4\" ry=\"3.5\"/><circle cx=\"6.5\" cy=\"11\" r=\"1.6\"/><circle cx=\"9.5\" cy=\"7\" r=\"1.6\"/><circle cx=\"14.5\" cy=\"7\" r=\"1.6\"/><circle cx=\"17.5\" cy=\"11\" r=\"1.6\"/>",
+  fun: "<path d=\"M4 7.5A1.5 1.5 0 0 1 5.5 6h13A1.5 1.5 0 0 1 20 7.5V10a2 2 0 0 0 0 4v2.5a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 16.5V14a2 2 0 0 0 0-4Z\"/><path d=\"M14.5 6v2M14.5 11v2M14.5 16v2\"/>",
+  pet: "<path d=\"M12 12.5c-2.5 0-5 3-5 5.2 0 1.6 1.3 2.3 2.8 1.8l1.2-.4a3 3 0 0 1 2 0l1.2.4c1.5.5 2.8-.2 2.8-1.8 0-2.2-2.5-5.2-5-5.2Z\"/><circle cx=\"6.5\" cy=\"10.5\" r=\"1.6\"/><circle cx=\"10\" cy=\"6.5\" r=\"1.6\"/><circle cx=\"14\" cy=\"6.5\" r=\"1.6\"/><circle cx=\"17.5\" cy=\"10.5\" r=\"1.6\"/>",
   transfer: "<path d=\"M4 8h15M15.5 4.5 19 8l-3.5 3.5M20 16H5M8.5 12.5 5 16l3.5 3.5\"/>",
   fees: "<path d=\"M6 3.5h12v17l-3-2-3 2-3-2-3 2v-17Z\"/><path d=\"M9 8h6M9 12h6\"/>",
   other: "<circle cx=\"6\" cy=\"12\" r=\".9\"/><circle cx=\"12\" cy=\"12\" r=\".9\"/><circle cx=\"18\" cy=\"12\" r=\".9\"/>",
@@ -21,21 +21,21 @@ const ICONS = {
   in_transfer: "<path d=\"M12 3.5v12M7.5 8 12 3.5 16.5 8\"/><path d=\"M4 14.5v5h16v-5\"/>",
   side: "<path d=\"M4 8h16v11H4zM8 8V6h8v2\"/><path d=\"M8 12h8\"/>",
   cashback: "<path d=\"M19 9a8 8 0 1 0 1 5\"/><path d=\"M19 4v5h-5\"/>",
-  cash: "<path d=\"M4 8h13a2 2 0 0 1 2 2v9H6a2 2 0 0 1-2-2V8Z\"/><path d=\"M4 8V6h12M15 13h4\"/>",
+  cash: "<ellipse cx=\"12\" cy=\"6.5\" rx=\"6.5\" ry=\"2.5\"/><path d=\"M5.5 6.5v3.75c0 1.4 2.9 2.5 6.5 2.5s6.5-1.1 6.5-2.5V6.5\"/><path d=\"M5.5 10.25V14c0 1.4 2.9 2.5 6.5 2.5s6.5-1.1 6.5-2.5v-3.75\"/><path d=\"M5.5 14v3.5c0 1.4 2.9 2.5 6.5 2.5s6.5-1.1 6.5-2.5V14\"/>",
   in_other: "<circle cx=\"6\" cy=\"12\" r=\".9\"/><circle cx=\"12\" cy=\"12\" r=\".9\"/><circle cx=\"18\" cy=\"12\" r=\".9\"/>",
   a_bank: "<path d=\"m3 8 9-5 9 5H3ZM5 9v9M9.5 9v9M14.5 9v9M19 9v9M3 20h18\"/>",
   a_dep: "<path d=\"M4 7h16v13H4zM7 4h13v3\"/><path d=\"M12 10v7M9.5 13.5 12 11l2.5 2.5\"/>",
   a_cash: "<rect x=\"3.5\" y=\"6\" width=\"17\" height=\"12\" rx=\"1.5\"/><path d=\"M7 9h10M7 15h10M12 10.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3Z\"/>",
-  a_crypto: "<path d=\"m12 3 8 5-8 5-8-5 8-5ZM4 12l8 5 8-5M4 16l8 5 8-5\"/>",
+  a_crypto: "<path d=\"m12 3.5 7.4 4.25v8.5L12 20.5l-7.4-4.25v-8.5Z\"/><path d=\"m12 8.75 2.8 1.6v3.3L12 15.25l-2.8-1.6v-3.3Z\"/>",
   a_stocks: "<path d=\"M4 19.5V5M4 19.5h16\"/><path d=\"m7 15 4-4 3 2 5-6M16 7h3v3\"/>",
   a_realty: "<rect x=\"4\" y=\"3\" width=\"16\" height=\"18\" rx=\"2\"/><path d=\"M8 7H10V9H8ZM14 7H16V9H14ZM8 13H10V15H8ZM14 13H16V15H14ZM10 21V17H14V21\"/>",
   a_debt: "<rect x=\"3.5\" y=\"5\" width=\"17\" height=\"14\" rx=\"2\"/><path d=\"M3.5 9h17M7 14h4\"/>",
   a_other: "<path d=\"m12 3 9 9-9 9-9-9 9-9Z\"/><path d=\"M9 12h6M12 9v6\"/>",
   ui_overview: "<rect x=\"3\" y=\"3\" width=\"7\" height=\"7\" rx=\"2\"/><rect x=\"14\" y=\"3\" width=\"7\" height=\"7\" rx=\"2\"/><rect x=\"3\" y=\"14\" width=\"7\" height=\"7\" rx=\"2\"/><rect x=\"14\" y=\"14\" width=\"7\" height=\"7\" rx=\"2\"/>",
   ui_chart: "<path d=\"M4 20V13M9.5 20V9M15 20V5M20 20V3\"/>",
-  ui_cap: "<path d=\"M12 3V12H21\"/><path d=\"M20.5 13A9 9 0 1 1 11 3\"/>",
+  ui_cap: "<path d=\"m12 4 8.5 4.5L12 13 3.5 8.5Z\"/><path d=\"M3.5 12.5 12 17l8.5-4.5\"/>",
   ui_more: "<circle cx=\"6\" cy=\"12\" r=\".9\"/><circle cx=\"12\" cy=\"12\" r=\".9\"/><circle cx=\"18\" cy=\"12\" r=\".9\"/>",
-  ui_goal: "<path d=\"M5 20V4h13l-2.5 4L18 12H5\"/>",
+  ui_goal: "<circle cx=\"12\" cy=\"12\" r=\"8.5\"/><circle cx=\"12\" cy=\"12\" r=\"4\"/>",
   ui_shield: "<path d=\"M12 3 20 6v5.5c0 4.5-3.2 7.5-8 9.5-4.8-2-8-5-8-9.5V6l8-3Z\"/><path d=\"m8.5 12 2.3 2.3 4.7-4.8\"/>",
   ui_compass: "<circle cx=\"12\" cy=\"12\" r=\"8.5\"/><path d=\"m15.5 8.5-2 5-5 2 2-5 5-2Z\"/>",
   ui_minus: "<path d=\"M5 12h14\"/>",
@@ -3668,6 +3668,26 @@ if (typeof setMode === 'function') { const _sm = setMode; setMode = function (m)
 if (typeof goalDone === 'function') { const _gd = goalDone; goalDone = function () { const r = _gd.apply(this, arguments); setTimeout(() => { const g = document.querySelector('#sheet2 .gdone'); if (g) g.classList.add('shine'); }, 450); return r; }; }
 $('#veil').onclick = () => close();
 try { if (tg && tg.BackButton) { tg.BackButton.offClick && tg.BackButton.offClick(close); tg.BackButton.onClick(() => close()); } } catch (e) {}
+
+// клавиатура: шторка и окна поднимаются над клавиатурой
+(() => {
+  const vv = window.visualViewport; if (!vv) return;
+  const de = document.documentElement;
+  let base = vv.height;
+  const typing = () => { const a = document.activeElement; return !!a && (a.tagName === 'TEXTAREA' || (a.tagName === 'INPUT' && !/^(button|checkbox|radio|range|file|color)$/.test(a.type))); };
+  const upd = () => {
+    const t = typing();
+    if (!t) base = Math.max(vv.height + vv.offsetTop, vv.height);
+    const kb = t ? Math.max(0, Math.round(base - vv.height - vv.offsetTop)) : 0;
+    de.style.setProperty('--kb', kb + 'px');
+    de.style.setProperty('--vvh', Math.round(vv.height) + 'px');
+    de.classList.toggle('kbopen', kb > 80);
+  };
+  vv.addEventListener('resize', upd); vv.addEventListener('scroll', upd);
+  document.addEventListener('focusin', e => { upd(); setTimeout(() => { upd(); const a = document.activeElement; if (typing() && a.closest('.sheet,.dlg')) try { a.scrollIntoView({ block: 'nearest' }); } catch (x) {} }, 320); });
+  document.addEventListener('focusout', () => setTimeout(upd, 60));
+  window.addEventListener('orientationchange', () => { base = 0; setTimeout(() => { base = vv.height; upd(); }, 400); });
+})();
 
 // ================= диагностика экрана (5 тапов по версии в «Ещё») =================
 const DIAG = (() => { try { return localStorage.getItem('konta_diag') === '1'; } catch (e) { return false; } })();
