@@ -755,7 +755,7 @@ const RULES = [
   [/^Хранятся в облаке и синхронизируются между устройствами\. ([\d\s]+) запис\S*\.$/, (m, n) => `Stored in the cloud and synced across devices. ${n.trim()} entries.`],
   [/^Нет связи(.*) — нажмите, чтобы повторить$/, (m, w) => `Offline${w} — tap to retry`],
   [/^≈ (.+) · курс (.+) ₽$/, (m, a, r) => `≈ ${a} · rate ${r} ₽`],
-  [/^Синхронизировано · (.+)$/, (m, a) => `Synced · ${a}`], [/^Те же данные, что в боте (.+)$/, (m, b) => `Same data as in ${b}`], [/^Те же траты и капитал, что в боте (.+)\. Пароль не нужен — вход подтверждается в Telegram\.$/, (m, b) => `Same spending and capital as in ${b}. No password — you confirm the sign-in in Telegram.`],
+  [/^Синхронизировано · (.+)$/, (m, a) => `Synced · ${TR(a)}`], [/^Те же данные, что в боте (.+)$/, (m, b) => `Same data as in ${b}`], [/^Те же траты и капитал, что в боте (.+)\. Пароль не нужен — вход подтверждается в Telegram\.$/, (m, b) => `Same spending and capital as in ${b}. No password — you confirm the sign-in in Telegram.`],
   [/^В среднем (.+)$/, (m, a) => `Avg ${a}`], [/^(.+) в месяц$/, (m, a) => `${a} per month`], [/^и ещё ([\d\s]+) — уточните запрос$/, (m, n) => `and ${n} more — refine the search`],
   [/^· пополнения (.+)$/, (m, a) => `· deposits ${a}`],
   [/^([+−][\d,]+)% за сутки$/, (m, p) => `${p}% in 24h`],
@@ -773,8 +773,8 @@ const RULES = [
   [/^(\d+) (операция|операции|операций)$/, (m, n) => `${n} ${n === '1' ? 'transaction' : 'transactions'}`],
   [/^(\d+) (запись|записи|записей)$/, (m, n) => `${n} ${n === '1' ? 'entry' : 'entries'}`],
   [/^в этом месяце (.+)$/, (m, v) => `this month ${v}`],
-  [/^из (.+)$/, (m, v) => `of ${v}`],
-  [/^(.+) из (.+)$/, (m, a, b) => `${a} of ${b}`],
+  [/^из (.+)$/, (m, v) => /\d/.test(v) && v.length < 24 ? `of ${v}` : null],
+  [/^(.+) из (.+)$/, (m, a, b) => /\d/.test(a + b) && (a + b).length < 40 ? `${a} of ${b}` : null],
   [/^Пик (.+) — ?$/, (m, d) => `Peak · ${TR(d)} — `],
   [/^к этой же дате в ([а-яё]+)$/i, (m, mo) => `vs same date in ${enMonth(mo)}`],
   [/^к ([а-яё]+)$/i, (m, mo) => mIdx(mo) >= 0 ? `vs ${enMonth(mo)}` : null],
@@ -809,15 +809,119 @@ const RULES = [
   [/^≈ (.+)$/, () => null],
   [/^(.+?) (\d+%)$/, (m, n, p) => { const t = TR(n); return t !== n ? `${t} ${p}` : null; }],
 ];
+
+// ---------- дополнение: новые экраны и фразы ----------
+Object.assign(DICT, {
+  'Нион': 'Nyon', 'Хергисвиль': 'Hergiswil', 'Фарфор и теплый свет': 'Porcelain and warm light', 'Хрусталь и холодный свет': 'Crystal and cool light', 'Русский': 'Russian',
+  'Что нового': 'What’s new', 'Новый облик Konta': 'The new look of Konta', 'Открыть канал': 'Open channel', '20 ноября 2026': 'November 20, 2026', 'новое': 'new',
+  'У Konta & Cie новый знак: фарфоровая галка с теплым светом. Обновили иконку на экране «Домой» и заставку.': 'Konta & Cie has a new mark: a porcelain tick with warm light. The home screen icon and splash are updated.',
+  'Между вкладками теперь можно листать свайпом. Док стал крупнее, а анимации спокойнее и плавнее.': 'Swipe between tabs. The dock is bigger, and animations are calmer and smoother.',
+  'Окна, кнопки и меню переехали в единый стеклянный стиль, а настройки собраны в короткие группы.': 'Sheets, buttons and menus share one glass style, and settings are grouped into short sections.',
+  'В настройках появились наш канал с новостями и поддержка в Telegram.': 'Settings now link to our news channel and Telegram support.',
+  'Откуда списали': 'Paid from', 'Откуда пришло': 'Received to', 'Наличные': 'Cash',
+  'Т-Банк': 'T-Bank', 'Сбер': 'Sber', 'Сбербанк': 'Sberbank', 'Альфа-Банк': 'Alfa-Bank', 'ВТБ': 'VTB', 'Озон Банк': 'Ozon Bank', 'Яндекс Банк': 'Yandex Bank', 'Газпромбанк': 'Gazprombank',
+  'Это перевод между своими счетами': 'This is a transfer between my accounts', 'Перевод себе: не считается ни расходом, ни доходом': 'Own transfer: counts as neither spending nor income',
+  'Возможные дубли': 'Possible duplicates', 'Показать': 'Show', 'Ничего не выбрано': 'Nothing selected',
+  'Дублей не нашли. Все ручные записи и операции из выписок разные.': 'No duplicates found. Manual entries and statement transactions are all different.',
+  'Эти траты записаны вручную, а потом пришли еще и в выписке. Отмеченные ручные записи удалим, операция из выписки останется с вашей категорией. Снимите отметку, если это две разные покупки.': 'These were entered manually and then came in a statement too. Checked manual entries will be deleted; the statement transaction stays with your category. Uncheck if these are two different purchases.',
+  'Это ваши счета?': 'Are these your accounts?', 'Первые операции': 'First transactions', 'Операций нет': 'No transactions', 'Не удалось прочитать файл': 'Could not read the file',
+  'Неподтверждённые блокировки и аресты не учитываются.': 'Pending holds and freezes are not counted.',
+  'Всё разобрано прямо на телефоне — выписки никуда не отправляются. Категорию любой операции можно поправить потом.': 'Everything is parsed right on your phone — statements are never uploaded. You can change any category later.',
+  'Читаю выписку…': 'Reading statement…', 'Не нашёл операций в файлах': 'No transactions found in the files', 'Не нашел операций в файлах': 'No transactions found in the files',
+  'Комфортно': 'Comfortable', 'Напряжённо, но реально': 'Tight but doable', 'На пределе': 'At the limit', 'Не сходится': 'Doesn’t add up', 'не сходится': 'doesn’t add up', 'Не хватит': 'Not enough',
+  'даже за 50 лет — увеличьте сумму в месяц': 'not even in 50 years — raise the monthly amount', 'Цель уже собрана.': 'Goal already reached.', 'Цель создана': 'Goal created', 'выбрать': 'pick',
+  'Записывайте доходы и расходы хотя бы месяц — тогда скажу, реально ли это.': 'Log income and spending for at least a month, and I’ll tell you if this is realistic.',
+  'Прогресс считается по балансу этого актива из «Капитала» — вносить вручную не нужно.': 'Progress follows this asset’s balance in Capital — no manual top-ups needed.',
+  'Пополняйте цель через «+» на главном — вкладка «В цель».': 'Top up the goal with “+” on Overview — the “To goal” tab.',
+  'Сколько откладывать, что дадут проценты и реально ли это с вашими доходами': 'How much to save, what interest adds, and whether it fits your income',
+  'Впишите, сколько готовы откладывать в месяц.': 'Enter how much you can save per month.', 'Выберите срок — посчитаю, сколько откладывать.': 'Pick a deadline and I’ll work out how much to save.',
+  'Тихо, спокойно, по плану.': 'Quiet, calm, on plan.', 'Без срока': 'No deadline', '% годовых': '% per year', 'Где взять': 'Where to find it',
+  'Это расчёт, а не рекомендация. Ставка по вкладу может измениться, с процентов сверх необлагаемого лимита удерживается НДФЛ.': 'This is a calculation, not advice. Deposit rates can change, and interest above the tax-free limit is taxed.',
+  'Бюджет месяца исчерпан': 'Monthly budget used up', 'Добавьте доход, и я посчитаю дневной ориентир': 'Add income and I’ll work out a daily guide', 'ЗАКРЫТО': 'CLOSED',
+  'Войдите снова в Настройках': 'Sign in again in Settings', 'Войдите снова': 'Sign in again', 'Сервер не принял вход': 'Server rejected sign-in',
+  'Нет связи с облаком, повторяю. Данные сохранены на устройстве': 'No connection to the cloud, retrying. Data is saved on this device',
+  'PDF или CSV · можно сразу несколько банков': 'PDF or CSV · several banks at once', 'PDF или CSV из любого банка': 'PDF or CSV from any bank',
+  'Напишите боту «кофе 350» — трата появится здесь': 'Text the bot “coffee 350” — the expense appears here', 'Напишите боту «кофе 350»': 'Text the bot “coffee 350”',
+  'Konta & Cie откроется одним касанием': 'Konta & Cie opens with one tap', 'kontacie.com, на весь экран, без Telegram': 'kontacie.com, full screen, no Telegram',
+  'Приложение на экране «Домой»': 'App on the home screen', 'Добавить на экран «Домой»': 'Add to home screen', 'Быстрый доступ': 'Quick access',
+  'Из цели': 'From goal', 'Выберите цель': 'Choose a goal', 'Сначала создайте цель': 'Create a goal first', 'Без описания': 'No description', 'Всё время': 'All time', 'Все время': 'All time',
+  'Доступ не выдан': 'Access not granted', 'Стереть': 'Delete', 'Неверный код': 'Wrong code', 'Вход в Konta': 'Sign in to Konta', 'завтра': 'tomorrow', 'ожидается': 'due',
+  'Скрыть суммы': 'Hide amounts', 'Показать суммы': 'Show amounts', 'Назад': 'Back', 'Вперёд': 'Forward', 'Вперед': 'Forward', 'Поиск': 'Search', 'Вид графика': 'Chart type', 'Ещё': 'More', 'Еще': 'More',
+  'Каждый день': 'Every day', 'Итоги прошлого месяца': 'Last month’s summary', 'Письмо от Konta & Cie': 'A letter from Konta & Cie', 'Параметры': 'Preferences',
+  'Бюджет и валюта': 'Budget and currency', 'Приватность и данные': 'Privacy and data', 'Главный экран': 'Home screen', 'Приватность': 'Privacy', 'Войти через Telegram': 'Sign in with Telegram',
+});
+RULES.unshift(
+  [/^(\d+) (?:перевод|перевода|переводов) между вашими счетами$/, (m, n) => `${n} transfer${n === '1' ? '' : 's'} between your accounts`],
+  [/^Нашел (\d+) (?:перевод|перевода|переводов) между вашими счетами, убрал из расходов$/, (m, n) => `Found ${n} transfer${n === '1' ? '' : 's'} between your accounts, removed from spending`],
+  [/^(\d+) (?:перевод|перевода|переводов) на ваши накопительные счета больше не считаются расходами$/, (m, n) => `${n} transfer${n === '1' ? '' : 's'} to your savings no longer count as spending`],
+  [/^— не расходы и не доходы, в статистику не попадут\.$/, () => '— neither spending nor income, excluded from stats.'],
+  [/^Импорт отменён · (.+)$/, (m, n) => `Import undone · ${n}`],
+  [/^Читаю выписки · (\d+) из (\d+)$/, (m, a, b) => `Reading statements · ${a} of ${b}`],
+  [/^Похоже на дубли: (\d+) (?:запись|записи|записей)$/, (m, n) => `Looks like duplicates: ${n}`],
+  [/^(\d+) (?:запись|записи|записей) есть и вручную, и в выписке$/, (m, n) => `${n} ${n === '1' ? 'entry is' : 'entries are'} both manual and in a statement`],
+  [/^Удалить (\d+) (?:дубль|дубля|дублей)$/, (m, n) => `Delete ${n} duplicate${n === '1' ? '' : 's'}`],
+  [/^Удалено: (\d+)$/, (m, n) => `Deleted: ${n}`],
+  [/^Вручную (\d{1,2} [а-яё]+)(?:, (.+))?$/i, (m, d, b) => `Manual ${TR(d)}${b ? ', ' + TR(b) : ''}`], [/^В выписке (\d{1,2} [а-яё]+)(?:, ([^:]+))?(?:: (.+))?$/i, (m, d, b, n) => `In statement ${TR(d)}${b ? ', ' + TR(b) : ''}${n ? ': ' + n : ''}`],
+  [/^Попробуйте через (\d+) с$/, (m, n) => `Try again in ${n} s`],
+  [/^Неверный код · осталось (\d+)$/, (m, n) => `Wrong code · ${n} left`],
+  [/^Каждую неделю · Следующий (.+)$/, (m, a) => `Weekly · next ${TR(a)}`], [/^Следующий (.+)$/, (m, a) => `Next ${TR(a)}`],
+  [/^Самая дорогая, (.+):$/, (m, a) => `The priciest, ${TR(a)}:`], [/^(.+) в год\.?$/, (m, a) => /\d/.test(a) ? `${a} per year` : null],
+  [/^(\d+) (?:подписка|подписки|подписок)$/, (m, n) => `${n} subscription${n === '1' ? '' : 's'}`],
+  [/^Из бота: (\d+) (?:запись|записи|записей)$/, (m, n) => `From the bot: ${n} entries`], [/^Из бота: (.+)$/, (m, a) => `From the bot: ${a}`],
+  [/^Сервер не принял вход · (.+)$/, (m, a) => `Server rejected sign-in · ${a}`],
+  [/^В цели только (.+)$/, (m, a) => `Only ${a} in the goal`],
+  [/^Удалить цель «(.+)»\?$/, (m, a) => `Delete goal “${a}”?`],
+  [/^Три месяца ваших расходов — (.+)$/, (m, a) => `Three months of your spending — ${a}`],
+  [/^План: (.+)\/мес$/, (m, a) => `Plan: ${a}/mo`], [/^(.+)\/мес · (.+)$/, (m, a, b) => `${a}/mo · ${TR(b)}`],
+  [/^через (.+?)( · без процентов — (.+))?$/, (m, a, x, b) => /\d/.test(a) ? `in ${enDur(a)}${b ? ` · without interest — ${TR(b)}` : ''}` : null],
+  [/^в месяц, (.+?)( · без процентов (.+), проценты добавят (.+))?$/, (m, a, x, b, c) => `per month, ${enDur(a)}${b ? ` · without interest ${b}, interest adds ${c}` : ''}`],
+  [/^В среднем после трат остаётся (.+) в месяц( с учётом других целей)? — план забирает (\d+)%\.$/, (m, a, o, p) => `On average ${a} a month is left after spending${o ? ' accounting for other goals' : ''} — the plan takes ${p}%.`],
+  [/^За последние месяцы расходы (вместе с другими целями )?не меньше доходов — откладывать пока не из чего\.$/, (m, o) => `Lately spending${o ? ' together with other goals' : ''} has matched or exceeded income — nothing to save from yet.`],
+  [/^Если откладывать половину свободного — (.+) в месяц, цель будет (.+)\.$/, (m, a, b) => `Saving half of what’s free, ${a} a month, you’ll reach it ${TR(b)}.`],
+  [/^(.+) в месяц\. Минус четверть здесь даст (.+?)(?: — и цель на (.+) ближе| — это (\d+)% от нужного взноса)?\.$/, (m, a, b, c, d) => `${a.split(', ').map(x => x.split(' — ').map((y, i) => i ? y : TR(y)).join(' — ')).join(', ')} a month. Cutting a quarter here frees ${b}${c ? ` and brings the goal ${enDur(c)} closer` : d ? ` — ${d}% of the required payment` : ''}.`],
+  [/^В ([а-яё]+) отложено$/i, (m, mo) => `Saved in ${enMonth(mo)}`],
+  [/^к ([а-яё]+) (\d{4})$/i, (m, mo, y) => `by ${enMonth(mo)} ${y}`],
+  [/^Сбросить выученные категории \((\d+)\)$/, (m, n) => `Reset learned categories (${n})`],
+  [/^Ничего не нашлось — попробуйте «Вс[её] время»$/, () => 'Nothing found — try “All time”'],
+  [/^Нет связи(.*) — нажмите, чтобы повторить$/, (m, w) => `Offline${w} — tap to retry`],
+  [/^(.+) · без сети$/, (m, a) => `${TR(a)} · offline`],
+);
+
+const enBy = b => { const m = String(b).match(/^к ([а-яё]+)( \d{4})?$/i); return m && mIdx(m[1]) >= 0 ? `by ${enMonth(m[1])}${m[2] || ''}` : TR(b); };
+Object.assign(DICT, {
+  'Нажмите «Поделиться» внизу Safari': 'Tap “Share” at the bottom of Safari', 'Выберите «На экран "Домой"»': 'Choose “Add to Home Screen”', 'Нажмите «Добавить» — появится иконка Konta': 'Tap “Add” — the Konta icon appears',
+  'На этот номер и с него часто идут переводы в разных банках. Если это ваш номер в другом банке — включите, и такие переводы не попадут в расходы и доходы.': 'Transfers to and from this number appear in several banks. If it is your number at another bank, turn this on and such transfers won’t count as spending or income.',
+  'Аптека': 'Pharmacy', 'Аванс': 'Advance pay', 'Перевод': 'Transfer', 'Кредитка': 'Credit card', 'Сбер накопительный': 'Sber savings', 'Вклад Альфа': 'Alfa deposit', 'Фонд ликвидности': 'Liquidity fund',
+  'Ликвидность': 'Liquidity', 'USDT на бирже': 'USDT on exchange', 'Комиссия за смс': 'SMS fee', 'Табачный': 'Tobacco shop', 'Яндекс': 'Yandex', 'Яндекс Го': 'Yandex Go', 'Яндекс Еда': 'Yandex Eats',
+  'Яндекс Лавка': 'Yandex Lavka', 'Яндекс Маркет': 'Yandex Market', 'Яндекс Плюс': 'Yandex Plus', 'Магнит': 'Magnit', 'Пятёрочка': 'Pyaterochka', 'Лента': 'Lenta', 'Дикси': 'Dixy', 'Озон': 'Ozon',
+  'МТС': 'MTS', 'Вкусно и точка': 'Vkusno i tochka', 'Бургер Бон': 'Burger Bon', 'Сова варит': 'Sova Coffee',
+});
+RULES.unshift(
+  [/^≈ (\d{1,2}) ([а-яё]+)$/i, (m, d, mo) => mIdx(mo) >= 0 ? `≈ ${d} ${enMonth(mo)}` : null],
+  [/^(.+)\/мес · (к .+)$/, (m, a, b) => `${a}/mo · ${enBy(b)}`],
+  [/^Если откладывать половину свободного — (.+) в месяц, цель будет (.+)\.$/, (m, a, b) => `Saving half of what’s free, ${a} a month, you’ll reach it ${enBy(b)}.`],
+  [/^(к [а-яё]+(?: \d{4})?)$/i, (m, b) => { const r = b.match(/^к ([а-яё]+) (\d{4})$/i); return r ? enBy(b) : null; }],
+);
+function enDur(s) {
+  s = String(s).trim();
+  const y = s.match(/(\d+)\s*(?:год|года|лет)/), mo = s.match(/(\d+)\s*(?:месяц|месяца|месяцев|мес)/);
+  if (!y && !mo) return TR(s);
+  const p = []; if (y) p.push(`${y[1]} year${y[1] === '1' ? '' : 's'}`); if (mo) p.push(`${mo[1]} month${mo[1] === '1' ? '' : 's'}`);
+  return p.join(' ');
+}
 const TOKENS = [[/(\d)к(?=\s?₽|$|\s)/g, '$1k'], [/(\d) млн(?=\s|$)/g, '$1M'], [/(\d) млрд(?=\s|$)/g, '$1B'], [/ шт(?=[\s\u00a0]|$)/g, ' pcs'], [/демо/g, 'demo'], [/только что/g, 'just now'], [/(\d+) мин назад/g, '$1 min ago'], [/(\d+) ч назад/g, '$1 h ago'],
   [/нет цены/g, 'no price'], [/нет курса/g, 'no rate'], [/обновлены/g, 'updated'], [/Курсы:/g, 'Rates:'], [/Цены акций/g, 'Stock prices'], [/вручную/g, 'manual'], [/ЦБ/g, 'CBR'], [/Мосбиржа/g, 'MOEX'], [/не задан/g, 'not set']];
 const CYR = /[А-Яа-яЁё]/;
+const DICT_E = {}; Object.keys(DICT).forEach(k => { DICT_E[k.replace(/ё/g, 'е')] = DICT[k]; });
+const RE_EC = new Map(); const RE_E = re => { let r = RE_EC.get(re); if (!r) { r = re.source.includes('ё') ? new RegExp(re.source.replace(/ё/g, '[её]'), re.flags) : re; RE_EC.set(re, r); } return r; };
+const ATTRS = ['placeholder', 'aria-label', 'title'];
+const trAttrs = el => ATTRS.forEach(a => { const v = el.getAttribute && el.getAttribute(a); if (v && CYR.test(v)) { const r = TR(v); if (r !== v) el.setAttribute(a, r); } });
 function TR(s) {
   if (LANG !== 'en' || !s || !CYR.test(s)) return s;
   const t = s.trim(); if (!t) return s;
   const lead = s.slice(0, s.indexOf(t)), tail = s.slice(s.indexOf(t) + t.length);
-  let out = DICT[t];
-  if (out === undefined) for (const [re, fn] of RULES) { const m = t.match(re); if (m) { const r = fn(...m); if (r != null) { out = r; break; } } }
+  let out = DICT[t]; if (out === undefined) out = DICT_E[t.replace(/ё/g, 'е')];
+  if (out === undefined) for (const [re, fn] of RULES) { const m = t.match(re) || (t.includes('е') && !t.includes('ё') ? t.match(RE_E(re)) : null); if (m) { const r = fn(...m); if (r != null) { out = r; break; } } }
   if (out === undefined && t.includes(' · ')) { const parts = t.split(' · ').map(p => TR(p)); out = parts.join(' · '); }
   if (out === undefined) { out = t; for (const [re, rep] of TOKENS) out = out.replace(re, rep); }
   return lead + out + tail;
@@ -827,18 +931,18 @@ function translateTree(root) {
   if (root.nodeType === 3) { const v = TR(root.nodeValue); if (v !== root.nodeValue) root.nodeValue = v; return; }
   if (root.nodeType !== 1) return;
   if (root.tagName === 'TEXTAREA' || root.tagName === 'SCRIPT' || root.tagName === 'STYLE') return;
-  if (root.placeholder && CYR.test(root.placeholder)) root.placeholder = TR(root.placeholder);
+  trAttrs(root);
   const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT | NodeFilter.SHOW_ELEMENT);
   let n;
   while ((n = w.nextNode())) {
     if (n.nodeType === 3) { if (n.parentNode && n.parentNode.tagName === 'TEXTAREA') continue; const v = TR(n.nodeValue); if (v !== n.nodeValue) n.nodeValue = v; }
-    else if (n.placeholder && CYR.test(n.placeholder)) n.placeholder = TR(n.placeholder);
+    else trAttrs(n);
   }
 }
 if (LANG === 'en') {
   document.documentElement.lang = 'en';
-  new MutationObserver(ms => ms.forEach(m => { m.addedNodes.forEach(translateTree); if (m.type === 'characterData') translateTree(m.target); }))
-    .observe(document.body, { childList: true, subtree: true, characterData: true });
+  new MutationObserver(ms => ms.forEach(m => { m.addedNodes.forEach(translateTree); if (m.type === 'characterData') translateTree(m.target); else if (m.type === 'attributes') trAttrs(m.target); }))
+    .observe(document.body, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ATTRS });
   translateTree(document.body);
 }
 function setLang(l) { try { localStorage.setItem('konta_lang', l); } catch (e) {} location.reload(); }
