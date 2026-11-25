@@ -1388,7 +1388,7 @@ let F = null;
 function openSheet(id = null, kind = 'out', o = {}) {
   const t = id ? S.tx.find(x => x.id === id) : null;
   const tc = t && t.cur ? t.cur : (S.lastCur || 'RUB');
-  F = { id, cur: tc, curOpen: false, kind: t ? t.k : kind, amt: t ? String((t.cur ? t.oa : t.a) / 100).replace('.', ',') : '', note: t ? t.n : '', cat: t ? t.c : null, src: t ? 'saved' : null, sel: !!t, pickedAfterNote: false, date: t ? t.d : todayK(), goal: t && t.k === 'g' ? t.g : o.goal || null, w: t ? !!t.w : !!o.w };
+  F = { id, cur: tc, curOpen: false, kind: t ? t.k : kind, amt: t ? String((t.cur ? t.oa : t.a) / 100).replace('.', ',') : '', note: t ? t.n : '', cat: t ? t.c : null, src: t ? 'saved' : null, sel: !!t, pickedAfterNote: false, date: t ? t.d : todayK(), goal: t && t.k === 'g' ? t.g : o.goal || null, w: t ? !!t.w : !!o.w, bank: t ? (t.b || '') : (S.lastBank || '') };
   if (!F.goal) { const gl = GS().filter(g => !g.done && !g.acc); if (gl.length === 1) F.goal = gl[0].id; }
   drawSheet(); open('#sheet');
 }
@@ -1406,13 +1406,32 @@ function drawSheet() {
       <label class="datep glass">${ic('ui_cal')}<span>${dl}</span><input type="date" id="f-date" value="${F.date}" max="${todayK()}"></label></div>
     ${F.kind === 'g' ? goalPicker() : `<div class="hintl" id="f-hint">${hintText()}</div>
     <div class="chips" id="f-cats"><label class="csr" id="csr" data-act="csearch">${ic('ui_search')}<input id="f-cq" placeholder="Категория" autocomplete="off" enterkeyhint="done"></label>${list.map(c => `<button class="chip ${F.cat === c.id ? 'on' : ''}" data-act="pick" data-c="${c.id}">${ic(c.id)}${c.n}</button>`).join('')}<span class="cnone" hidden>Ничего не нашлось</span></div>`}
+    ${F.kind !== 'g' ? bankPicker() : ''}
     ${F.quick.length ? `<div class="chips quick">${F.quick.map((e, i) => `<button class="qchip" data-act="quick" data-i="${i}">${ic(e.c)}<span>${esc(e.n)}</span><b>${rub(e.a, { round: true })}</b></button>`).join('')}</div>` : ''}
     <div class="pad">${['1', '2', '3', '4', '5', '6', '7', '8', '9', ',', '0', '⌫'].map(k => `<button data-act="key" data-k="${k}">${k === '⌫' ? ic('ui_back') : k}</button>`).join('')}</div>
     <div class="stack"><button class="btn" data-act="save">${F.id ? 'Сохранить' : 'Записать'}</button>
+    ${F.id && (F.kind === 'out' || F.kind === 'in') ? `<button class="btn ghost" data-act="ownx">Это перевод между своими счетами</button>` : ''}
     ${F.id ? `<button class="btn danger" data-act="del">Удалить</button>` : ''}</div>`;
-  const on = $('#f-cats .on'); if (on) on.scrollIntoView({ inline: 'center', block: 'nearest' });
+  const on = $('#f-cats .on'); if (on) on.scrollIntoView({ inline: 'center', block: 'nearest' }); const bo = $('#f-banks .on'); if (bo) bo.scrollIntoView({ inline: 'center', block: 'nearest' });
   animSegs($('#sheet'));
 }
+const BANKS_BASE = ['Т-Банк', 'Сбер', 'Альфа-Банк', 'ВТБ', 'Озон Банк', 'Яндекс Банк'];
+function bankList() {
+  const seen = []; (S.tx || []).forEach(t => { if (t.b && t.b !== 'cash' && t.b !== 'Банк' && !seen.includes(t.b)) seen.push(t.b); });
+  const l = [...seen]; BANKS_BASE.forEach(b => { if (!l.includes(b)) l.push(b); });
+  if (F.bank && F.bank !== 'cash' && !l.includes(F.bank)) l.unshift(F.bank);
+  return l;
+}
+function bankPicker() {
+  const c = (v, n) => `<button class="chip ${F.bank === v ? 'on' : ''}" data-act="bpick" data-b="${esc(v)}">${n}</button>`;
+  return `<div class="hintl">Откуда${F.kind === 'in' ? ' пришло' : ' списали'}</div><div class="chips" id="f-banks">${c('cash', 'Наличные')}${bankList().map(b => c(b, esc(b))).join('')}</div>`;
+}
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-act="bpick"]'); if (!b || !F) return;
+  e.stopPropagation(); const v = b.dataset.b; F.bank = F.bank === v ? '' : v;
+  document.querySelectorAll('#f-banks .chip').forEach(x => x.classList.toggle('on', x.dataset.b === F.bank));
+  try { tg && tg.HapticFeedback.selectionChanged(); } catch (e) {}
+}, true);
 const TX_CURS = ['RUB', 'USD', 'EUR', 'CNY', 'GBP', 'AED', 'TRY', 'KZT', 'GEL', 'AMD', 'THB', 'JPY', 'CHF', 'HKD', 'SGD'];
 function goalPicker() {
   const gl = GS().filter(g => !g.done && !g.acc || g.id === F.goal);
@@ -1498,6 +1517,7 @@ function submit() {
     if (w && plain !== c && !words(CAT[c].n).includes(w)) S.rules[F.kind + ':' + w] = c;
   }
   const rec = F.cur !== 'RUB' ? { k: F.kind, a, n, c, d: F.date, cur: F.cur, oa, rt: rate(F.cur) } : { k: F.kind, a, n, c, d: F.date, cur: undefined, oa: undefined, rt: undefined };
+  rec.b = F.bank || undefined; if (!F.id && F.bank) S.lastBank = F.bank;
   if (F.id) Object.assign(S.tx.find(t => t.id === F.id), rec);
   else S.tx.push({ id: newId(), ...rec, t: Date.now() });
   save(); hapticOk();
@@ -2957,8 +2977,15 @@ function stMerge(files, existing) {
   let dupIn = 0;
   all.forEach(o => { const key = `${o.src}|${o.d}|${o.k}|${o.a}|${o.raw.slice(0, 40)}`; const f0 = firstFile.get(key); if (f0 === undefined) { firstFile.set(key, o.fi); uniq.push(o); } else if (f0 !== o.fi) dupIn++; else uniq.push(o); });
   // уже есть в приложении
-  const have = new Map(); (existing || []).forEach(t => { const k = `${t.d}|${t.k}|${t.a}`; have.set(k, (have.get(k) || 0) + 1); });
-  uniq.forEach(o => { const k = `${o.d}|${o.k}|${o.a}`, n = have.get(k) || 0; if (n > 0) { o.dup = true; have.set(k, n - 1); } });
+  // импортированные сверяем точно; ручные с указанным банком: тот же банк, сумма и тип, ±2 дня; с другим банком или наличными не дубль
+  const pool = (existing || []).filter(t => t.k === 'out' || t.k === 'in').map(t => ({ t, used: false }));
+  const dN = s => Date.UTC(+s.slice(0, 4), +s.slice(5, 7) - 1, +s.slice(8, 10)) / 864e5;
+  const fits = (t, o) => t.k === o.k && t.a === o.a && (!t.b || t.im || t.b === o.src);
+  uniq.forEach(o => {
+    let hit = pool.find(p => !p.used && fits(p.t, o) && p.t.d === o.d);
+    if (!hit) { let bd = 9; pool.forEach(p => { if (p.used || p.t.im || !p.t.b || p.t.b !== o.src || !fits(p.t, o)) return; const dd = Math.abs(dN(p.t.d) - dN(o.d)); if (dd <= 2 && dd < bd) { bd = dd; hit = p; } }); }
+    if (hit) { hit.used = true; o.dup = true; }
+  });
   // переводы себе: пары «минус в одном банке — плюс в другом», та же сумма, ±2 дня
   const day = s => Date.UTC(+s.slice(0, 4), +s.slice(5, 7) - 1, +s.slice(8, 10)) / 864e5;
   const outs = uniq.filter(o => o.k === 'out' && !o.dup), ins = uniq.filter(o => o.k === 'in' && !o.dup);
@@ -2970,8 +2997,14 @@ function stMerge(files, existing) {
     if (best && !/betboom|ставк/i.test(o.raw + best.raw) && (/перевод|сбп|пополнени|зачислени|поступлени|внешний|с договора|с карты|на карту/i.test(o.raw + ' ' + best.raw))) { used.add(best); o.own = best.own = 'pair'; }
   });
   uniq.forEach(o => { if (!o.own && o.self) o.own = 'name'; });
+  uniq.forEach(o => { if (!o.own && stOwnAcc(o.raw || o.n || '')) o.own = 'acc'; });
   return { ops: uniq, dupIn };
 }
+
+// переводы между своими счетами в одном банке: на накопительный, вклад, копилку, брокерский счет и обратно
+const OWN_ACC_RE = /(накопительн|сберегательн|копилк|депозит|вклад|брокерск|инвесткопилк|\bИИС\b|между (своими |собственными )?счетами|на (свой|собственный|мой) счет|со (своего|собственного) счета|между своими|внутренний перевод|перевод себе|на цель|с цели|счет цели)/i;
+const OWN_ACC_NO = /(процент|капитализац|кэшбэк|cashback|вознагражден|доход по|выплата дохода|купон|дивиденд|налог|комисси|страхов)/i;
+function stOwnAcc(s) { s = String(s).replace(/ё/g, 'е'); return OWN_ACC_RE.test(s) && !OWN_ACC_NO.test(s); }
 // ================= Import (PDF / CSV) =================
 const RE_DATE = /(\d{2})\.(\d{2})\.(\d{4})|(\d{4})-(\d{2})-(\d{2})/;
 const RE_AMT = /^[−\-+]?\s?\d{1,3}(?:[\s  ]?\d{3})*(?:[.,]\d{2})\s*(?:₽|руб\.?|RUB|р\.?)?$/i;
@@ -3101,6 +3134,38 @@ async function readStatement(file) {
   const ops = parseCSV(await file.text()).map(o => ({ d: o.d, a: o.a, k: o.k, raw: o.raw, n: o.n, bc: o.bc, c: o.c || undefined }));
   return { bank: file.name.replace(/\.[^.]+$/, '').slice(0, 24), ops, tot: {}, file: file.name };
 }
+
+// переводы себе, где вторая половина уже лежит в приложении (выписки грузили в разное время)
+const XFER_RE = /перевод|сбп|пополнени|зачислени|поступлени|внешний|с договора|с карты|на карту|между/i;
+const dayN = s => Date.UTC(+s.slice(0, 4), +s.slice(5, 7) - 1, +s.slice(8, 10)) / 864e5;
+const xferLike = t => t.c === 'transfer' || t.c === 'in_transfer' || XFER_RE.test(t.n || '') || XFER_RE.test(t.raw || '');
+function stPairExisting(ops) {
+  const used = new Set();
+  ops.forEach(o => {
+    if (o.dup || o.own || !xferLike(o)) return;
+    const want = o.k === 'out' ? 'in' : o.k === 'in' ? 'out' : null; if (!want) return;
+    let best = null, bd = 9;
+    S.tx.forEach(t => {
+      if (t.k !== want || used.has(t.id) || t.a !== o.a || !t.b || t.b === o.src || !xferLike(t)) return;
+      const dd = Math.abs(dayN(t.d) - dayN(o.d)); if (dd <= 2 && dd < bd) { bd = dd; best = t; }
+    });
+    if (best && !/betboom|ставк/i.test((o.raw || '') + (best.n || ''))) { used.add(best.id); o.own = 'pair'; o.pairTx = best.id; }
+  });
+}
+// разовая починка: пары «минус в одном банке, плюс в другом», которые уже попали в расходы и доходы
+function fixOldTransfers() {
+  if (!S || !S.tx || !S.tx.some(t => t.im)) return;
+  try { if (localStorage.getItem('konta_fix_xfer1')) return; } catch (e) { return; }
+  const outs = S.tx.filter(t => t.k === 'out' && t.b && t.im && xferLike(t)), ins = S.tx.filter(t => t.k === 'in' && t.b && t.im && xferLike(t));
+  const used = new Set(); let n = 0;
+  outs.forEach(o => {
+    let best = null, bd = 9;
+    ins.forEach(i => { if (used.has(i.id) || i.a !== o.a || i.b === o.b) return; const dd = Math.abs(dayN(i.d) - dayN(o.d)); if (dd <= 2 && dd < bd) { bd = dd; best = i; } });
+    if (best) { used.add(best.id); [o, best].forEach(t => { t.xk = t.k; t.k = 'x'; }); n++; }
+  });
+  try { localStorage.setItem('konta_fix_xfer1', '1'); } catch (e) {}
+  if (n) { save(); setTimeout(() => { render(); toast(`Нашел ${n} ${plural(n, 'перевод', 'перевода', 'переводов')} между вашими счетами, убрал из расходов`); }, 1500); }
+}
 async function handleImport(files) {
   files = [...files]; if (!files.length) return;
   const res = [];
@@ -3112,6 +3177,7 @@ async function handleImport(files) {
   if (!ok.length) { toast(res.some(r => r.err === 'pdf') ? 'Не удалось открыть PDF' : 'Не нашёл операций в файлах'); return; }
   // одинаковые банки с разными счетами различаем по имени файла не нужно — имя банка + счёт уже в bank
   const m = stMerge(ok, S.tx.map(t => t.k === 'x' ? { ...t, k: t.xk || 'out' } : t));
+  stPairExisting(m.ops);
   m.ops.forEach(o => { if (!o.c) o.c = o.own || /^Перевод( ·| на| от|$)/.test(o.n) ? (o.k === 'in' ? 'in_transfer' : 'transfer') : (guess(o.n, o.k) || (o.k === 'out' && mccCat(o.raw)) || catFor(o.raw + ' ' + o.n, o.k, o.bc || '')); });
   const banks = res.map(r => {
     const ds = r.ops.map(o => o.d).sort(), si = r.ops.filter(o => o.k === 'in').reduce((s, o) => s + o.a, 0), so = r.ops.filter(o => o.k === 'out').reduce((s, o) => s + o.a, 0);
@@ -3148,6 +3214,7 @@ function doImport() {
   impApply();
   const fresh = IMP.ops.filter(o => !o.dup), t0 = Date.now(), im = t0;
   fresh.forEach((o, i) => S.tx.push({ id: newId(), k: isOwn(o) ? 'x' : o.k, ...(isOwn(o) ? { xk: o.k } : {}), a: o.a, n: o.n, c: o.c, d: o.d, t: t0 - i, b: o.src, im }));
+  fresh.forEach(o => { if (o.pairTx && isOwn(o)) { const t = S.tx.find(x => x.id === o.pairTx); if (t && t.k !== 'x') { t.xk = t.k; t.k = 'x'; t.xBy = im; } } });
   const real = fresh.filter(o => !isOwn(o)).length;
   S.imports = (S.imports || []).concat({ im, at: t0, n: fresh.length, banks: [...new Set(fresh.map(o => o.src))] }).slice(-10);
   save(); while (stack.length) close(); IMP = null; hapticOk();
@@ -3156,9 +3223,28 @@ function doImport() {
   render(); toast(`Импортировано ${fmtN(String(real))}`, () => undoImport(im), 8000);
 }
 function undoImport(im) {
-  const n = S.tx.length; S.tx = S.tx.filter(t => t.im !== im); S.imports = (S.imports || []).filter(x => x.im !== im);
+  const n = S.tx.length; S.tx = S.tx.filter(t => t.im !== im); S.tx.forEach(t => { if (t.xBy === im) { t.k = t.xk || 'out'; delete t.xk; delete t.xBy; } }); S.imports = (S.imports || []).filter(x => x.im !== im);
   save(); render(); hapticOk(); toast(`Импорт отменён · ${fmtN(String(n - S.tx.length))}`);
 }
+
+// разовая починка: переводы на свои накопительные, вклады и копилки из уже загруженных выписок
+function fixOwnAccounts() {
+  if (!S || !S.tx || !S.tx.some(t => t.im)) return;
+  try { if (localStorage.getItem('konta_fix_xfer2')) return; } catch (e) { return; }
+  let n = 0;
+  S.tx.forEach(t => { if (t.im && (t.k === 'out' || t.k === 'in') && stOwnAcc(t.n || '')) { t.xk = t.k; t.k = 'x'; n++; } });
+  try { localStorage.setItem('konta_fix_xfer2', '1'); } catch (e) {}
+  if (n) { save(); setTimeout(() => { render(); toast(`${n} ${plural(n, 'перевод', 'перевода', 'переводов')} на ваши накопительные счета больше не считаются расходами`); }, 4500); }
+}
+
+// ручная отметка: операция это перевод себе, не расход и не доход
+document.addEventListener('click', e => {
+  const b = e.target.closest && e.target.closest('[data-act="ownx"]'); if (!b || !F || !F.id) return;
+  e.stopPropagation(); e.preventDefault();
+  const t = S.tx.find(x => x.id === F.id); if (!t || (t.k !== 'out' && t.k !== 'in')) return;
+  t.xk = t.k; t.k = 'x'; save(); while (stack.length) close(); render(); hapticOk();
+  toast('Перевод себе: не считается ни расходом, ни доходом', () => { t.k = t.xk || 'out'; delete t.xk; save(); render(); }, 6000);
+}, true);
 // ================= Sheets plumbing =================
 const stack = [];
 function open(id) {
@@ -3769,6 +3855,10 @@ function renderOnly(n) { const fn = ({ home: renderHome, an: renderAn, goals: re
   document.addEventListener('pointerup', off, true); document.addEventListener('pointercancel', off, true);
   document.addEventListener('touchmove', () => { if (cur) { cur.classList.remove('press'); cur = null; } }, { passive: true, capture: true });
 })();
+
+// разовая починка переводов между своими счетами из старых выписок
+setTimeout(() => { try { fixOldTransfers(); fixOwnAccounts(); } catch (e) {} }, 3000);
+setTimeout(() => { try { fixOldTransfers(); fixOwnAccounts(); } catch (e) {} }, 12000);
 
 // ================= диагностика экрана (5 тапов по версии в «Ещё») =================
 const DIAG = (() => { try { return localStorage.getItem('konta_diag') === '1'; } catch (e) { return false; } })();
