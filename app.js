@@ -150,12 +150,12 @@ function guess(note, kind, useRules = true) {
   return null;
 }
 let toastFn = null;
-function toast(t, fn, ms) {
+function toast(t, fn, ms, lbl) {
   const el = $('#toast'); toastFn = fn || null; ms = ms || (fn ? 6000 : 2000);
   el.innerHTML = `<span>${esc(t)}</span>`; el.classList.toggle('act', !!fn);
   if (fn) {
     const u = document.createElement('u');
-    u.innerHTML = `<svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="8"/><circle class="cd" cx="10" cy="10" r="8" style="animation-duration:${ms}ms"/></svg>Вернуть`;
+    u.innerHTML = `<svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="8"/><circle class="cd" cx="10" cy="10" r="8" style="animation-duration:${ms}ms"/></svg>${lbl || 'Вернуть'}`;
     el.appendChild(u);
   }
   el.classList.remove('on'); el.offsetHeight; el.classList.add('on');
@@ -2436,7 +2436,7 @@ function botWrite() {
 
 // ================= «Ещё»: короткий главный экран + группы =================
 let MSUB = null;
-const MSUB_T = { look: 'Оформление', home: 'Главный экран', budget: 'Бюджет и валюта', safe: 'Приватность и данные', priv: 'Приватность', data: 'Данные', news: 'Что нового' };
+const MSUB_T = { look: 'Оформление', home: 'Главный экран', budget: 'Бюджет и валюта', safe: 'Приватность и данные', priv: 'Приватность', data: 'Данные', news: 'Что нового', dups: 'Возможные дубли' };
 const TG_CHANNEL = 'https://t.me/kontacie', TG_SUPPORT = 'https://t.me/KontaCieSupport';
 const PLANE = '<svg class="i" viewBox="0 0 24 24"><path d="M20.5 4.5 3.8 11c-.9.4-.9 1.6 0 1.9l4.1 1.4 1.6 5c.3.8 1.3 1 1.9.4l2.3-2.2 4.2 3.1c.7.5 1.7.1 1.9-.7l2.7-13.6c.2-1-.8-1.8-1.7-1.4z"/><path d="m8 14.3 9-7"/></svg>';
 const BUBBLE = '<svg class="i" viewBox="0 0 24 24"><path d="M4.5 12a7.5 7.5 0 1 1 3.4 6.3L4 19.5l1.2-3.6A7.4 7.4 0 0 1 4.5 12z"/><path d="M9 10.5h6M9 13.5h4"/></svg>';
@@ -2504,6 +2504,7 @@ function mSub(s) {
   const head = `<header class="hdr msubh"><button class="rb" data-act="mback" aria-label="Назад">${ic('ui_left')}</button><h1>${MSUB_T[s]}</h1><i></i></header>`;
   if (s === 'look') return head + settingsExtra().replace(/<h2>Оформление<\/h2>/, '').replace(dailySetRow(), '') + mSub('home').replace(/^[\s\S]*?<\/header>/, '<h2>Главный экран</h2>');
   if (s === 'news') return head + newsPage();
+  if (s === 'dups') return head + dupsPage();
   if (s === 'safe') return head + mSub('priv').replace(/^[\s\S]*?<\/header>/, '') + '<h2>Данные</h2>' + mSub('data').replace(/^[\s\S]*?<\/header>/, '');
   if (s === 'home') return head + dailySetRow() + `<h2>Вид графика</h2><div class="seg" style="margin-top:2px">${CHARTS.map(c => `<button class="${CHART === c ? 'on' : ''}" data-act="chartset" data-c="${c}">${CHART_N[c]}</button>`).join('')}</div><p class="note" style="margin-top:10px">Ещё можно переключать касанием по графику.</p>`;
   if (s === 'budget') return head + limitsRow() + `<h2>Валюта капитала</h2><div class="seg" style="margin-top:2px">${BASES.map(c => `<button class="${baseCur() === c ? 'on' : ''}" data-act="base" data-c="${c}">${c}</button>`).join('')}</div>`;
@@ -2513,7 +2514,7 @@ function mSub(s) {
     const L = (S.imports || []).length ? S.imports[S.imports.length - 1] : null, n = L ? S.tx.filter(t => t.im === L.im).length : 0;
     return head + `<p class="note" style="margin-top:2px">${cloud ? 'Хранятся в облаке и синхронизируются между устройствами.' : 'Сейчас хранятся в этом браузере.'} ${fmtN(String(S.tx.length))} ${plural(S.tx.length, 'запись', 'записи', 'записей')}.</p>
       ${n ? `<button class="row" data-act="undoimp" data-im="${L.im}"><span class="ic">${ic('ui_back')}</span><span class="t"><span class="n">Отменить последний импорт</span><span class="s">${L.banks.join(', ')} · ${fmtN(String(n))} ${plural(n, 'операция', 'операции', 'операций')}</span></span></button>` : ''}
-      <div class="stack" style="margin-top:14px"><button class="btn ghost" data-act="csv">Экспорт в CSV</button><div id="csvbox"></div>
+      ${dupsRow()}<div class="stack" style="margin-top:14px"><button class="btn ghost" data-act="csv">Экспорт в CSV</button><div id="csvbox"></div>
       ${Object.keys(S.rules).length ? `<button class="btn ghost" data-act="rules">Сбросить выученные категории (${Object.keys(S.rules).length})</button>` : ''}</div>
       <div class="stack mdanger"><button class="btn danger" data-act="wipe">Удалить все данные</button></div>`;
   }
@@ -3245,6 +3246,79 @@ document.addEventListener('click', e => {
   t.xk = t.k; t.k = 'x'; save(); while (stack.length) close(); render(); hapticOk();
   toast('Перевод себе: не считается ни расходом, ни доходом', () => { t.k = t.xk || 'out'; delete t.xk; save(); render(); }, 6000);
 }, true);
+
+
+// ================= Дубли: ручная запись + та же операция из выписки =================
+const dN2 = s => Date.UTC(+s.slice(0, 4), +s.slice(5, 7) - 1, +s.slice(8, 10)) / 864e5;
+const dupKey = (m, i) => m.id + '~' + i.id;
+function findDups() {
+  const ign = new Set(S.dupIgn || []);
+  const imp = S.tx.filter(t => t.im && (t.k === 'out' || t.k === 'in'));
+  const man = S.tx.filter(t => !t.im && (t.k === 'out' || t.k === 'in') && t.b !== 'cash').sort((a, b) => a.d < b.d ? -1 : 1);
+  const used = new Set(), res = [];
+  man.forEach(m => {
+    let best = null, bd = 9;
+    imp.forEach(i => {
+      if (used.has(i.id) || i.k !== m.k || i.a !== m.a || (m.b && i.b && m.b !== i.b) || ign.has(dupKey(m, i))) return;
+      const dd = Math.abs(dN2(i.d) - dN2(m.d)); if (dd <= 2 && dd < bd) { bd = dd; best = i; }
+    });
+    if (best) { used.add(best.id); res.push({ m, i: best }); }
+  });
+  return res;
+}
+let DSEL = null;
+function dupD(d) { const x = D(d); return `${x.getDate()} ${MG[x.getMonth()].slice(0, 3)}`; }
+function dupsRow() {
+  const n = findDups().length; if (!n) return '';
+  return `<button class="row" data-act="msub" data-s="dups"><span class="ic">${ic('ui_search')}</span><span class="t"><span class="n">Возможные дубли</span><span class="s">${n} ${plural(n, 'запись', 'записи', 'записей')} есть и вручную, и в выписке</span></span></button>`;
+}
+function dupsPage() {
+  const L = findDups();
+  if (!L.length) return `<p class="note" style="margin-top:2px">Дублей не нашли. Все ручные записи и операции из выписок разные.</p>`;
+  if (!DSEL) DSEL = new Set(L.map(p => String(p.m.id)));
+  const rows = L.map(p => {
+    const on = DSEL.has(String(p.m.id)), c = CAT[p.m.c] ? p.m.c : 'other';
+    return `<button class="dupr ${on ? 'on' : ''}" data-act="dupt" data-id="${p.m.id}"><span class="dck"></span><span class="ic">${ic(c)}</span>
+      <span class="t"><span class="n">${esc(p.m.n || CAT[c].n)} · ${p.m.k === 'in' ? '+' : ''}${rub(p.m.a)}</span>
+      <span class="s">Вручную ${dupD(p.m.d)}${p.m.b ? ', ' + esc(p.m.b) : ''}</span><span class="s">В выписке ${dupD(p.i.d)}${p.i.b ? ', ' + esc(p.i.b) : ''}${p.i.n ? ': ' + esc(p.i.n) : ''}</span></span></button>`;
+  }).join('');
+  const n = DSEL.size;
+  return `<p class="note" style="margin-top:2px">Эти траты записаны вручную, а потом пришли еще и в выписке. Отмеченные ручные записи удалим, операция из выписки останется с вашей категорией. Снимите отметку, если это две разные покупки.</p>
+    <div class="dupl">${rows}</div>
+    <div class="stack" style="margin-top:14px"><button class="btn" data-act="dupdel" ${n ? '' : 'disabled'}>${n ? `Удалить ${n} ${plural(n, 'дубль', 'дубля', 'дублей')}` : 'Ничего не выбрано'}</button></div>`;
+}
+function dupsDelete() {
+  const L = findDups(), del = L.filter(p => DSEL && DSEL.has(String(p.m.id))), keep = L.filter(p => !DSEL || !DSEL.has(String(p.m.id)));
+  if (!del.length) return;
+  const back = { tx: del.map(p => ({ ...p.m })), cats: del.map(p => [p.i.id, p.i.c]), ign: (S.dupIgn || []).slice() };
+  del.forEach(p => { if (p.m.c && p.m.c !== 'other' && p.m.c !== 'in_other') p.i.c = p.m.c; });
+  const ids = new Set(del.map(p => p.m.id));
+  S.tx = S.tx.filter(t => !ids.has(t.id));
+  S.dupIgn = (S.dupIgn || []).concat(keep.map(p => dupKey(p.m, p.i)));
+  DSEL = null; save(); hapticOk();
+  if (typeof DIRTY !== 'undefined') ['home', 'an'].forEach(x => DIRTY.add(x));
+  moreGo(null); render();
+  toast(`Удалено: ${del.length}`, () => {
+    S.tx.push(...back.tx); const m = new Map(back.cats); S.tx.forEach(t => { if (m.has(t.id)) t.c = m.get(t.id); });
+    S.dupIgn = back.ign; save(); render();
+  });
+}
+document.addEventListener('click', e => {
+  const t = e.target.closest && e.target.closest('[data-act="dupt"],[data-act="dupdel"]'); if (!t) return;
+  e.stopPropagation();
+  if (t.dataset.act === 'dupdel') return dupsDelete();
+  const id = t.dataset.id; if (!DSEL) return; DSEL.has(id) ? DSEL.delete(id) : DSEL.add(id);
+  try { tg && tg.HapticFeedback.selectionChanged(); } catch (e) {}
+  const y = $('#s-more').scrollTop; renderMore(); $('#s-more').scrollTop = y;
+}, true);
+setTimeout(() => {
+  try {
+    if (localStorage.getItem('konta_dup1')) return;
+    const n = findDups().length; if (!n) return;
+    localStorage.setItem('konta_dup1', '1');
+    toast(`Похоже на дубли: ${n} ${plural(n, 'запись', 'записи', 'записей')}`, () => { goTab('more'); DSEL = null; setTimeout(() => moreGo('dups'), 60); }, 9000, 'Показать');
+  } catch (e) {}
+}, 4500);
 // ================= Sheets plumbing =================
 const stack = [];
 function open(id) {
